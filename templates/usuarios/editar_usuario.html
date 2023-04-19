@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+    <h1>Editar usuário</h1>
+<!-- ##### Contact Form Area Start ##### -->
+<div class="contact-area section-padding-0-80">
+    <div class="container">
+        <div class="row">
+            {% include 'partials/_messages.html' %}
+            <div class="col-12">
+                <div class="contact-form-area">
+                    <form action="{% url 'salvar_usuario' usuario.id%}" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-6 col-lg-6">
+                                <label><b>Nome completo</b></label>
+                                <input type="text" class="form-control" name="nome" value="{{ usuario.first_name }} {{ usuario.last_name }}" required>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>Usuario</b></label>
+                                <input type="text" class="form-control" name="usuario" value="{{ usuario.username }}" readonly>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>E-mail</b></label>
+                                <input type="email" class="form-control" name="email" value="{{ usuario.email }}" required>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>Senha</b></label>
+                                <input type="password" class="form-control" name="senha" autocomplete="off">
+                            </div>
+                            {% if user.is_superuser == True %}
+                            <div class="col-2 col-lg-2">
+                                <label class="vCheckboxLabel"><b>Administrador?</b>
+                                <input type="checkbox" class="vCheckboxField" name="adm" {% if usuario.is_superuser == True %} checked {% endif %}>
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+                            <div class="separa">
+                                <div class="col-12 text-center">
+                                    <button class="btn_editar" type="submit">Salvar</button>
+                                    <a href="{% url 'usuarios' %}">
+                                        <button class="btn_deletar" type="button">Cancelar</button>
+                                    </a>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

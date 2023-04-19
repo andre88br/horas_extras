@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu.html' %}
+
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+    <h1>Cadastrar novo usuário</h1>
+<!-- ##### Contact Form Area Start ##### -->
+<div class="contact-area section-padding-0-80">
+    <div class="container">
+        <div class="row">
+            {% include 'partials/_messages.html' %}
+            <div class="col-12">
+                <div class="contact-form-area">
+                    <form action="{% url 'cadastro' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-6 col-lg-6">
+                                <label><b>Nome completo</b></label>
+                                <input type="text" class="form-control" name="nome" placeholder="Ex.:Nome Sobrenome" required>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>Usuario</b></label>
+                                <input type="text" class="form-control" name="user" placeholder="Ex.: nome.sobrenome.1" required>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>E-mail</b></label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="col-6 col-lg-6">
+                                <label><b>Senha</b></label>
+                                <input type="password" class="form-control" name="senha" required>
+                            </div>
+
+                            <div class="col-2 col-lg-2">
+                                <label class="vCheckboxLabel"><b>Administrador?</b>
+                                <input type="checkbox" class="vCheckboxField" name="adm" >
+                                </label>
+                            </div>
+                        </div>
+                            <div class="col-12 text-center">
+                                <button class="btn_salvar" type="submit"><i class="fa-solid fa-user-check"><br>Cadastrar</i></button>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

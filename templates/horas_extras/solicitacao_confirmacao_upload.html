@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu.html' %}
+
+<script>
+    window.addEventListener('load', function() {
+  var loader = document.getElementById('loader');
+  loader.style.display = 'none';
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  var loader = document.getElementById('loader');
+  loader.style.display = 'block';
+});
+</script>
+
+<link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" />
+
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+    <h1 xmlns="http://www.w3.org/1999/html">Importar Solicitação/confirmação</h1>
+
+        {% include 'partials/_messages.html' %}
+    <div class="row align-left">
+        <div  class="col-md">
+
+
+            <form class="form-importar" action="{% url 'upload' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <label for="data">Mês/Ano</label><br>
+                <div class="form-inline">
+                        <input type="month" id="data" name="data" class="col-6 row-cols-6" required>
+                    <div class="passar_mouse">
+                <i class="fa-regular fa-circle-question"></i>
+                <kbd class="mostrar2">
+                    <ul>
+
+                    </ul>
+                </kbd>
+            </div>
+                </div>
+
+                <label for="tipo">Tipo</label><br>
+                <div class="form-inline">
+                    <select name="tipo" id="tipo" class="col-6 row-cols-6">
+                        <option value=""></option>
+                        <option value="Solicitação">Solicitação</option>
+                        <option value="Confirmação">Confirmação</option>
+                    </select>
+                </div>
+
+                <br>
+                <label for="arquivo">Selecione o arquivo para realizar o upload</label><br>
+                <input class="arquivo" name="upload" type="file" id="arquivo" accept=".xlsx, .xlsm" multiple><br>
+
+                <div class="col-10 row-cols-10">
+                    <button type="submit" value="importar" class="btn_analisar" ><i class="fa-solid fa-file-arrow-up"></i> Importar</button>
+                </div>
+            </form>
+    </div>
+        <div  class="col-md"></div>
+        <div  class="col-md"></div>
+    </div>
+
+        {% if files2 %}
+          <h1>Solicitações</h1>
+        <table>
+            <tr class="tr_th">
+                <th>Mês/Ano</th>
+                <th>Data importaçao</th>
+                <th>Importado por</th>
+            </tr>
+            {% for file in files2 %}
+            <tr class="par">
+                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
+                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                <td class="td_opcoes">{{ file.importado_por}}</td>
+            </tr>
+            {% endfor %}
+    {% endif %}
+        </table>
+        <br><br><br>
+            {% if files %}
+        <h1>Confirmações</h1>
+         <table>
+            <tr class="tr_th">
+                <th>Mês/Ano</th>
+                <th>Data importaçao</th>
+                <th>Importado por</th>
+            </tr>
+            {% for file in files %}
+            <tr class="par">
+                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
+                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                <td class="td_opcoes">{{ file.importado_por}}</td>
+            </tr>
+            {% endfor %}
+    {% endif %}
+        </table>
+</div>
+</div>
+
+
+{% endblock %}

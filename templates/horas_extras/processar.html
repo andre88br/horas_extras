@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // esconder inputs de frequencia e banco_mes inicialmente
+            $('#label_data').hide();
+            $('#data').hide();
+            $('#processar').hide();
+            $('#verifica_bases').hide();
+            $('#label_processamentoFinal').hide();
+            $('#processamentoFinal').hide();
+
+
+        // quando a opção confirmacao for selecionada, mostrar inputs de frequencia e banco_mes
+        $('#tipo').change(function(){
+            if($(this).val() === 'confirmacao') {
+                $('#label_data').show();
+                $('#data').show();
+                $('#processar').show();
+                $('#verifica_bases').show();
+                $('#label_processamentoFinal').show();
+                $('#processamentoFinal').show();
+
+
+            }
+            else if($(this).val() === 'solicitacao') {
+                $('#label_data').show();
+                $('#data').show();
+                $('#processar').show();
+                $('#verifica_bases').show();
+                $('#label_processamentoFinal').hide();
+                $('#processamentoFinal').hide();
+
+
+            }
+            else{
+                $('#label_data').hide();
+                $('#data').hide();
+                $('#processar').hide();
+                $('#verifica_bases').hide();
+                $('#label_processamentoFinal').hide();
+                $('#processamentoFinal').hide();
+
+
+            }
+
+        });
+
+    });
+</script>
+
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+
+    <div id="conteudo">
+
+    <h1>Processamento de horas extras</h1>
+
+
+        {% include 'partials/_messages.html' %}
+
+          {% if not relatorio %}
+        <div class="row align-left">
+            <div  class="col-md">
+
+                <form class="form-importar" action="{% url 'processar' %}" method="POST" id="form" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <label for="tipo">Tipo</label>
+                    <div class="form-inline">
+                      <select id="tipo" name="tipo" class="col-6 row-cols-6">
+                        <option value=""></option>
+                        <option value="solicitacao">Solicitação</option>
+                        <option value="confirmacao">Confirmação</option>
+                      </select>
+                    </div>
+
+                    <br>
+
+                    <label for="data" id="label_data">Selecione o mês para processar as horas extras</label>
+                    <div class="row">
+                         <div class="col-6 row-cols-6">
+                            <input type="month" id="data" name="data" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div  class="col-md">
+                            <label for="processamentoFinal" id="label_processamentoFinal" >
+                            Processamento final?
+                                <input type="checkbox" name="processamentoFinal" id="processamentoFinal" value="true">
+                            </label>
+                        </div>
+                        <div  class="col-md"></div>
+                        <div  class="col-md"></div>
+                        <div  class="col-md"></div>
+                    </div>
+                    <button type="submit" class="btn_analisar" id="processar" name="processar"><i class="fa-solid fa-microchip"></i> Processar</button>
+                    <button type="submit" class="btn_analisar" id="verifica_bases" name="bases"><i class="fa-solid fa-database"></i> Ver bases</button>
+
+                </form>
+            </div>
+            <div  class="col-md"></div>
+            <div  class="col-md"></div>
+         </div>
+    </div>
+
+    <main>
+
+
+         {% if files4 %}
+    <h1>Confirmação</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                </tr>
+                {% for file in files4 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                            </tr>
+                {% endfor %}
+            </table>
+    {% endif %}
+
+    {% if files5 %}
+    <h1>Solicitação</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                </tr>
+                {% for file in files5 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                            </tr>
+                {% endfor %}
+            </table>
+    {% endif %}
+
+        {% if files %}
+        <h1>Frequências</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                </tr>
+                {% for file in files %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                            </tr>
+                {% endfor %}
+            </table>
+    {% endif %}
+
+    {% if files2 %}
+    <h1>Bancos de horas - Mês</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                </tr>
+                {% for file in files2 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                            </tr>
+                {% endfor %}
+            </table>
+    {% endif %}
+
+    {% if files3 %}
+    <h1>Bancos de horas - Total</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                </tr>
+                {% for file in files3 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                            </tr>
+                {% endfor %}
+            </table>
+    {% endif %}
+
+    {% else %}
+
+
+     <form action="{% url 'imprime' %}" method="POST" id="imprime" enctype="multipart/form-data" >
+        {% csrf_token %}
+         <div class="row">
+        <label for="tipo2" id="tipo_arquivo_label">Selecione uma opção:</label>
+        <br>
+             <div class="col-1 col-md-1">
+                  <select id="tipo2" name="tipo2">
+                      <option value=""  id="" name="" ></option>
+                    {% if tipo == 'confirmacao' %}
+                      <option type="submit" value="confirmacao"  id="confirmacao" name="confirmacao">Confirmação</option>
+                      <option type="submit" value="entrada_saida"  id="entrada_saida" name="entrada_saida">Entrada e saída</option>
+                      <option type="submit" value="erros"  id="erros" name="erros">Erros</option>
+                      <option type="submit" value="negativos"  id="negativos" name="negativos">Negativos</option>
+                     {% if final != 'true' %}
+                      <option type="submit" value="cod_90"  id="cod_90" name="cod_90">Código 90</option>
+                      <option type="submit" value="rejeitar_batidas"  id="rejeitar_batidas" name="rejeitar_batidas">Rejeitar batidas</option>
+                     {% else %}
+                      <option type="submit" value="pagas"  id="pagas" name="pagas">Pagas</option>
+                     {% endif %}
+                     {% elif tipo == 'solicitacao' %}
+                      <option type="submit" value="solicitacao"  id="solicitacao" name="solicitacao">Solicitação</option>
+                      <option type="submit" value="erros2"  id="erros2" name="erros2">Erros</option>
+                      <option type="submit" value="negativos2"  id="negativos2" name="negativos2">Negativos</option>
+                    {% endif %}
+                </select>
+             </div>
+         </div>
+        <input id="mes" name="mes" value="{{ mes }}" hidden>
+        <input id="ano" name="ano" value="{{ ano }}" hidden>
+        <input id="nome" name="nome" value="{{ nome }}" hidden>
+         <input id="matricula" name="matricula" value="{{ matricula }}" hidden>
+         <input id="relatorio" name="relatorio" value="{{ relatorio }}" hidden>
+         <input id="tipo" name="tipo" value="{{ tipo }}" hidden>
+         <input id="pagina" name="pagina" value="processar" hidden>
+         <br>
+         <div class="row">
+             <div class="col-1 col-md-1">
+                <button type="submit" class="btn_analisar" id="imprimir">Imprimir</button>
+             </div>
+         </div>
+    </form>
+
+
+   <h1>{{ nome }}</h1>
+
+        <div class="tabela-transacoes">
+         {{ relatorio|safe }}
+        </div>
+</main>
+{% endif %}
+</div>
+</div>
+{% endblock %}
