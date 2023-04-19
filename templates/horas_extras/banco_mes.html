@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+
+<script>
+  function salvar(submit) {
+
+  let row = submit.parentNode.parentNode;
+  let inputs = row.querySelectorAll("#banco_mes tbody tr td[contenteditable]");
+
+  let data = {
+    'matricula': inputs.item(0).innerHTML,
+    'saldo_banco': inputs.item(1).innerHTML,
+    'saldo_decimal': inputs.item(2).innerHTML,
+    'mes': '{{ files.0.importacao.mes }}',
+    'ano': '{{ files.0.importacao.ano }}',
+    'file_id': '{{ files2 }}',
+  };
+
+  $.ajax({
+    url: "{% url 'salvar_banco_mes' %}",
+    type: "POST",
+    data: {'dados': JSON.stringify(data), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+    success: function() {
+        alert("Alteração realizada com sucesso!")
+    },
+    error: function(xhr) {
+      console.log(xhr.responseText)
+    },
+  });
+  }
+</script>
+
+
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+
+        <h1>Banco mês {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+
+{% include 'partials/_messages.html' %}
+
+<form class="busca" method="get" action="{% url 'banco_mes' files2 %}">
+            <input type="text" name="q" placeholder="Buscar empregado">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
+            </form>
+ <div class="pagination">
+
+
+            {% if files.has_previous %}
+                <button class="prev"><a href="?page={{ files.previous_page_number }}"><i class="fa-solid fa-backward-fast"></i> Anterior</a></button>
+            {% endif %}
+
+            {% for page in paginator.get_page_range %}
+                {% if files.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+
+            {% if files.has_next %}
+                <button class="next" ><a href="?page={{ files.next_page_number }}">Próximo <i class="fa-solid fa-forward-fast"></i></a></button>
+            {% endif %}
+ </div>
+
+<br>
+        {% if files %}
+            <table id="banco_mes">
+                <thead>
+                <tr>
+                    <th class="th-matricula">Matrícula</th>
+                    <th class="th-nome">Nome</th>
+                    <th class="th_transacoes">Saldo</th>
+                    <th class="th_transacoes">Saldo decimal</th>
+                    <th class="th_transacoes">Opções</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in files %}
+                        <tr class="par" data-id="{{ file.id }}">
+                            <td class="td-matricula" contenteditable="true">{{ file.empregado.matricula }}</td>
+                            <td class="td-nome">{{ file.nome }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.saldo }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.saldo_decimal|floatformat:2 }}</td>
+                            <td class="td_opcoes">
+                                <button type="submit" value="salvar"  name="btn_salvar" data-id="{{ file.matricula_id }}" class="btn_salvar" onclick="salvar(this)"><i class="fa-solid fa-user-check"><br>salvar</i></button>
+                            </td>
+                        </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+    {% endif %}
+</div>
+</div>
+    {% endblock %}
+
+
+

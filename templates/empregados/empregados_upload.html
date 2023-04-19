@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu.html' %}
+<div class="escolhe-mes">
+
+<div id="conteudo">
+
+
+<h1>Cadastro de empregados</h1>
+                {% include 'partials/_messages.html' %}
+
+
+        <div class="row align-left">
+            <div  class="col-md">
+                <form class="form-importar" action="{% url 'empregados_upload' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                     <label for="data" id="label_data">Mês/Ano</label>
+                  <div class="row">
+                      <div class="col-6 row-cols-6">
+                        <input type="month" id="data" name="data" required>
+                      </div>
+                  </div>
+                    <label for="salarios">Salários</label><br>
+                    <input class="arquivo"  name="salarios" type="file" id="salarios" accept=".xlsx" required><br>
+                    <label for="insalubridade">Insalubridade</label><br>
+                    <input class="arquivo"  name="insalubridade" type="file" id="insalubridade" accept=".xlsx" required><br>
+                    <label for="insalubridade">Carga Horária</label><br>
+                    <input class="arquivo"  name="carga_horaria" type="file" id="carga_horaria" accept=".xlsx" required><br>
+                    <button type="submit" class="btn_analisar" ><i class="fa-solid fa-file-arrow-up"></i> Importar</button>
+
+                </form>
+        </div>
+
+           <div  class="col-md"></div>
+           <div  class="col-md"></div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

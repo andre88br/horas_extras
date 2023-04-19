@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+<script>
+  function deletar(button, file_id) {
+      var data = {'file_id': file_id,}
+    if (confirm("Deseja realmente excluir?")) {
+        $.ajax({
+        url: "{% url 'deleta_banco_mes' %}",
+        type: "POST",
+        data: {'dados': JSON.stringify(data), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            success: function(response) {
+            alert("Banco deletado com sucesso!")
+            window.location.reload()
+    },
+    error: function(xhr, status, error) {
+      console.log(xhr.responseText)
+    },
+  });
+
+    } else {
+      // o usuário clicou em "Cancelar"
+      // código para cancelar a exclusão aqui
+    }
+  }
+</script>
+<script>
+  function deletar2(button, file_id) {
+      var data = {'file_id': file_id,}
+    if (confirm("Deseja realmente excluir?")) {
+        $.ajax({
+        url: "{% url 'deleta_banco_total_mes' %}",
+        type: "POST",
+        data: {'dados': JSON.stringify(data), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            success: function(response) {
+            alert("Banco deletado com sucesso!")
+            window.location.reload()
+    },
+    error: function(xhr, status, error) {
+      console.log(xhr.responseText)
+    },
+  });
+
+    } else {
+      // o usuário clicou em "Cancelar"
+      // código para cancelar a exclusão aqui
+    }
+  }
+</script>
+
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+  <h1>Banco mês</h1>
+        <div class="tabela-transacoes">
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                    <th>Opções</th>
+                </tr>
+                {% if files2 %}
+                {% for file in files2 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">
+                                    <a href="{% url 'banco_mes' file.id %}">
+                                        <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                                    </a>
+                                    <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar(this, file_id='{{ file.id }}')"><i class="fa-solid fa-trash" ><br>excluir</i></button>
+                                </td>
+                            </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+             {% if not files2 %}
+                {% include 'partials/_messages.html' %}
+            {% endif %}
+        </div>
+
+            <br><br><br>
+
+
+
+        <h1>Banco total</h1>
+        <div class="tabela-transacoes">
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                    <th>Opções</th>
+                </tr>
+                {% if files1 %}
+                {% for file in files1 %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">
+                                    <a href="{% url 'banco_total' file.id %}">
+                                        <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                                    </a>
+                                    <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar2(this, file_id='{{ file.id }}')"><i class="fa-solid fa-trash"><br>excluir</i></button>
+                                </td>
+                            </tr>
+                {% endfor %}
+            {% endif %}
+            </table>
+            {% if not files1 %}
+                {% include 'partials/_messages.html' %}
+            {% endif %}
+        </div>
+</div>
+</div>
+{% endblock %}
