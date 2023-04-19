@@ -30,10 +30,9 @@ td a:link, td a:visited{
     padding: 10px 10px;
     margin: 15px 0;
     background-color: #003355;
-    font-size: 18px;
     font-weight: bold;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     transition: 1s all;
     cursor: pointer;
     text-transform: capitalize;
@@ -43,9 +42,9 @@ td a:link, td a:visited{
 .btn_editar {
     text-decoration: none;
     color: white;
-    background: #0033FF;
+    background: #19865C;
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -55,9 +54,9 @@ td a:link, td a:visited{
 .btn_deletar {
     text-decoration: none;
     color: white;
-    background: #FF3300;
+    background: rgba(170, 38, 38, 0.84);
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -66,9 +65,9 @@ td a:link, td a:visited{
 .btn_remover {
     text-decoration: none;
     color: white;
-    background: #DCC023FF;
+    background: rgba(188, 166, 43, 0.95);
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -80,7 +79,7 @@ td a:link, td a:visited{
     color: white;
     background: #00AA33;
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -89,12 +88,13 @@ td a:link, td a:visited{
 .btn_salvar{
     text-decoration: none;
     color: white;
-    background: #00AA33;
+    background: #19865C;
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
+    font-size: 14px;
 }
 
 
@@ -102,27 +102,23 @@ td a:link, td a:visited{
 .btn_detalhar{
     text-decoration: none;
     color: white;
-    background: #00AA33;
+    background: #19865C;
     text-transform: capitalize;
-    border-radius: 3px;
+    border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
 }
 
 .btn_analisar{
-    width: 110px;
-    padding: 10px 0;
-    margin: 10px 0;
-    background-color: #003355;
-    font-size: 18px;
+    text-decoration: none;
     color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    transition: 1s all;
-    cursor: pointer;
+    background-color: #003355;
     text-transform: capitalize;
+    border-radius: 25px;
+    cursor: pointer;
+    width: 110px;
+    border: none;
 }
 
 button:hover{
@@ -147,7 +143,7 @@ button:hover{
     font-size: 16px;
     font-weight: bold;
     border: 2px solid black;
-    border-radius: 5px;
+    border-radius: 25px;
     transition: 0.5s all;
     cursor: pointer;
     text-transform: capitalize;
@@ -390,18 +386,17 @@ form label{
     text-align: left;
 }
 .importar{
-    width: 120px;
+    width: 110px;
     padding: 10px 0;
     margin: 10px 0;
     background-color: #003355;
-    font-size: 18px;
     color: white;
     font-weight: bold;
-    border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     transition: 1s all;
     cursor: pointer;
     text-transform: capitalize;
+    border: 1px solid;
 }
 
 .importar:hover{
@@ -440,7 +435,7 @@ main{
   padding: 10px;
   background-color: #12579c;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   margin: 0 10px;
   cursor: pointer;
 }
@@ -449,7 +444,7 @@ main{
   padding: 10px;
   background-color: #12579c;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   margin: 0 10px;
   cursor: pointer;
   color: #ffffff;
@@ -581,7 +576,7 @@ tr td{
   padding-left: 10px;
   width: 300px;
   border: solid #1b1b1b;
-  border-radius: 5px;
+  border-radius: 25px;
   background: #FFFFFF;
   color: #1b1b1b;
   text-align: justify;
@@ -593,7 +588,7 @@ tr td{
   padding-left: 10px;
   width: 800px;
   border: solid #1b1b1b;
-  border-radius: 5px;
+  border-radius: 25px;
   background: #FFFFFF;
   color: #1b1b1b;
   text-align: justify;
@@ -614,6 +609,7 @@ tr td{
 }
 
 .header-area{
+    position: fixed;
     width: 100%;
 }
 
@@ -678,7 +674,7 @@ tr td{
     background: #19865C;
     color: white; /* cor do texto do botão */
     border: none; /* remover a borda padrão do botão */
-    border-radius: 4px; /* arredondar as bordas do botão */
+    border-radius: 25px; /* arredondar as bordas do botão */
     cursor: pointer; /* transformar o cursor do mouse em um ponteiro ao passar sobre o botão */
     width: 100px;
     height: 30px;
@@ -718,11 +714,6 @@ tr td{
 .menu-item .dropdown-item {
   margin-bottom: 10px; /* espaço entre os itens do menu */
   padding: 0 0;
-    
-}
-
-.nav-item .dropdown-menu{
-    position: relative;
 }
 
 .menu-menu {
@@ -754,6 +745,15 @@ tr td{
 
     /*position: relative;*/
 }
+
+#conteudo-login {
+    margin-top: 50px;
+    padding: 20px;
+    height: 100%;
+    text-align: center;
+
+    /*position: relative;*/
+}
 #grafico {
     width: 80%;
     height: 400px;
@@ -774,15 +774,9 @@ tr td{
     background-color: #cfeae0;
     height: 100px;
     margin-right: auto;
-    border: 1px solid transparent;
-
-    border-image: linear-gradient(to right top, #bd31c4, #8e3bb0, #643b97, #413579, #282c59);
-
-    border-image-slice: 1;
+    border: 1px solid ;
+    border-radius: 30px;
     margin-left: 1%;
-
-
-
 }
 
 .icone{
@@ -790,4 +784,18 @@ tr td{
     width: 40px;
 
 
+}
+
+#loader {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
 }

@@ -92,7 +92,7 @@ function renderiza_solicitadas(url){
         return result.json()
     }).then(function(data){
         const ctx = document.getElementById('solicitadas').getContext('2d');
-        var cores_solicitadas = gera_cor(qtd=12)
+        var cores_solicitadas = gera_cor(qtd=36)
         const myChart = new Chart(ctx, {
             type: 'line',
             data: {
