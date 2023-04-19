@@ -34,29 +34,32 @@
             </li>
              <li class="menu-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="horasExtrasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-clock"></i> Horas Extras
+                    <i class="fa-solid fa-clock"></i> Importar e processar
                 </a>
                 <ul class="menu-item dropdown" aria-labelledby="horasExtrasDropdown">
-                    <li><a class="menu-item dropdown-item" href="{% url 'upload' %}"><i class="fa-solid fa-file-import"></i> Importar solicitação / confirmação</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'upload' %}"><i class="fa-solid fa-file-import"></i> Importar solicitação/confirmação</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'inserir_bases' %}"><i class="fa-solid fa-database"></i> Importar bases</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'processar' %}"><i class="fa-solid fa-list-check"></i> Processar horas extras</a></li>
-                    <li><a class="menu-item dropdown-item" href="{% url 'reprocessar' %}"><i class="fa-solid fa-list-check"></i> Reprocessar específico</a></li>
-                    <li><a class="menu-item dropdown-item" href="{% url 'relatorios' %}"><i class="fa-regular fa-file-lines"></i> Relatórios</a></li>
-
+                    <li><a class="menu-item dropdown-item" href="{% url 'reprocessar' %}"><i class="fa-solid fa-list-check"></i> Reprocessar por matrícula</a></li>
                 </ul>
             </li>
 
              <li class="menu-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="basesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-database"></i> Bases
+                    <i class="fa-solid fa-database"></i> Consultar Bases
                 </a>
                 <ul class="menu-item dropdown" aria-labelledby="basesDropdown">
                     <li><a class="menu-item dropdown-item" href="{% url 'importacoes' %}"> <i class="fa-solid fa-table-list"></i> Confirmação/Solicitaçao</a></li>
-                    <li><a class="menu-item dropdown-item" href="{% url 'frequencia' %}"><i class="fa-solid fa-business-time"></i> Frequências</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'frequencia' %}"><i class="fa-solid fa-business-time"></i> Frequência</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'carga_horaria' %}"><i class="fa-solid fa-user-clock"></i> Carga horária</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'banco_de_horas' %}"><i class="fa-solid fa-clock"></i> Banco de horas</a></li>
                 </ul>
             </li>
+
+            <li class="menu-item">
+                <a class="menu-item dropdown-item" href="{% url 'relatorios' %}"><i class="fa-regular fa-file-lines"></i> Relatórios</a>
+            </li>
+
 
         </ul>
         {% endif %}

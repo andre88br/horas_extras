@@ -19,8 +19,8 @@
             </tr>
              <tr class="par">
                         <td class="td_importacoes">{{ user.first_name }} {{ user.last_name }}</td>
-                        <td class="td_importacoes">{{ user.username }}</td>
-                        <td class="td_importacoes">{{ user.email }}</td>
+                        <td class="td_importacoes2">{{ user.username }}</td>
+                        <td class="td_importacoes2">{{ user.email }}</td>
                         <td class="td_opcoes">
                             <a href="{% url 'editar_usuario' user.id %}">
                                 <button type="submit" value="editar" name="btn_editar" class="btn_editar" ><i class="fa-solid fa-user-pen"><br>editar</i></button>
@@ -31,8 +31,8 @@
             {% for usuario in usuarios %}
                     <tr class="par">
                         <td class="td_importacoes">{{ usuario.first_name }} {{ usuario.last_name }}</td>
-                        <td class="td_importacoes">{{ usuario.username }}</td>
-                        <td class="td_importacoes">{{ usuario.email }}</td>
+                        <td class="td_importacoes2">{{ usuario.username }}</td>
+                        <td class="td_importacoes2">{{ usuario.email }}</td>
                         <td class="td_opcoes">
 
                             <a href="{% url 'editar_usuario' usuario.id %}">

@@ -107,8 +107,7 @@
             </div>
             <div  class="col-md"></div>
             <div  class="col-md"></div>
-         </div>
-    </div>
+        </div>
 
     <main>
 
@@ -125,7 +124,7 @@
                             <tr class="par">
                                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
                                 <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -143,7 +142,7 @@
                             <tr class="par">
                                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
                                 <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -161,7 +160,7 @@
                             <tr class="par">
                                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
                                 <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -179,7 +178,7 @@
                             <tr class="par">
                                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
                                 <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -197,7 +196,7 @@
                             <tr class="par">
                                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
                                 <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -239,7 +238,9 @@
          <input id="matricula" name="matricula" value="{{ matricula }}" hidden>
          <input id="relatorio" name="relatorio" value="{{ relatorio }}" hidden>
          <input id="tipo" name="tipo" value="{{ tipo }}" hidden>
+         <input id="tipo3" name="tipo3" value="" hidden>
          <input id="pagina" name="pagina" value="processar" hidden>
+
          <br>
          <div class="row">
              <div class="col-1 col-md-1">
@@ -258,4 +259,5 @@
 {% endif %}
 </div>
 </div>
+
 {% endblock %}

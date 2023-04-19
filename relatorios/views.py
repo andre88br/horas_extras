@@ -110,7 +110,7 @@ def escolhe_relatorio(request):
 
         return render(request, "relatorios/relatorios.html",
                       context={'relatorio': df, 'nome': arquivo, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
-                               'matricula': matricula, 'tipo': tipo})
+                               'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3})
     else:
         return render(request, "usuarios/login.html")
 
@@ -124,6 +124,7 @@ def imprime(request):
         ano2 = request.POST.get('ano2')
         tipo2 = request.POST.get('tipo2')
         matricula = request.POST.get('matricula')
+        tipo3 = request.POST.get('tipo3')
 
         if tipo2 == 'solicitacao':
             response, arquivo, df = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
@@ -144,7 +145,11 @@ def imprime(request):
             response, arquivo, df = gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula)
 
         if tipo2 == 'negativos':
-            response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, 'confirmacao', matricula)
+
+            if tipo3 == '':
+                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, 'confirmacao', matricula)
+            else:
+                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula)
 
         if tipo2 == 'negativos2':
             response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, 'solicitacao', matricula)

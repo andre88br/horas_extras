@@ -69,7 +69,7 @@
 
 <div id="conteudo">
 
-        <h1>Confirmação {{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+        <h1>Confirmação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
 
 
 {% include 'partials/_messages.html' %}

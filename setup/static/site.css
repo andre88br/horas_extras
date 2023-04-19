@@ -270,6 +270,18 @@ table{
     width: 2%;
     text-align: center;
 }
+
+.form-control-email{
+        text-transform: lowercase;
+}
+
+.par .td_importacoes2{
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 2%;
+    text-align: center;
+    text-transform: lowercase;
+}
 .par .td_opcoes{
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;

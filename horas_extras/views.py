@@ -128,7 +128,7 @@ def confirmacao(request, file_id):
                                   context={"files": confirmacoes_paginadas,
                                            "files2": file_id, 'objetos': confirmacoes_a_mostrar})
             if query != "":
-                messages.error(request, "Empregado não encontrato!", extra_tags='nao_encontrado')
+                messages.error(request, "Empregado não encontrato!")
         return render(request, "horas_extras/confirmacao.html",
                       context={"files": confirmacoes_paginadas,
                                "files2": file_id, 'objetos': confirmacoes_a_mostrar})
