@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+{% include 'partials/menu.html' %}
+<div class="escolhe-mes">
+
+<div id="conteudo">
+
+<h1>Editar empregado</h1>
+
+
+<div class="row">
+<div class="contact-area section-padding-0-80">
+    <div class="container">
+            {% include 'partials/_messages.html' %}
+            <div class="col-12">
+                <div class="contact-form-area">
+                    <form action="{% url 'salvar_empregado' empregado.id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="text" class="form-control" name="files2"  value="{{ files2 }}" hidden>
+                        <div class="row">
+                            <div class="col-12 col-lg-12">
+                                <label><b>MATRICULA: </b></label>
+                                <input type="text" class="form-control" name="usuario_id"  value="{{ empregado.matricula }}" readonly>
+                            </div>
+                            <div class="col-12 col-lg-12">
+                                <label><b>Nome completo</b></label>
+                                <input type="text" class="form-control" name="nome" value="{{ empregado.nome }}" readonly>
+                            </div>
+<!--                            <div class="col-12 col-lg-12">-->
+<!--                                <label><b>Cargo</b></label>-->
+<!--                                <input type="text" class="form-control" name="user" value="{{ empregado.cargo }}" contenteditable="false">-->
+<!--                            </div>-->
+                            <div class="col-12 col-lg-12">
+                                <label><b>Salário</b></label>
+                                <input type="text" class="form-control" name="salario" value="{{ empregado.salario }}" required>
+                            </div>
+                            <div class="col-12 col-lg-12">
+                                <label><b>Insalubridade</b></label>
+                                <input type="text" class="form-control" name="insalubridade" value="{{ empregado.insalubridade }}">
+                            </div>
+                            <div class="separa">
+                                <div class="col-12 text-center">
+                                    <button class="btn_editar" type="submit">Salvar</button>
+                                    <a href="{% url 'empregados' files2 %}">
+                                        <button class="btn_deletar" type="button">Cancelar</button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+{% endblock %}

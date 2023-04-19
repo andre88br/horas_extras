@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+
+<script>
+  function salvar(submit) {
+
+  let row = submit.parentNode.parentNode;
+  let inputs = row.querySelectorAll("#solicitacao tbody tr td[contenteditable]");
+
+  let data = {
+    'matricula': inputs.item(0).innerHTML,
+    '1': inputs.item(1).innerHTML,
+    '2': inputs.item(2).innerHTML,
+    '3': inputs.item(3).innerHTML,
+    '4': inputs.item(4).innerHTML,
+    '5': inputs.item(5).innerHTML,
+    '6': inputs.item(6).innerHTML,
+    '7': inputs.item(7).innerHTML,
+    '8': inputs.item(8).innerHTML,
+    '9': inputs.item(9).innerHTML,
+    '10': inputs.item(10).innerHTML,
+    '11': inputs.item(11).innerHTML,
+    '12': inputs.item(12).innerHTML,
+    '13': inputs.item(13).innerHTML,
+    '14': inputs.item(14).innerHTML,
+    '15': inputs.item(15).innerHTML,
+    '16': inputs.item(16).innerHTML,
+    '17': inputs.item(17).innerHTML,
+    '18': inputs.item(18).innerHTML,
+    '19': inputs.item(19).innerHTML,
+    '20': inputs.item(20).innerHTML,
+    '21': inputs.item(21).innerHTML,
+    '22': inputs.item(22).innerHTML,
+    '23': inputs.item(23).innerHTML,
+    '24': inputs.item(24).innerHTML,
+    '25': inputs.item(25).innerHTML,
+    '26': inputs.item(26).innerHTML,
+    '27': inputs.item(27).innerHTML,
+    '28': inputs.item(28).innerHTML,
+    '29': inputs.item(29).innerHTML,
+    '30': inputs.item(30).innerHTML,
+    '31': inputs.item(31).innerHTML,
+    'mes': '{{ files.0.importacao.mes }}',
+    'ano': '{{ files.0.importacao.ano }}',
+    'file_id': '{{ files2 }}',
+  }
+
+  $.ajax({
+    url: "{% url 'salvar_solicitacao' %}",
+    type: "POST",
+    data: {'dados': JSON.stringify(data), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+    success: function() {
+        alert("Alteração realizada com sucesso!")
+    },
+    error: function(xhr) {
+      console.log(xhr.responseText)
+    },
+  });
+  }
+</script>
+
+
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+        <h1>Solicitação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+
+
+{% include 'partials/_messages.html' %}
+
+<form class="busca" method="get" action="{% url 'solicitacao' files2 %}">
+            <input type="text" name="q" placeholder="Buscar empregado">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
+            </form>
+<div class="pagination">
+
+
+
+            {% if files.has_previous %}
+            <a href="?page={{ files.previous_page_number }}">
+                <button class="prev"><i class="fa-solid fa-backward-fast"></i> Anterior</button>
+            </a>
+            {% endif %}
+
+            {% for page in paginator.get_page_range %}
+                {% if files.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+
+            {% if files.has_next %}
+            <a href="?page={{ files.next_page_number }}">
+                <button class="next" >Próximo <i class="fa-solid fa-forward-fast"></i></button>
+            </a>
+            {% endif %}
+        </div>
+
+
+        <main class="tabela-transacoes">
+
+        {% if files %}
+            <table id="solicitacao">
+                <thead>
+                <tr>
+                    <th class="th-matricula">Matrícula</th>
+                    <th class="th-nome">Nome</th>
+                    <th class="th-cargo">Cargo</th>
+                    <th class="th_transacoes">1</th>
+                    <th class="th_transacoes">2</th>
+                    <th class="th_transacoes">3</th>
+                    <th class="th_transacoes">4</th>
+                    <th class="th_transacoes">5</th>
+                    <th class="th_transacoes">6</th>
+                    <th class="th_transacoes">7</th>
+                    <th class="th_transacoes">8</th>
+                    <th class="th_transacoes">9</th>
+                    <th class="th_transacoes">10</th>
+                    <th class="th_transacoes">11</th>
+                    <th class="th_transacoes">12</th>
+                    <th class="th_transacoes">13</th>
+                    <th class="th_transacoes">14</th>
+                    <th class="th_transacoes">15</th>
+                    <th class="th_transacoes">16</th>
+                    <th class="th_transacoes">17</th>
+                    <th class="th_transacoes">18</th>
+                    <th class="th_transacoes">19</th>
+                    <th class="th_transacoes">20</th>
+                    <th class="th_transacoes">21</th>
+                    <th class="th_transacoes">22</th>
+                    <th class="th_transacoes">23</th>
+                    <th class="th_transacoes">24</th>
+                    <th class="th_transacoes">25</th>
+                    <th class="th_transacoes">26</th>
+                    <th class="th_transacoes">27</th>
+                    <th class="th_transacoes">28</th>
+                    <th class="th_transacoes">29</th>
+                    <th class="th_transacoes">30</th>
+                    <th class="th_transacoes">31</th>
+                    <th class="th_transacoes">Opções</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in files %}
+                        <tr class="par">
+                            <td class="td-matricula" contenteditable="true">{{ file.empregado.matricula }}</td>
+                            <td class="td-nome-conf_sol">{{ file.nome }}</td>
+                            <td class="td-cargo">{{ file.cargo }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia1 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia2 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia3 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia4 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia5 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia6 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia7 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia8 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia9 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia10 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia11 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia12 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia13 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia14 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia15 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia16 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia17 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia18 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia19 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia20 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia21 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia22 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia23 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia24 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia25 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia26 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia27 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia28 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia29 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia30 }}</td>
+                            <td class="td_importacoes" contenteditable="true">{{ file.dia31 }}</td>
+                            <td class="td_opcoes">
+                                <button type="submit" value="salvar"  name="btn_salvar" class="btn_salvar" onclick="salvar(this)"><i class="fa-solid fa-user-check"><br>salvar</i></button>
+                            </td>
+                        </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </main>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

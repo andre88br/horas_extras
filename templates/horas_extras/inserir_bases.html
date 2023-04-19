@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // esconder inputs de frequencia e banco_mes inicialmente
+                $('#processar').hide();
+                $('#label_frequencia').hide();
+                $('#frequencia').hide();
+                $('#label_banco_mes').hide();
+                $('#banco_mes').hide();
+                $('#label_banco_total').hide();
+                $('#banco_total').hide();    
+                $('#label_momento').hide();
+                $('#momento').hide();    
+
+
+        // quando a opção confirmacao for selecionada, mostrar inputs de frequencia e banco_mes
+        $('#tipo').change(function(){
+            if($(this).val() === 'confirmacao') {
+                $('#processar').show();
+                $('#label_frequencia').show();
+                $('#frequencia').show();
+                $('#label_banco_mes').show();
+                $('#banco_mes').show();
+                $('#label_banco_total').show();
+                $('#banco_total').show();    
+                $('#label_momento').show();
+                $('#momento').show();
+            }
+            else if($(this).val() === 'solicitacao') {
+                $('#processar').show();
+                $('#label_frequencia').hide();
+                $('#frequencia').hide();
+                $('#label_banco_mes').hide();
+                $('#banco_mes').hide();
+                $('#label_banco_total').show();
+                $('#banco_total').show();
+                $('#label_momento').hide();
+                $('#momento').hide();
+                var momento = document.getElementById("momento");
+                momento.removeAttribute("required");
+
+
+            }
+            else{
+                $('#processar').hide();
+                $('#label_frequencia').hide();
+                $('#frequencia').hide();
+                $('#label_banco_mes').hide();
+                $('#banco_mes').hide();
+                $('#label_banco_total').hide();
+                $('#banco_total').hide();
+                $('#label_momento').hide();
+                $('#momento').hide();
+            }
+
+        });
+
+    });
+</script>
+{% include 'partials/menu.html' %}
+
+<div class="escolhe-mes">
+    <div id="conteudo">
+                <h1> Inserir bases </h1>
+
+            {% include 'partials/_messages.html' %}
+
+                <div class="row align-left">
+                    <div  class="col-md">
+
+                        <form class="form-importar" action="{% url 'inserir_bases' %}" method="POST" id="form" enctype="multipart/form-data">
+                          {% csrf_token %}
+
+                            <label for="tipo">Tipo</label>
+                            <div class="form-inline">
+                                <select id="tipo" name="tipo" class="col-6 row-cols-6">
+                                    <option value=""></option>
+                                    <option value="solicitacao">Solicitação</option>
+                                    <option value="confirmacao">Confirmação</option>
+                                </select>
+                            </div>
+
+                            <label for="data" id="label_data">Mês/Ano</label>
+                            <div class="form-inline">
+                                <div class="col-6 row-cols-6">
+                                    <input type="month" id="data" name="data"  required>
+                                </div>
+                            </div>
+
+                          <label for="frequencia" id="label_frequencia">Frequência</label>
+                          <input class="arquivo" name="frequencia" type="file" id="frequencia" accept=".xlsx"  multiple>
+
+                          <label for="banco_mes" id="label_banco_mes">Banco mês</label>
+                          <input class="arquivo" name="banco_mes" type="file" id="banco_mes" accept=".xlsx">
+
+                          <label for="banco_total" id="label_banco_total">Banco total</label>
+                          <input class="arquivo" name="banco_total" type="file" id="banco_total" accept=".xlsx">
+
+                        <div class="col-10 row-cols-10">
+                            <button type="submit" class="btn_analisar" id="processar"><i class="fa-solid fa-file-arrow-up"></i> Importar</button>
+                        </div>
+
+                        </form>
+                    </div>
+                    <div  class="col-md"></div>
+                    <div  class="col-md"></div>
+                </div>
+    </div>
+</div>
+{% endblock %}

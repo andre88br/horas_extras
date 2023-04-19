@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+<script>
+  function deletar(button, file_id) {
+      var data = {'file_id': file_id,}
+    if (confirm("Deseja realmente excluir?")) {
+        $.ajax({
+        url: "{% url 'deleta_carga_horaria' %}",
+        type: "POST",
+        data: {'dados': JSON.stringify(data), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            success: function(response) {
+            alert("Banco deletado com sucesso!")
+            window.location.reload()
+    },
+    error: function(xhr, status, error) {
+      console.log(xhr.responseText)
+    },
+  });
+
+    } else {
+      // o usuário clicou em "Cancelar"
+      // código para cancelar a exclusão aqui
+    }
+  }
+</script>
+
+{% include 'partials/menu.html' %}
+<div class="escolhe-mes">
+
+<div id="conteudo">
+
+<h1>Carga horária</h1>
+        <div class="tabela-transacoes">
+            <table>
+                <tr class="tr_th">
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Mês/Ano</th>
+                    <th>Opções</th>
+                </tr>
+                {% if files %}
+                {% for file in files %}
+                            <tr class="par">
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes">{{ file.importado_por }}</td>
+                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">
+                                    <a href="{% url 'carga_detalhe' file.id %}">
+                                        <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                                    </a>
+                                    <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar(this, file_id='{{ file.id }}')"><i class="fa-solid fa-trash" ><br>excluir</i></button>
+                                </td>
+                            </tr>
+                {% endfor %}
+            {% else %}
+           {% endif %}
+            </table>
+             {% include 'partials/_messages.html' %}
+        </div>
+</div>
+</div>
+{% endblock %}

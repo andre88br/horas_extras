@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+{% include 'partials/menu.html' %}
+<div class="escolhe-mes">
+    <div id="conteudo">
+    <h1>Confirma exclusão</h1>
+        <div class="row">
+            <div class="contact-area section-padding-0-80">
+                <div class="container">
+                {% include 'partials/_messages.html' %}
+                    <div class="col-12">
+                        <div class="contact-form-area">
+                            {% if pagina == 'empregados' %}
+                            <form  action="{% url 'deleta_mes_empregados' file_id %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <h5>Tem certeza que deseja excluir?</h5>
+                                <button class="btn_deletar" type="submit"><i class="fa-solid fa-trash" ><br>Deletar</i></button>
+                                <a href="{% url 'importacoes_empregados' %}">
+                                    <button class="btn_remover" type="button"><i class="fa-solid fa-xmark"><br>Cancelar</i></button>
+                                </a>
+                            </form>
+                            {% endif %}
+
+                            {% if pagina == 'empregado' %}
+                            <form  action="{% url 'deleta_empregado' file_id %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                <h5>Tem certeza que deseja excluir?</h5>
+                                <button class="btn_deletar" type="submit"><i class="fa-solid fa-trash" ><br>Deletar</i></button>
+                                <a href="{% url 'empregados' files2 %}">
+                                    <button class="btn_remover" type="button"><i class="fa-solid fa-xmark"><br>Cancelar</i></button>
+                                </a>
+                                <input name="files2" value="{{ files2 }}" hidden>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
