@@ -1,0 +1,801 @@
+body{
+    font-family: Arial, serif;
+
+}
+
+
+h1, h2, h3, h4{
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px 0 0 0;
+    font-size:40px;
+    font-weight: bold;
+    color: black;
+}
+
+
+.upload {
+    padding: 40px
+}
+
+
+
+td a:link, td a:visited{
+   text-decoration: none;
+}
+
+
+
+.btn-success{
+    padding: 10px 10px;
+    margin: 15px 0;
+    background-color: #003355;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    transition: 1s all;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+
+.btn_editar {
+    text-decoration: none;
+    color: white;
+    background: #19865C;
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+
+}
+
+.btn_deletar {
+    text-decoration: none;
+    color: white;
+    background: rgba(170, 38, 38, 0.84);
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+}
+
+.btn_remover {
+    text-decoration: none;
+    color: white;
+    background: rgba(188, 166, 43, 0.95);
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+}
+
+
+.btn_reativar{
+    text-decoration: none;
+    color: white;
+    background: #00AA33;
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+}
+
+.btn_salvar{
+    text-decoration: none;
+    color: white;
+    background: #19865C;
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+    font-size: 14px;
+}
+
+
+
+.btn_detalhar{
+    text-decoration: none;
+    color: white;
+    background: #19865C;
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+}
+
+.btn_analisar{
+    text-decoration: none;
+    color: white;
+    background-color: #003355;
+    text-transform: capitalize;
+    border-radius: 25px;
+    cursor: pointer;
+    width: 110px;
+    border: none;
+}
+
+button:hover{
+    transform: scale(1.05);
+}
+
+.dashboard{
+    padding: 2%;
+    align-content: center;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+.users form{
+    display: contents;
+    align-self: center;
+}
+
+.users .btn-dash{
+    margin: 1% 1%;
+    background-color: #38c38f;
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid black;
+    border-radius: 25px;
+    transition: 0.5s all;
+    cursor: pointer;
+    text-transform: capitalize;
+    width: 22.5%;
+}
+
+button:hover{
+    transform: scale(1.1);
+}
+
+.tabela-transacoes{
+    padding: 20px;
+
+
+}
+
+table{
+    width: 100%;
+    table-layout: initial;
+}
+
+.th_transacoes{
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 4px;
+    text-align: center;
+    border-bottom: 2px solid black;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    border-top: 1px solid #CCCCCC;
+    white-space: nowrap;
+}
+
+.th-matricula, .th-nome, .th-cargo{
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 4px;
+    text-align: left;
+    border-bottom: 2px solid black;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    border-top: 1px solid #CCCCCC;
+    white-space: nowrap;
+}
+
+
+
+.td-transacoes{
+    font-size: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 2%;
+    white-space: nowrap;
+
+}
+
+.td-transacoes-frequencia{
+    font-size: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 7.14%;
+    white-space: nowrap;
+
+}
+
+
+.par .td-nome {
+    font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 5%;
+    white-space: nowrap;
+}
+
+.par .td-nome-frequencia{
+    font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 25%;
+    white-space: nowrap;
+}
+.par .td-nome-conf_sol{
+     font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 20%;
+    white-space: nowrap;
+
+}
+.par .td-matricula {
+    font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 1%;
+    white-space: nowrap;
+}
+.par .td-cargo{
+    font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 6%;
+    white-space: nowrap;
+
+}
+.par .td_importacoes{
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 2%;
+    text-align: center;
+}
+.par .td_opcoes{
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 0.5%;
+    text-align: center;
+}
+
+.par:nth-child(even){
+    background: #FFFFFF ;
+    border-bottom: 1px solid #CCCCCC;
+    text-align: center;
+
+}
+.par:nth-child(odd){
+    background: #DDDDDD ;
+    border-bottom: 1px solid #CCCCCC;
+    text-align: center;
+
+}
+
+.par:hover{
+    transform: scale(1.01);
+
+}
+
+.voltar button{
+    color: white;
+    background-color: black;
+    border-radius: 5px;
+    width: 110px;
+    margin:20px;
+}
+
+.detalhar_fora{
+    padding: 20px;
+    margin-left: 80px;
+    margin-right: 80px;
+    border: 2px solid #CCCCCC;
+    border-radius: 5px;
+}
+
+.detalhar{
+    display: block;
+    padding: 5px;
+    width: 800px;
+}
+.detalhar label{
+    width: 150px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.escolhe-mes_fora{
+    padding: 20px;
+    text-align:left;
+    margin-top: 40px;
+}
+
+.escolhe-mes {
+    display: block;
+    padding: 5px;
+    width: 100%;
+    text-align: left;
+}
+
+.escolhe-mes label{
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.escolhe-mes input{
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+
+}
+
+.sem-dados{
+    text-align: center;
+    font-size: 30px;
+    color: red;
+}
+
+
+.separa{
+    padding-top: 25px;
+}
+
+form{
+    padding: 40px;
+}
+
+.arquivo{
+    width: 30%;
+    border: 1px solid #BBBBBB;
+    color: #BBBBBB;
+    border-radius: 3px;
+    margin: 0 0 5px 0;
+    background: white;
+    cursor: pointer;
+}
+
+form label{
+    font-size: 14px;
+    font-weight: bold;
+    color: #000000;
+    cursor: pointer;
+}
+
+.form-importar{
+    text-align: left;
+}
+.importar{
+    width: 110px;
+    padding: 10px 0;
+    margin: 10px 0;
+    background-color: #003355;
+    color: white;
+    font-weight: bold;
+    border-radius: 25px;
+    transition: 1s all;
+    cursor: pointer;
+    text-transform: capitalize;
+    border: 1px solid;
+}
+
+.importar:hover{
+    background-color: #0033FF;
+}
+
+main{
+    padding: 40px;
+}
+
+.m{
+    font-size: 20px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 20px;
+    background-color: #003355;
+    border: 2px solid red;
+    border-radius: 10px;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination a, .pagination a:visited, .pagination a:hover, .pagination button{
+    color: #ffffff;
+    text-decoration-line: none;
+    font-weight: bold;
+}
+
+.pagination button {
+  padding: 10px;
+  background-color: #12579c;
+  border: none;
+  border-radius: 25px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.busca button {
+  padding: 10px;
+  background-color: #12579c;
+  border: none;
+  border-radius: 25px;
+  margin: 0 10px;
+  cursor: pointer;
+  color: #ffffff;
+  text-decoration-line: none;
+  font-weight: bold;
+}
+
+.busca input{
+    width: 20%;
+}
+
+
+.pagination .current-page {
+  font-size: 20px;
+  margin: 0 10px;
+}
+
+.periodo {
+    width: 10%;
+}
+
+.matricula{
+    width: 2%;
+}
+
+tr th {
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 4px;
+    text-align: center;
+    border-bottom: 2px solid black;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    border-top: 1px solid #CCCCCC;
+    white-space: nowrap;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr td:nth-child(-n+3){
+  font-size: 12px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #CCCCCC;
+  border-right: 1px solid #CCCCCC;
+  border-left: 1px solid #CCCCCC;
+  width: min-content;
+  white-space: nowrap;
+  text-align: left;
+  padding: 4px;
+}
+
+tr td:nth-last-child(1){
+  font-size: 12px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #CCCCCC;
+  border-right: 1px solid #CCCCCC;
+  border-left: 1px solid #CCCCCC;
+  width: 25%;
+  white-space: nowrap;
+  text-align: left;
+  padding: 4px;
+}
+
+
+tr td{
+  font-size: 12px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #CCCCCC;
+  border-right: 1px solid #CCCCCC;
+  border-left: 1px solid #CCCCCC;
+  width: min-content;
+  white-space: nowrap;
+  text-align: center;
+  padding: 4px;
+
+}
+.par:nth-child(even) input{
+    box-shadow: 0 0 0 0;
+    border: none;
+    outline: 0;
+}
+
+.par:nth-child(odd) input{
+    box-shadow: 0 0 0 0;
+    border: none;
+    outline: 0;
+    background: #DDDDDD;
+
+}
+
+
+#progress {
+    width: 100%;
+    height: 5px;
+    margin-top: 10px;
+    background-color: #f2f2f2;
+    display: none;
+}
+
+#progress-bar {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0;
+    transition: width 0.3s ease-in-out;
+}
+
+.mostrar{
+  display: none;
+  padding-left: 10px;
+
+}
+
+.mostrar2{
+  display: none;
+  padding-left: 10px;
+
+}
+
+.passar_mouse{
+    padding-left: 10px;
+    display: inline-block;
+}
+
+.passar_mouse:hover .mostrar{
+  display:inline-block;
+  padding-left: 10px;
+  width: 300px;
+  border: solid #1b1b1b;
+  border-radius: 25px;
+  background: #FFFFFF;
+  color: #1b1b1b;
+  text-align: justify;
+  position: absolute;
+  }
+
+.passar_mouse:hover .mostrar2{
+  display:inline-block;
+  padding-left: 10px;
+  width: 800px;
+  border: solid #1b1b1b;
+  border-radius: 25px;
+  background: #FFFFFF;
+  color: #1b1b1b;
+  text-align: justify;
+  position: absolute;
+  }
+
+.mes{
+      text-transform: uppercase;
+}
+
+
+/* Estilos para o menu de navegação */
+.navbar {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  color: #1b1b1b;
+  text-transform: uppercase;
+}
+
+.header-area{
+    position: fixed;
+    width: 100%;
+}
+
+.navbar-brand {
+  color: #333; /* cor do texto do link da marca */
+  font-size: 24px; /* tamanho da fonte do link da marca */
+  margin-left: 1%;
+
+}
+
+.navbar-nav {
+  margin-left: auto; /* alinha os itens do menu à direita */
+
+}
+
+.nav-item {
+  margin-right: 20px; /* espaço entre os itens do menu */
+
+}
+
+.nav-item .nav-link .bem_vindo{
+    text-transform: uppercase;
+    font-size: 14px;
+
+}
+.nav-link {
+  color: #333; /* cor do texto do link do menu */
+  font-size: 16px; /* tamanho da fonte do link do menu */
+  font-weight: 500; /* peso da fonte do link do menu */
+  text-transform: uppercase; /* transforma o texto em maiúsculas */
+
+}
+
+
+.nav-link:hover {
+  color: #007bff; /* cor do texto do link do menu quando o mouse está sobre ele */
+
+}
+
+.navbar-expand-lg .navbar-light .bg-gradient image{
+    width: 20px;
+    height: 20px;
+
+}
+
+/* Estilos para o conteúdo principal */
+.content {
+  margin-left: 200px;
+  padding: 20px;
+}
+
+.escolhe-mes_fora .escolhe-mes .linha input, .escolhe-mes_fora .escolhe-mes .linha button{
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.escolhe-mes_fora .escolhe-mes .linha input {
+    width: 200px; /* ajuste a largura conforme necessário */
+  }
+
+.escolhe-mes_fora .escolhe-mes .linha button {
+    background: #19865C;
+    color: white; /* cor do texto do botão */
+    border: none; /* remover a borda padrão do botão */
+    border-radius: 25px; /* arredondar as bordas do botão */
+    cursor: pointer; /* transformar o cursor do mouse em um ponteiro ao passar sobre o botão */
+    width: 100px;
+    height: 30px;
+    padding: 2px;
+  }
+
+#menu {
+    width: 380px;
+    height: 100%;
+    color: #1b1b1b;
+    position: fixed;
+    padding: 0 2px;
+    top: 80px;
+    left: 1px;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    overflow: auto;
+    justify-content: space-between;
+    align-items: center;
+}
+#menu a {
+  color: #7c7979; /* cor do texto do link do menu */
+  font-size: 16px; /* tamanho da fonte do link do menu */
+  font-weight: 500; /* peso da fonte do link do menu */
+  text-transform: uppercase; /* transforma o texto em maiúsculas */
+}
+
+#menu a:hover {
+  color: #1f1e1e; /* cor do texto do link do menu quando o mouse está sobre ele */
+}
+
+.menu-item {
+  margin-bottom: 10px; /* espaço entre os itens do menu */
+  padding: 0 10px;
+}
+
+.menu-item .dropdown-item {
+  margin-bottom: 10px; /* espaço entre os itens do menu */
+  padding: 0 0;
+}
+
+.menu-menu {
+  margin-bottom: 10px; /* espaço entre os itens do menu */
+  padding: 0 20px;
+}
+
+#titulo-menu , #titulo-centro{
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+  background-color: #7c7979;
+  color: #fff;
+  margin: 2px;
+  border-radius: 5px;
+}
+
+#titulo-centro{
+    margin-left: 0;
+}
+
+#conteudo {
+    margin-left: 400px;
+    margin-top: 50px;
+    padding: 20px;
+    height: 100%;
+    text-align: center;
+
+    /*position: relative;*/
+}
+
+#conteudo-login {
+    margin-top: 50px;
+    padding: 20px;
+    height: 100%;
+    text-align: center;
+
+    /*position: relative;*/
+}
+#grafico {
+    width: 80%;
+    height: 400px;
+    margin: 0 auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    align-content: center;
+}
+
+#conteudo img{
+    padding: 20px;
+}
+
+.informacoes_basicas{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #cfeae0;
+    height: 100px;
+    margin-right: auto;
+    border: 1px solid ;
+    border-radius: 30px;
+    margin-left: 1%;
+}
+
+.icone{
+    color: #C040B9;
+    width: 40px;
+
+
+}
+
+#loader {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
