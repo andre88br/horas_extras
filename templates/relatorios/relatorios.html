@@ -40,7 +40,7 @@
 <div class="escolhe-mes">
 
     <div id="conteudo">
-        {% include 'partials/_messages.html' %}
+
     {% if relatorio %}
         <h1>{{ nome }}</h1>
 
@@ -52,6 +52,7 @@
             <input id="ano2" name="ano2" value="{{ ano2 }}" hidden>
             <input id="nome" name="nome" value="{{ nome }}" hidden>
             <input id="tipo2" name="tipo2" value="{{ tipo }}" hidden>
+            <input id="tipo3" name="tipo3" value="{{ tipo3 }}" hidden>
             <input id="matricula" name="matricula" value="{{ matricula }}" hidden>
             <button type="submit" class="btn_analisar" id="imprimir">Imprimir</button>
         </form>
@@ -61,10 +62,9 @@
         </table>
 
    {% else %}
-{% include 'partials/_messages.html' %}
 
         <h1 xmlns="http://www.w3.org/1999/html">Gerar relatórios</h1>
-
+        {% include 'partials/_messages.html' %}
         <div class="row align-left">
             <div  class="col-md">
 

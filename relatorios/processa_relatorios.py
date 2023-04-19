@@ -25,6 +25,19 @@ def arruma_campos(df, tipo, mes, ano):
             map(lambda x: format(x, '.2f'))
         df['horas_totais'] = df['horas_totais']. \
             astype(str).str.replace('.', ',', regex=False)
+        df['mes/ano'] = 0
+
+        for i, j in df.iterrows():
+            importacao = Importacoes.objects.filter(id=j['importacao_id']).values()
+            importacao = pd.DataFrame(importacao)
+            df.at[i, 'mes/ano'] = f'{importacao.mes}/{importacao.ano}' \
+                if len(str(f'{importacao.mes}/{importacao.ano}')) == 7 \
+                else f'0{int(importacao.mes)}/{int(importacao.ano)}'
+        coluna_mes_ano = df['mes/ano']
+        df = df.drop(columns={'mes/ano'})
+        df.insert(0, 'mes/ano', coluna_mes_ano)
+
+        df = df.sort_values(by=['nome', 'mes/ano'])
 
     if tipo == 'solicitacao' or tipo == 'confirmacao':
         df['salario'] = df['salario']. \
@@ -163,31 +176,59 @@ def arruma_campos(df, tipo, mes, ano):
 
 
 def gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula):
-    empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
-    empregados = pd.DataFrame(empregados)
     if matricula == '':
-        df = RelatorioSolicitacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+        if mes2 is not None and mes2 != '':
+            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioSolicitacao.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
+                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
+                                                     ).order_by('nome').values()
+        else:
+            empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioSolicitacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
     else:
-        df = RelatorioSolicitacao.objects.filter(empregado__matricula=matricula,
-                                                 importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+        if mes2 is not None and mes2 != '':
+            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioSolicitacao.objects.filter(empregado__matricula=matricula,
+                                                     importacao__mes__gte=mes, importacao__mes__lte=mes2,
+                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
+                                                     ).order_by('nome').values()
+        else:
+            empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioSolicitacao.objects.filter(empregado__matricula=matricula,
+                                                     importacao__mes=mes, importacao__ano=ano
+                                                     ).order_by('nome').values()
 
     response, excel_path_solicitacao = '', ''
     if not df:
         pass
     else:
         df = pd.DataFrame(df)
+        print(df)
         pega_matricula(empregados, df)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'solicitacao', mes, ano)
-        excel_path_solicitacao = f'Solicitação - {mes}-{ano}.xlsx'
-        df.to_excel(excel_path_solicitacao, index=False, sheet_name='Solicitado')
+        if mes2 is not None and mes2 != '':
+            excel_path_solicitacao = f'Solicitação de {mes}-{ano} até {mes2}-{ano2}.xlsx'
+            df.to_excel(excel_path_solicitacao, index=False, sheet_name='Solicitado')
 
-        with open(excel_path_solicitacao, 'rb') as file:
-            response = HttpResponse(file.read(),
-                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = f'attachment; filename="Solicitação - {mes}-{ano}.xlsx"'
+            with open(excel_path_solicitacao, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = f'attachment; filename="Solicitação de {mes}-{ano} até {mes2}-{ano2}.xlsx"'
+        else:
+            excel_path_solicitacao = f'Solicitação {mes}-{ano}.xlsx'
+            df.to_excel(excel_path_solicitacao, index=False, sheet_name='Solicitado')
+
+            with open(excel_path_solicitacao, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = f'attachment; filename="Solicitação - {mes}-{ano}.xlsx"'
 
     return response, excel_path_solicitacao, df
 
@@ -212,7 +253,7 @@ def gera_relatorio_erros(mes, ano, mes2, ano2, tipo, matricula):
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'erros', mes, ano)
 
-        excel_path_erros = f'Erros - {mes}-{ano}.xlsx'
+        excel_path_erros = f'Erros {mes}-{ano}.xlsx'
         df.to_excel(excel_path_erros, index=False, sheet_name='Erros')
 
         with open(excel_path_erros, 'rb') as file:
@@ -224,34 +265,62 @@ def gera_relatorio_erros(mes, ano, mes2, ano2, tipo, matricula):
 
 
 def gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula):
-    empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
-    empregados = pd.DataFrame(empregados)
     if matricula == '':
-        df = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+        if mes2 is not None and mes2 != '':
+            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioConfirmacao.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
+                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
+                                                     ).order_by('nome').values()
+        else:
+            empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
     else:
-        df = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
-                                                 importacao__ano=ano).order_by('nome').values()
+        if mes2 is not None and mes2 != '':
+            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula,
+                                                     importacao__mes__gte=mes, importacao__mes__lte=mes2,
+                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
+                                                     ).order_by('nome').values()
+        else:
+            empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+            empregados = pd.DataFrame(empregados)
+            df = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula,
+                                                     importacao__mes=mes, importacao__ano=ano
+                                                     ).order_by('nome').values()
 
-    response, excel_path_confirmacao = '', ''
-
+    response, excel_path = '', ''
     if not df:
         pass
     else:
         df = pd.DataFrame(df)
+        print(df)
         pega_matricula(empregados, df)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'confirmacao', mes, ano)
-        excel_path_confirmacao = f'Confirmação - {mes}-{ano}.xlsx'
-        df.to_excel(excel_path_confirmacao, index=False, sheet_name='Realizado')
+        if mes2 is not None and mes2 != '':
+            excel_path = f'Confirmação de {mes}-{ano} até {mes2}-{ano2}.xlsx'
+            df.to_excel(excel_path, index=False, sheet_name='Confirmado')
 
-        with open(excel_path_confirmacao, 'rb') as file:
-            response = HttpResponse(file.read(),
-                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = f'attachment; filename="Confirmação - {mes}-{ano}.xlsx"'
+            with open(excel_path, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response[
+                    'Content-Disposition'] = f'attachment; filename="Confirmação de {mes}-{ano} até {mes2}-{ano2}.xlsx"'
+        else:
+            excel_path = f'Confirmação {mes}-{ano}.xlsx'
+            df.to_excel(excel_path, index=False, sheet_name='Confirmado')
 
-    return response, excel_path_confirmacao, df
+            with open(excel_path, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = f'attachment; filename="Confirmação - {mes}-{ano}.xlsx"'
+
+    return response, excel_path, df
 
 
 def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
@@ -260,6 +329,7 @@ def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
     if matricula == '':
         df = RelatorioNegativos.objects.filter(importacao__mes=mes,
                                                importacao__ano=ano, tipo=tipo).order_by('nome').values()
+
     else:
         df = RelatorioNegativos.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
                                                importacao__ano=ano, tipo=tipo).order_by('nome').values()
@@ -272,9 +342,8 @@ def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
-
         df = arruma_campos(df, f'negativos_{tipo}', mes, ano)
-        excel_path_negativos = f'Bancos negativos - {mes}-{ano}.xlsx'
+        excel_path_negativos = f'Bancos negativos {mes}-{ano}.xlsx'
         df.to_excel(excel_path_negativos, index=False, sheet_name='Bancos Negativos')
 
         with open(excel_path_negativos, 'rb') as file:

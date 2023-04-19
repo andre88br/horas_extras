@@ -75,11 +75,8 @@ def processa_horas_extras(request):
             data = request.POST['data']
             ano, mes = int(str(data).split('-')[0]), int(str(data).split('-')[1])
             planilha_frequencia = request.FILES.getlist("frequencia")
-            print(planilha_frequencia)
             planilha_banco_mes = request.FILES.get("banco_mes")
-            print(planilha_banco_mes)
             planilha_banco_total = request.FILES.get("banco_total")
-            print(planilha_banco_total)
             try:
                 if planilha_frequencia != '':
                     processa_frequencia(request, planilha_frequencia, mes, ano)
