@@ -35,15 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <label for="data">Mês/Ano</label><br>
                 <div class="form-inline">
-                        <input type="month" id="data" name="data" class="col-6 row-cols-6" required>
+                    <input type="month" id="data" name="data" class="col-6 row-cols-6" required>
                     <div class="passar_mouse">
-                <i class="fa-regular fa-circle-question"></i>
-                <kbd class="mostrar2">
-                    <ul>
+                        <i class="fa-regular fa-circle-question"></i>
+                        <kbd class="mostrar2">
+                            <ul>
 
-                    </ul>
-                </kbd>
-            </div>
+                            </ul>
+                        </kbd>
+                    </div>
                 </div>
 
                 <label for="tipo">Tipo</label><br>
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr class="par">
                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                <td class="td_opcoes">{{ file.importado_por}}</td>
+                <td class="td_opcoes2">{{ file.importado_por}}</td>
             </tr>
             {% endfor %}
     {% endif %}
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <tr class="par">
                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
                 <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                <td class="td_opcoes">{{ file.importado_por}}</td>
+                <td class="td_opcoes2">{{ file.importado_por}}</td>
             </tr>
             {% endfor %}
     {% endif %}

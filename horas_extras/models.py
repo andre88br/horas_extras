@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.db import models
+from django.utils import timezone
+
 from empregados.models import Empregado, Importacoes
 
 
@@ -111,7 +113,7 @@ class Frequencia(models.Model):
     batida5 = models.TimeField()
     batida6 = models.TimeField()
     escala = models.CharField(max_length=100)
-    data_upload = models.DateTimeField(default=datetime.now())
+    data_upload = models.DateTimeField(default=timezone.now)
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
 

@@ -13,60 +13,74 @@
 {% include 'partials/menu_lateral.html' %}
 <div class="escolhe-mes">
 
-<div id="conteudo">
+    <div id="conteudo">
 
-  <h1>Solicitações</h1>
+        <h1>Solicitações</h1>
 
         <div class="tabela-transacoes">
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                     <th>Opções</th>
                 </tr>
                 {% if files2 %}
                 {% for file in files2 %}
                     <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
-                                <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
-                                <td class="td_opcoes">
-                                    <a href="{% url 'solicitacao' file.id %}">
-                                        <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
-                                    </a>
-                                    <a href="{% url 'deleta_mes' file.id %}">
-                                        <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar()"><i class="fa-solid fa-trash" ><br>excluir</i></button>
-                                    </a>
-                                </td>
-                            </tr>
+                        <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                        <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                        <td class="td_opcoes2">{{ file.importado_por }}</td>
+
+                        <td class="td_opcoes">
+                            <a href="{% url 'solicitacao' file.id %}">
+                                <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                            </a>
+                            <a href="{% url 'deleta_mes' file.id %}">
+                                <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar()"><i class="fa-solid fa-trash" ><br>excluir</i></button>
+                            </a>
+                        </td>
+                    </tr>
                 {% endfor %}
                 {% endif %}
             </table>
             {% if not files2 %}
                 {% include 'partials/_messages.html' %}
             {% endif %}
-
         </div>
+        <div class="pagination">
+            {% if files2.has_previous %}
+                <button class="prev"><a href="?page={{ files2.previous_page_number }}"><i class="fa-solid fa-backward-fast"></i> Anterior</a></button>
+            {% endif %}
 
+            {% for page in paginator.get_page_range %}
+                {% if files2.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
 
-            <br><br><br>
-
+            {% if files2.has_next %}
+                <button class="next" ><a href="?page={{ files2.next_page_number }}">Próximo <i class="fa-solid fa-forward-fast"></i></a></button>
+            {% endif %}
+        </div>
+        <br><br><br>
         <h1>Confirmações</h1>
         <div class="tabela-transacoes">
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                     <th>Opções</th>
                 </tr>
                 {% if files %}
                 {% for file in files %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">
                                     <a href="{% url 'confirmacao' file.id %}">
                                         <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
@@ -86,6 +100,23 @@
             {% endif %}
 
         </div>
-</div>
+        <div class="pagination">
+            {% if files.has_previous %}
+                <button class="prev"><a href="?page={{ files.previous_page_number }}"><i class="fa-solid fa-backward-fast"></i> Anterior</a></button>
+            {% endif %}
+
+            {% for page in paginator.get_page_range %}
+                {% if files.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+
+            {% if files.has_next %}
+                <button class="next" ><a href="?page={{ files.next_page_number }}">Próximo <i class="fa-solid fa-forward-fast"></i></a></button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -15,7 +15,7 @@
             {% if user.is_superuser %}
             <li class="menu-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="usuariosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-                    <i class="fa-solid fa-user"></i> Usuários
+                    <i class="fa-solid fa-user-group"></i> Usuários
                 </a>
                 <ul class="menu-item dropdown" aria-labelledby="usuariosDropdown">
                     <li><a class="menu-item dropdown-item" href="{% url 'usuarios'%}"><i class="fa-solid fa-list"></i> Listar usuários</a></li>
@@ -34,13 +34,13 @@
             </li>
              <li class="menu-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="horasExtrasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-clock"></i> Importar e processar
+                    <i class="fa-solid fa-upload"></i> <i class="fa-solid fa-microchip"></i> Importar e processar
                 </a>
                 <ul class="menu-item dropdown" aria-labelledby="horasExtrasDropdown">
                     <li><a class="menu-item dropdown-item" href="{% url 'upload' %}"><i class="fa-solid fa-file-import"></i> Importar solicitação/confirmação</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'inserir_bases' %}"><i class="fa-solid fa-database"></i> Importar bases</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'processar' %}"><i class="fa-solid fa-list-check"></i> Processar horas extras</a></li>
-                    <li><a class="menu-item dropdown-item" href="{% url 'reprocessar' %}"><i class="fa-solid fa-list-check"></i> Reprocessar por matrícula</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'reprocessar' %}"><i class="fa-solid fa-address-card"></i> Reprocessar por matrícula</a></li>
                 </ul>
             </li>
 
@@ -53,6 +53,18 @@
                     <li><a class="menu-item dropdown-item" href="{% url 'frequencia' %}"><i class="fa-solid fa-business-time"></i> Frequência</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'carga_horaria' %}"><i class="fa-solid fa-user-clock"></i> Carga horária</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'banco_de_horas' %}"><i class="fa-solid fa-clock"></i> Banco de horas</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="basesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-bars-progress"></i> Pós Cálculo
+                </a>
+                <ul class="menu-item dropdown" aria-labelledby="basesDropdown">
+                    <li><a class="menu-item dropdown-item" href="{% url 'rejeitar_batidas' %}"> <i class="fa-regular fa-calendar-xmark"></i> Rejeitar batidas</a></li>
+<!--                    <li><a class="menu-item dropdown-item" href="{% url 'frequencia' %}"><i class="fa-solid fa-business-time"></i> Frequência</a></li>-->
+<!--                    <li><a class="menu-item dropdown-item" href="{% url 'carga_horaria' %}"><i class="fa-solid fa-user-clock"></i> Carga horária</a></li>-->
+<!--                    <li><a class="menu-item dropdown-item" href="{% url 'banco_de_horas' %}"><i class="fa-solid fa-clock"></i> Banco de horas</a></li>-->
                 </ul>
             </li>
 

@@ -303,11 +303,13 @@
 
 
 <div class="escolhe-mes">
-
-<div id="conteudo">
+    <div id="conteudo">
+        {% if files4 or files5 %}
+                <h1>Bases</h1>
+        {% endif %}
 
          {% if files4 %}
-    <h1>Confirmação</h1>
+    <h3>Confirmação</h3>
         <table id="confirmacao">
                 <thead>
                 <tr>
@@ -395,7 +397,7 @@
     {% endif %}
 
     {% if files5 %}
-    <h1>Solicitação</h1>
+    <h3>Solicitação</h3>
             <table id="solicitacao">
                 <thead>
                 <tr>
@@ -483,7 +485,7 @@
     {% endif %}
 
     {% if files2 %}
-    <h1>Bancos de horas - Mês</h1>
+    <h3>Bancos de horas - Mês</h3>
             <table id="banco_mes">
                 <thead>
                 <tr>
@@ -511,7 +513,7 @@
     {% endif %}
 
     {% if files3 %}
-    <h1>Bancos de horas - Total</h1>
+    <h3>Bancos de horas - Total</h3>
             <table id="banco_total">
                 <thead>
                 <tr>
@@ -539,7 +541,7 @@
     {% endif %}
 
      {% if files %}
-        <h1>Frequência</h1>
+        <h3>Frequência</h3>
             <table id="frequencia">
                 <tr>
                     <th class="th-matricula">Matrícula</th>
