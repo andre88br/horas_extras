@@ -100,3 +100,6 @@ XlsxWriter==3.0.9
 xlwings==0.29.1
 yarl==1.7.2
 zopfli==0.2.2
+
+pip~=23.0.1
+setuptools~=65.5.0

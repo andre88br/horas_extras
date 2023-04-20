@@ -116,15 +116,15 @@
     <h1>Confirmação</h1>
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                 </tr>
                 {% for file in files4 %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -134,15 +134,15 @@
     <h1>Solicitação</h1>
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                 </tr>
                 {% for file in files5 %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -152,15 +152,15 @@
         <h1>Frequências</h1>
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                 </tr>
                 {% for file in files %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -170,15 +170,15 @@
     <h1>Bancos de horas - Mês</h1>
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                 </tr>
                 {% for file in files2 %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                             </tr>
                 {% endfor %}
             </table>
@@ -188,15 +188,15 @@
     <h1>Bancos de horas - Total</h1>
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                 </tr>
                 {% for file in files3 %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                             </tr>
                 {% endfor %}
             </table>

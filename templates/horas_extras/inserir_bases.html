@@ -111,6 +111,61 @@
                     <div  class="col-md"></div>
                     <div  class="col-md"></div>
                 </div>
+
+
+         {% if files %}
+          <h1>Frequencia</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Mês/Ano</th>
+                    <th>Data importaçao</th>
+                    <th>Importado por</th>
+                </tr>
+                {% for file in files %}
+                <tr class="par">
+                    <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
+                    <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                    <td class="td_opcoes2">{{ file.importado_por}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+      {% if files2 %}
+          <h1>Banco mês</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Mês/Ano</th>
+                    <th>Data importaçao</th>
+                    <th>Importado por</th>
+                </tr>
+                {% for file in files2 %}
+                <tr class="par">
+                    <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
+                    <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                    <td class="td_opcoes2">{{ file.importado_por}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        {% if files3 %}
+          <h1>Banco total</h1>
+            <table>
+                <tr class="tr_th">
+                    <th>Mês/Ano</th>
+                    <th>Data importaçao</th>
+                    <th>Importado por</th>
+                </tr>
+                {% for file in files3 %}
+                <tr class="par">
+                    <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes}}/{{ file.ano }}</td>
+                    <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                    <td class="td_opcoes2">{{ file.importado_por}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

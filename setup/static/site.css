@@ -156,11 +156,9 @@ button:hover{
 
 .tabela-transacoes{
     padding: 20px;
-
-
 }
 
-table{
+#table{
     width: 100%;
     table-layout: initial;
 }
@@ -171,7 +169,7 @@ table{
     text-transform: uppercase;
     padding: 4px;
     text-align: center;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
@@ -184,12 +182,14 @@ table{
     text-transform: uppercase;
     padding: 4px;
     text-align: left;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
     white-space: nowrap;
 }
+
+
 
 
 
@@ -271,6 +271,8 @@ table{
     text-align: center;
 }
 
+
+
 .form-control-email{
         text-transform: lowercase;
 }
@@ -289,18 +291,27 @@ table{
     text-align: center;
 }
 
+.par .td_opcoes2{
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: 0.5%;
+    text-align: center;
+    text-transform: lowercase;
+}
+
 .par:nth-child(even){
-    background: #FFFFFF ;
+    background: #f7f7f7 ;
     border-bottom: 1px solid #CCCCCC;
     text-align: center;
 
 }
 .par:nth-child(odd){
-    background: #DDDDDD ;
+    background: #FFFFFF;
     border-bottom: 1px solid #CCCCCC;
     text-align: center;
 
 }
+
 
 .par:hover{
     transform: scale(1.01);
@@ -488,11 +499,13 @@ tr th {
     text-transform: uppercase;
     padding: 4px;
     text-align: center;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid black;
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
     border-top: 1px solid #CCCCCC;
     white-space: nowrap;
+    /*background: #264b5d;*/
+    /*color: white;*/
 }
 
 tr:nth-child(even) {

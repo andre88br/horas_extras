@@ -1,6 +1,6 @@
 import json
 
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 
 from empregados.models import Importacoes, Empregado
 from horas_extras.calcula import calcula_he, calcula_solicitacao, recalcula_solicitacao, recalcula_he
@@ -14,13 +14,12 @@ from django.core.paginator import Paginator
 
 from .valida_formata_str import transforma_data_contrario
 
-
 from django.shortcuts import render
 
 
 def solicitacao_confirmacao_upload(request):
     if request.user.is_authenticated:
-        if request.method == "POST":       
+        if request.method == "POST":
             data = request.POST.get('data')
             mes = int(str(data).split('-')[1])
             ano = int(str(data).split('-')[0])
@@ -53,15 +52,16 @@ def solicitacao_confirmacao_upload(request):
                 return render(
                     request,
                     "horas_extras/solicitacao_confirmacao_upload.html",
-                    context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all(),
-                             "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()},
-                )      
+                    context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()[:2],
+                             "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()[
+                                       :2]},
+                )
 
         return render(
             request,
             "horas_extras/solicitacao_confirmacao_upload.html",
-            context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all(),
-                     "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()},
+            context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()[:2],
+                     "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()[:2]},
         )
     else:
         messages.error(request, 'Faça o login para acessar essa página!')
@@ -73,18 +73,18 @@ def importacoes(request):
         importacoes_lista_confirmacao = Importacoes.objects.filter(tipo='Confirmação').values()
         importacoes_lista_solicitacao = Importacoes.objects.filter(tipo='Solicitação').values()
         solicitacoes_a_mostar = Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()
-        paginator = Paginator(solicitacoes_a_mostar, 5)
+        paginator = Paginator(solicitacoes_a_mostar, 4)
         page = request.GET.get('page')
         solicitacoes_paginadas = paginator.get_page(page)
-    
+
         confirmacoes_a_mostar = Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()
-        paginator = Paginator(confirmacoes_a_mostar, 5)
+        paginator = Paginator(confirmacoes_a_mostar, 4)
         page = request.GET.get('page')
         confirmacoes_paginadas = paginator.get_page(page)
-    
+
         if not importacoes_lista_solicitacao or not importacoes_lista_confirmacao:
             messages.error(request, "Sem planilhas importadas!")
-    
+
         return render(request, "horas_extras/importacoes.html", context={
             'files': confirmacoes_paginadas, 'files2': solicitacoes_paginadas})
     else:
@@ -197,28 +197,25 @@ def deleta_mes(request, file_id):
 
 def inserir_bases(request):
     if request.user.is_authenticated:
-        frequencias = Importacoes.objects.filter(tipo='frequencia').order_by("-ano", "-mes").all()
-        banco_mes = Importacoes.objects.filter(tipo='banco_mes').order_by("-ano", "-mes").all()
-        banco_total = Importacoes.objects.filter(tipo='banco_total').order_by("-ano", "-mes").all()
+        frequencias = Importacoes.objects.filter(tipo='frequencia').order_by("-ano", "-mes").all()[:2]
+        banco_mes = Importacoes.objects.filter(tipo='banco_mes').order_by("-ano", "-mes").all()[:2]
+        banco_total = Importacoes.objects.filter(tipo='banco_total').order_by("-ano", "-mes").all()[:2]
         if request.method == "POST":
-            if request.user.is_authenticated:
-                mes, ano, resposta = processa_horas_extras(request)
-    
-                if resposta == 'sem arquivos':
-                    messages.error(request, "Insira pelo menos um arquivo")
-                if resposta == "formato_não_suportado":
-                    messages.error(request, "Formato de arquivo não suportado")
-                if resposta == "arquivo_vazio":
-                    messages.error(request, "Arquivo não pode ser vazio!")
-                if resposta == "dados_inválidos":
-                    messages.error(request, "Arquivo com dados inválidos!")
-                if resposta == "OK":
-                    messages.success(request, "Processado com sucesso")
-                return render(request, "horas_extras/inserir_bases.html",
-                              context={"files": frequencias, "files2": banco_mes, "files3": banco_total},
-                              )
-            else:
-                return redirect("login")
+            mes, ano, resposta = processa_horas_extras(request)
+
+            if resposta == 'sem arquivos':
+                messages.error(request, "Insira pelo menos um arquivo")
+            if resposta == "formato_não_suportado":
+                messages.error(request, "Formato de arquivo não suportado")
+            if resposta == "arquivo_vazio":
+                messages.error(request, "Arquivo não pode ser vazio!")
+            if resposta == "dados_inválidos":
+                messages.error(request, "Arquivo com dados inválidos!")
+            if resposta == "OK":
+                messages.success(request, "Processado com sucesso")
+            return render(request, "horas_extras/inserir_bases.html",
+                          context={"files": frequencias, "files2": banco_mes, "files3": banco_total},
+                          )
         else:
             return render(request, "horas_extras/inserir_bases.html",
                           context={"files": frequencias, "files2": banco_mes, "files3": banco_total})
@@ -449,13 +446,22 @@ def salvar_alteracao_saldo_mes(request):
 
 def bancos(request):
     if request.user.is_authenticated:
-        banco_total_lista = Importacoes.objects.filter(tipo='banco_total').all()
-        banco_mes_lista = Importacoes.objects.filter(tipo='banco_mes').all()
+
+        banco_total_lista = Importacoes.objects.filter(tipo='banco_total').order_by("-ano", "-mes").all()
+        paginator = Paginator(banco_total_lista, 4)
+        page = request.GET.get('page')
+        bancos_paginados = paginator.get_page(page)
+
+        banco_mes_lista = Importacoes.objects.filter(tipo='banco_mes').order_by("-ano", "-mes").all()
+        paginator = Paginator(banco_mes_lista, 4)
+        page = request.GET.get('page')
+        banco_mes_paginados = paginator.get_page(page)
+
         if len(banco_mes_lista) == 0 or len(banco_total_lista) == 0:
             messages.error(request, "Sem bancos importados")
         return render(request, "horas_extras/banco_de_horas.html",
-                      context={"files1": Importacoes.objects.filter(tipo='banco_total').order_by("-ano", "-mes"),
-                               "files2": Importacoes.objects.filter(tipo='banco_mes').order_by("-ano", "-mes"),
+                      context={"files1": bancos_paginados,
+                               "files2": banco_mes_paginados,
                                'file_id': 1})
     else:
         messages.error(request, 'Faça o login para acessar essa página!')
@@ -828,7 +834,6 @@ def salvar_banco_total_reprocessar(request):
         banco_total = BancoTotal.objects.filter(empregado__matricula=matricula,
                                                 importacao__mes=mes, importacao__ano=ano).values()
         if tipo == 'confirmacao':
-
             confirmacao = Confirmacao.objects.filter(empregado__matricula=matricula,
                                                      importacao__mes=mes, importacao__ano=ano).values()
 

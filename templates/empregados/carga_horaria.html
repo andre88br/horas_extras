@@ -36,17 +36,17 @@
         <div class="tabela-transacoes">
             <table>
                 <tr class="tr_th">
+                    <th>Mês/Ano</th>
                     <th>Data importaçao</th>
                     <th>Usuário</th>
-                    <th>Mês/Ano</th>
                     <th>Opções</th>
                 </tr>
                 {% if files %}
                 {% for file in files %}
                             <tr class="par">
-                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
-                                <td class="td_opcoes">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                                <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                                <td class="td_opcoes2">{{ file.importado_por }}</td>
                                 <td class="td_opcoes">
                                     <a href="{% url 'carga_detalhe' file.id %}">
                                         <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>

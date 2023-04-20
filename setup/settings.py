@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "usuarios",
     "empregados",
     "relatorios",
+    "pos_calculo",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
