@@ -63,12 +63,12 @@
 
    {% else %}
 
-        <h1 xmlns="http://www.w3.org/1999/html">Recalcular bancos</h1>
+        <h1 xmlns="http://www.w3.org/1999/html">Lançar pagamento</h1>
         {% include 'partials/_messages.html' %}
         <div class="row align-left">
             <div  class="col-md">
 
-                <form class="form-importar" action="{% url 'recalcular_banco' %}" method="POST" id="form" enctype="multipart/form-data" >
+                <form class="form-importar" action="{% url 'pagamento' %}" method="POST" id="form" enctype="multipart/form-data" >
                     {% csrf_token %}
                     <label for="data">Mês/Ano</label>
                     <div class="form-inline">
@@ -82,6 +82,10 @@
                                 <kbd class="mostrar">Caso o campo 'Matrícula' não seja preenchido, o processamento será feito todos os
                                     empregados que estiverem na confirmação e que não estejam com banco negativo. </kbd>
                         </div>
+                    </div>
+                     <label for="data_folha">Mês/Ano da folha de pagamento</label>
+                    <div class="form-inline">
+                        <input type="month" name="data_folha" id="data_folha" class="col-6 row-cols-6" required>
                     </div>
                     <label for="processo" id="label_processo">Processo</label>
                     <div class="form-inline">

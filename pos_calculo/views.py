@@ -1,19 +1,8 @@
-import pandas as pd
+from django.contrib import messages
 from django.shortcuts import render
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-
-from empregados.models import Empregado
-from pos_calculo.processamento import pega_matricula, rejeita_todos, rejeita_especifico, inicia_driver, \
-    clica_frequencia, clica_banco, recalcula_todos, recalcula_especifico
-from pos_calculo.rejeitar import Diurno, Noturno, VinteQuatroHoras
-from relatorios.models import RelatorioRejeitarBatidas
+from pos_calculo.processamento import rejeita_todos, rejeita_especifico, inicia_driver, \
+    clica_frequencia, clica_banco, recalcula_todos, recalcula_especifico, lanca_todos, lanca_especifico
 
 
 def rejeitar_batidas(request):
@@ -40,16 +29,47 @@ def recalcular_banco(request):
         mes = int(str(data).split('-')[1])
         ano = int(str(data).split('-')[0])
         matricula = request.POST.get('matricula')
-
-        driver = inicia_driver()
-        clica_banco(driver)
-
-        c = 0
+        processo = request.POST.get('processo')
 
         if matricula == '':
-            recalcula_todos(mes, ano, driver, c)
+            resposta = recalcula_todos(mes, ano, processo)
         else:
-            recalcula_especifico(mes, ano, driver, c, matricula)
+            resposta = recalcula_especifico(mes, ano, matricula, processo)
+
+        if int(mes) < 10:
+            mes = f'0{mes}'
+
+        if resposta == 'ok':
+            messages.success(request, 'Bancos calculados com sucesso')
+        else:
+            messages.error(request, f'Matrícula não localizada na confirmação de horas extras do mês de {mes}/{ano}')
     return render(request, "pos_calculo/recalcular_banco.html")
+
+
+def pagamento(request):
+    if request.method == "POST":
+        data = request.POST.get('data')
+        mes = int(str(data).split('-')[1])
+        ano = int(str(data).split('-')[0])
+        data_folha = request.POST.get('data_folha')
+        mes_folha = int(str(data_folha).split('-')[1])
+        ano_folha = int(str(data_folha).split('-')[0])
+        matricula = request.POST.get('matricula')
+        processo = request.POST.get('processo')
+
+        if matricula == '':
+            resposta = lanca_todos(mes, ano, mes_folha, ano_folha,  processo)
+        else:
+            resposta = lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo)
+
+        if int(mes) < 10:
+            mes = f'0{mes}'
+
+        if resposta == 'ok':
+            messages.success(request, 'Rubricas lançadas com sucesso')
+        else:
+            messages.error(request, f'Matrícula não localizada na confirmação de horas extras do mês de {mes}/{ano}')
+
+    return render(request, "pos_calculo/pagamento.html")
 
 
