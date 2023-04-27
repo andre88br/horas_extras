@@ -601,7 +601,7 @@ tr td{
   padding-left: 10px;
   width: 300px;
   border: solid #1b1b1b;
-  border-radius: 25px;
+  border-radius: 15px;
   background: #FFFFFF;
   color: #1b1b1b;
   text-align: justify;
@@ -707,8 +707,8 @@ tr td{
   }
 
 #menu {
-    width: 380px;
-    height: 100%;
+    width: 350px;
+    height: 91.5%;
     color: #1b1b1b;
     position: fixed;
     padding: 0 2px;
@@ -716,13 +716,13 @@ tr td{
     left: 1px;
     border: 1px solid #cccccc;
     background-color: #ffffff;
-    overflow: auto;
+    overflow: scroll;
     justify-content: space-between;
     align-items: center;
 }
 #menu a {
   color: #7c7979; /* cor do texto do link do menu */
-  font-size: 16px; /* tamanho da fonte do link do menu */
+  font-size: 14px; /* tamanho da fonte do link do menu */
   font-weight: 500; /* peso da fonte do link do menu */
   text-transform: uppercase; /* transforma o texto em maiúsculas */
 }
@@ -732,7 +732,7 @@ tr td{
 }
 
 .menu-item {
-  margin-bottom: 10px; /* espaço entre os itens do menu */
+  margin-bottom: 5px; /* espaço entre os itens do menu */
   padding: 0 10px;
 }
 
