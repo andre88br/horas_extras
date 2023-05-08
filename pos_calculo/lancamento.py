@@ -9,6 +9,8 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
+from pos_calculo.dbchanges import salva_rubricas_lancadas
+
 
 def ColarMatricula(matricula, c, driver):
     if c > 0:
@@ -16,7 +18,7 @@ def ColarMatricula(matricula, c, driver):
         campo_matricula.clear()
         campo_matricula.send_keys(Keys.TAB)
         try:
-            wait = WebDriverWait(driver, 5)
+            wait = WebDriverWait(driver, 2)
             alert = wait.until(ec.alert_is_present())
             alert.accept()
         except UnexpectedAlertPresentException:
@@ -70,7 +72,7 @@ def SelecionarFolha(driver, folha):
         pass
 
 
-def InsereDados(j, driver, mes, ano, processo):
+def InsereDados(j, driver, mes, ano, observacao, usuario, index):
     for i in range(2 if j['rubrica_noturna'] == 878 else 1):
         # Limpa o campo e cola o código no campo Rubrica
         rubrica = ''
@@ -106,7 +108,9 @@ def InsereDados(j, driver, mes, ano, processo):
         # Limpa o campo e cola o o valor no campo Valor
         valor = ''
         if i == 0:
-            valor = f'{str(j["hs_diurnas"]).split(".")[0]},{str(round(j["hs_diurnas"], 2)).split(".")[1]}'
+            valor = f'{str(j["hs_diurnas"]).split(".")[0]},{str(round(j["hs_diurnas"], 2)).split(".")[1]}' if \
+                int(str(j["hs_diurnas"]).split(".")[0]) >= 10 else \
+                f'0{str(j["hs_diurnas"]).split(".")[0]},{str(round(j["hs_diurnas"], 2)).split(".")[1]}'
         if i == 1:
             valor = f'{str(j["hs_noturnas"]).split(".")[0]},{str(round(j["hs_noturnas"], 2)).split(".")[1]}'
         if len(valor) < 5:
@@ -118,7 +122,6 @@ def InsereDados(j, driver, mes, ano, processo):
         campo_valor.send_keys(valor)
 
         # Limpa o campo e cola a observação no campo Observações
-        observacao = f'Horas extras ref. {mes}/{ano}. Processo SEI {processo}'
         campo_observacao = driver.find_element(By.NAME, 'obs')
         campo_observacao.clear()
         campo_observacao.send_keys(observacao)
@@ -126,7 +129,7 @@ def InsereDados(j, driver, mes, ano, processo):
         # Clica no botão Salvar e fecha a mensagem de Salvo com sucesso
         try:
 
-            wait = WebDriverWait(driver, 5)
+            wait = WebDriverWait(driver, 2)
             wait.until(ec.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr/td/form/div/div[2]/input[1]'
                                                        )))
 
@@ -134,15 +137,18 @@ def InsereDados(j, driver, mes, ano, processo):
             action = ActionChains(driver)
             action.move_to_element(botao_salvar).click().perform()
 
-            wait = WebDriverWait(driver, 5)
+            wait = WebDriverWait(driver, 2)
             wait.until(ec.presence_of_element_located((By.XPATH, "//span [text()='Dados salvos com "
                                                                  "sucesso.']")))
 
             fechar_mensagem = driver.find_element(By.ID, 'closeButton')
             fechar_mensagem.click()
+            salva_rubricas_lancadas(j, usuario, mes, ano, rubrica, valor)
+            print(f"{index} - {j['matricula']}: {rubrica} R$ {valor}")
+
         except JavascriptException:
             try:
-                wait = WebDriverWait(driver, 5)
+                wait = WebDriverWait(driver, 2)
                 wait.until(ec.presence_of_element_located((By.ID, 'closeButton')))
                 fechar_mensagem = driver.find_element(By.ID, 'closeButton')
                 fechar_mensagem.click()
@@ -151,19 +157,21 @@ def InsereDados(j, driver, mes, ano, processo):
                 action = ActionChains(driver)
                 action.move_to_element(botao_salvar).click().perform()
 
-                wait = WebDriverWait(driver, 5)
+                wait = WebDriverWait(driver, 2)
                 wait.until(ec.presence_of_element_located((By.XPATH, "//span [text()='Dados salvos com "
                                                                      "sucesso.']")))
 
                 fechar_mensagem = driver.find_element(By.ID, 'closeButton')
                 fechar_mensagem.click()
+                salva_rubricas_lancadas(j, usuario, mes, ano, rubrica, valor)
+                print(f"{index} - {j['matricula']}: {rubrica} - R$ {valor}")
             except TimeoutException:
                 pass
         except TimeoutException:
             pass
 
 
-def LancarRubricas(dados, driver, mes, ano, folha, processo):
+def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario):
     if len(dados) == 0:
         pass
     else:
@@ -187,13 +195,13 @@ def LancarRubricas(dados, driver, mes, ano, folha, processo):
                 incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
                 incluir.click()
 
-                InsereDados(j, driver, mes, ano, processo)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int+1)
             elif matricula_anterior == matricula:
-                InsereDados(j, driver, mes, ano, processo)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int)
             else:
                 driver.back()
 
-                wait = WebDriverWait(driver, 10)
+                wait = WebDriverWait(driver, 5)
                 wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
 
                 frame1 = driver.find_element(By.ID, 'frame1')
@@ -204,6 +212,6 @@ def LancarRubricas(dados, driver, mes, ano, folha, processo):
                 incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
                 incluir.click()
 
-                InsereDados(j, driver, mes, ano, processo)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int)
 
             matricula_anterior = matricula

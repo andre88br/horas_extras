@@ -5,8 +5,9 @@ from horas_extras.calcula import calcula_he
 from django.contrib import messages
 
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_erros, \
-    gera_relatorio_confirmacao, gera_relatorio_entrada_saida, gera_relatorio_codigo90,\
-    gera_relatorio_negativos, gera_relatorio_rejeitar_batidas, gera_relatorio_pagas, gera_relatorio_setores
+    gera_relatorio_confirmacao, gera_relatorio_entrada_saida, gera_relatorio_codigo90, \
+    gera_relatorio_negativos, gera_relatorio_rejeitar_batidas, gera_relatorio_pagas, gera_relatorio_setores, \
+    gera_relatorio_rejeitadas
 
 
 def relatorios(request):
@@ -22,15 +23,18 @@ def gera_relatorio(request):
         nome = ''
         response1, response2 = '', ''
         tipo = request.POST.get('tipo')
+        matricula = request.POST.get('matricula')
+        final = request.POST.get('final')
         data_inicial = request.POST['data_inicial']
         data_final = request.POST['data_final']
         ano, mes = str(data_inicial).split('-')
+        ano2, mes2 = str(data_final).split('-')
         usuario = request.user
         if tipo == 'solicitadas_mes':
-            relatorio = gera_relatorio_solicitacao(data_inicial, data_final, )
+            relatorio = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
 
         if tipo == 'pagas_mes':
-            relatorio, conclusao, response1, response2 = calcula_he(ano, mes, usuario)
+            relatorio, conclusao, response1, response2 = calcula_he(ano, mes, usuario, final)
             relatorio['saldo_mes_decimal'] = relatorio['saldo_mes_decimal'].map(lambda x: format(x, '.2f'))
             relatorio['saldo_banco_decimal'] = relatorio['saldo_banco_decimal'].map(lambda x: format(x, '.2f'))
             relatorio['horas_trabalhadas'] = relatorio['horas_trabalhadas'].map(lambda x: format(x, '.2f'))
@@ -92,6 +96,9 @@ def escolhe_relatorio(request):
 
         if tipo == 'setores':
             response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
+
+        if tipo == 'rejeitadas':
+            response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
 
         if not response:
             messages.error(request, 'Relatório não disponível!')

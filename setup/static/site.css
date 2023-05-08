@@ -25,33 +25,33 @@ td a:link, td a:visited{
 }
 
 
-
 .btn-success{
-    padding: 10px 10px;
-    margin: 15px 0;
-    background-color: #003355;
-    font-weight: bold;
-    border: none;
-    border-radius: 25px;
-    transition: 1s all;
-    cursor: pointer;
-    text-transform: capitalize;
-}
-
-
-.btn_editar {
     text-decoration: none;
     color: white;
-    background: #19865C;
+    background: #003355;
     text-transform: capitalize;
     border-radius: 25px;
     border: 1px solid;
     cursor: pointer;
     width: 110px;
-
+    font-size: 14px;
 }
 
-.btn_deletar {
+
+.btn_editar{
+    text-decoration: none;
+    color: white;
+    background: #12579c;
+    text-transform: capitalize;
+    border-radius: 25px;
+    border: 1px solid;
+    cursor: pointer;
+    width: 110px;
+    font-size: 14px;
+}
+
+
+.btn_deletar{
     text-decoration: none;
     color: white;
     background: rgba(170, 38, 38, 0.84);
@@ -60,9 +60,10 @@ td a:link, td a:visited{
     border: 1px solid;
     cursor: pointer;
     width: 110px;
+    font-size: 14px;
 }
 
-.btn_remover {
+.btn_remover{
     text-decoration: none;
     color: white;
     background: rgba(188, 166, 43, 0.95);
@@ -71,8 +72,8 @@ td a:link, td a:visited{
     border: 1px solid;
     cursor: pointer;
     width: 110px;
+    font-size: 14px;
 }
-
 
 .btn_reativar{
     text-decoration: none;
@@ -83,6 +84,7 @@ td a:link, td a:visited{
     border: 1px solid;
     cursor: pointer;
     width: 110px;
+    font-size: 14px;
 }
 
 .btn_salvar{
@@ -108,6 +110,7 @@ td a:link, td a:visited{
     border: 1px solid;
     cursor: pointer;
     width: 110px;
+    font-size: 14px;
 }
 
 .btn_analisar{
@@ -119,6 +122,7 @@ td a:link, td a:visited{
     cursor: pointer;
     width: 110px;
     border: none;
+    font-size: 14px;
 }
 
 button:hover{
@@ -456,16 +460,17 @@ main{
 
 .pagination button {
   padding: 10px;
-  background-color: #12579c;
+  background-color: #114a83;
   border: none;
   border-radius: 25px;
   margin: 0 10px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .busca button {
   padding: 10px;
-  background-color: #12579c;
+  background-color: #114a83;
   border: none;
   border-radius: 25px;
   margin: 0 10px;
@@ -473,6 +478,7 @@ main{
   color: #ffffff;
   text-decoration-line: none;
   font-weight: bold;
+  font-size: 14px;
 }
 
 .busca input{
@@ -553,13 +559,14 @@ tr td{
     box-shadow: 0 0 0 0;
     border: none;
     outline: 0;
+    background: #f7f7f7;
 }
 
 .par:nth-child(odd) input{
     box-shadow: 0 0 0 0;
     border: none;
     outline: 0;
-    background: #DDDDDD;
+    background: #FFFFFF;
 
 }
 
@@ -823,4 +830,39 @@ tr td{
   text-align: center;
   font-size: 24px;
   font-weight: bold;
+}
+
+/* Smaller than standard 960 (devices and browsers) */
+@media only screen and (max-width: 959px) {
+    h1{
+        font-size: 10px;
+    }
+}
+
+/* Tablet Portrait size to standard 960 (devices and browsers) */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+    h1{
+        font-size: 12px;
+    }
+}
+
+/* All Mobile Sizes (devices and browser) */
+@media only screen and (max-width: 767px) {
+    h1{
+        font-size: 14px;
+    }
+}
+
+/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+    h1{
+        font-size: 9px;
+    }
+}
+
+/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
+@media only screen and (max-width: 479px) {
+    h1{
+        font-size: 7px;
+    }
 }

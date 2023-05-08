@@ -4,6 +4,7 @@ import calendar
 import pandas as pd
 from django.http import HttpResponse
 
+from pos_calculo.models import RelatorioBatidasRejeitadas
 from .dbchanges import *
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -479,7 +480,7 @@ def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2):
     print(df)
     df = arruma_campos(df, 'pagas', mes, ano)
 
-    if mes2 != '' or mes is not None:
+    if mes2 != '' and mes is not None:
         excel_path_pagas = f'HE Pagas de {mes}-{ano} até {mes2}-{ano2}.xlsx'
         df.to_excel(excel_path_pagas, index=False, sheet_name='Solicitado')
 
@@ -526,7 +527,7 @@ def gera_relatorio_setores(mes, ano, mes2, ano2):
         df = arruma_campos(df, 'setores', mes, ano)
         print(df)
         df = df[['MATRICULA', 'NOME', 'CARGO', 'MES/ANO', 'SETOR']]
-        if mes2 == '' or mes2 is None:
+        if mes2 == '' and mes2 is None:
             excel_path_setor = f'Horas Extras por setor {mes}-{ano}.xlsx'
             df.to_excel(excel_path_setor, index=False, sheet_name='Setores')
 
@@ -608,3 +609,32 @@ def gera_grafico_pagas(mes, ano, matricula, mes2, ano2):
         return df
     else:
         pass
+
+
+def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
+    empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+    empregados = pd.DataFrame(empregados)
+    if matricula == '':
+        df = RelatorioBatidasRejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+    else:
+        df = RelatorioBatidasRejeitadas.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
+                                                       importacao__ano=ano).order_by('nome').values()
+    response, excel_path_rejeitar_batidas = '', ''
+    if not df:
+        pass
+    else:
+        df = pd.DataFrame(df)
+        pega_matricula(empregados, df)
+        coluna_matricula = df['matricula']
+        df = df.drop(columns={'matricula'})
+        df.insert(0, 'matricula', coluna_matricula)
+        df = arruma_campos(df, 'batidas_rejeitadas', mes, ano)
+        excel_path_rejeitar_batidas = f'Batidas rejeitadas {mes}-{ano}.xlsx'
+        df.to_excel(excel_path_rejeitar_batidas, index=False, sheet_name='Batidas rejeitadas')
+
+        with open(excel_path_rejeitar_batidas, 'rb') as file:
+            response = HttpResponse(file.read(),
+                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = f'attachment; filename="Batidas rejeitadas - {mes}-{ano}.xlsx"'
+
+    return response, excel_path_rejeitar_batidas, df

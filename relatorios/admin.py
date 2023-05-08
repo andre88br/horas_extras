@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
+from pos_calculo.models import RelatorioBatidasRejeitadas
 from relatorios.models import RelatorioConfirmacao, RelatorioSolicitacao, RelatorioErros, RelatorioCodigo90, \
     RelatorioEntradaSaida, RelatorioRejeitarBatidas, RelatorioNegativos, RelatorioPagas
 
@@ -69,6 +70,14 @@ class ListandoRelatorioPagas(admin.ModelAdmin):
     list_per_page = 100
 
 
+class ListandoRelatorioBatidasRejeitadas(admin.ModelAdmin):
+    list_display = ("id", "nome", "empregado", "data_upload")
+    list_display_links = ("nome", "empregado", "data_upload")
+    search_fields = ("empregado", "data_upload")
+    list_filter = ("empregado", "data_upload")
+    list_per_page = 100
+
+
 admin.site.register(RelatorioConfirmacao, ListandoRelatorioConfirmacao)
 admin.site.register(RelatorioSolicitacao, ListandoRelatorioSolicitacao)
 admin.site.register(RelatorioErros, ListandoRelatorioErros)
@@ -77,3 +86,5 @@ admin.site.register(RelatorioEntradaSaida, ListandoRelatorioEntradaSaida)
 admin.site.register(RelatorioRejeitarBatidas, ListandoRelatorioRejeitarBatidas)
 admin.site.register(RelatorioNegativos, ListandoRelatorioNegativos)
 admin.site.register(RelatorioPagas, ListandoRelatorioPagas)
+admin.site.register(RelatorioBatidasRejeitadas, ListandoRelatorioBatidasRejeitadas)
+
