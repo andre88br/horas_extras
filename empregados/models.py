@@ -21,7 +21,7 @@ class Empregado(models.Model):
         Importacoes, on_delete=models.CASCADE
     )
     matricula = models.IntegerField()
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=150)
     salario = models.FloatField()
     insalubridade = models.FloatField()
     data_atualizacao = models.DateTimeField()
@@ -40,7 +40,7 @@ class CargaHoraria(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=150)
     carga_horaria = models.FloatField()
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()

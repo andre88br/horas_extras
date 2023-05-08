@@ -2,6 +2,7 @@ import pandas as pd
 
 from empregados.models import Empregado
 from pos_calculo.lancamento import LancarRubricas
+from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalculados, RelatorioRubricasLancadas
 from pos_calculo.recalcular import RecalcularBanco
 from pos_calculo.rejeitar import Diurno, Noturno, VinteQuatroHoras
 from relatorios.models import RelatorioRejeitarBatidas, RelatorioConfirmacao, RelatorioPagas
@@ -9,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
@@ -26,7 +28,7 @@ def pega_matricula(df, mes, ano):
     return df
 
 
-def  inicia_driver():
+def inicia_driver():
     service = Service("chromedriver.exe")
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -41,6 +43,9 @@ def  inicia_driver():
     driver.get(url)
     driver.stop_client()
     driver.get(url)
+    wait = WebDriverWait(driver, 10)
+    wait.until(ec.presence_of_element_located((By.ID, 'login')))
+    login(driver, 'andre.ribeiro.1', 'l6r7w588')
     return driver
 
 
@@ -80,6 +85,7 @@ def clica_folha(driver):
 
 
 def login(driver, username, password):
+
     username_input = driver.find_element(By.ID, 'login')
     username_input.send_keys(username)
 
@@ -92,39 +98,110 @@ def login(driver, username, password):
     submit_button.click()
 
 
-def rejeita_todos(mes, ano, driver, c):
+def rejeita_todos(mes, ano, driver, c, usuario):
+    rejeitadas_d = RelatorioBatidasRejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano,
+                                                             tipo='D').values()
+
+    if rejeitadas_d:
+        rejeitadas_d = pd.DataFrame(rejeitadas_d)
+        pega_matricula(rejeitadas_d, mes, ano)
+
     diurnos = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
-                                                      tipo='D').values()
+                                                      tipo='D').order_by('-nome').values()
     diurnos = pd.DataFrame(diurnos)
     diurnos.columns = diurnos.columns.str.replace('dia', '')
     diurnos = pega_matricula(diurnos, mes, ano)
     diurnos = diurnos.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
                                     'importado_por', 'importado_por_id', 'data_upload'})
+    try:
+        if not rejeitadas_d.empty:
+            for i, j in rejeitadas_d.iterrows():
+                diurnos = diurnos[diurnos['matricula'] != j['matricula']]
+    except AttributeError:
+        pass
+    for a, b in diurnos.iterrows():
+        c = 0
+        for dia in b[2:33]:
+            if dia != '':
+                c += 1
+        if c == 0:
+            diurnos = diurnos[diurnos['matricula'] != b['matricula']]
+
+    diurnos = diurnos.reset_index(drop=True)
     print(diurnos)
-    c = Diurno(diurnos, driver, c)
+    c = Diurno(diurnos, driver, c, usuario)
+
+    rejeitadas_n = RelatorioBatidasRejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano,
+                                                             tipo='N').values()
+    if rejeitadas_n:
+        rejeitadas_n = pd.DataFrame(rejeitadas_n)
+        pega_matricula(rejeitadas_n, mes, ano)
 
     noturnos = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
-                                                       tipo='N').values()
+                                                       tipo='N').order_by('-nome').values()
     noturnos = pd.DataFrame(noturnos)
     noturnos.columns = noturnos.columns.str.replace('dia', '')
     noturnos = pega_matricula(noturnos, mes, ano)
     noturnos = noturnos.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
                                       'importado_por', 'importado_por_id', 'data_upload'})
+
+    try:
+        if not rejeitadas_n.empty:
+            for i, j in rejeitadas_n.iterrows():
+                for a, b in noturnos.iterrows():
+                    if b['matricula'] == j['matricula']:
+                        noturnos = noturnos[noturnos['matricula'] != b['matricula']]
+    except AttributeError:
+        pass
+    for a, b in noturnos.iterrows():
+        c = 0
+        for dia in b[2:33]:
+            if dia != '':
+                c += 1
+        if c == 0:
+            noturnos = noturnos[noturnos['matricula'] != b['matricula']]
+
+    noturnos = noturnos.reset_index(drop=True)
     print(noturnos)
-    c = Noturno(noturnos, driver, c)
+    c = Noturno(noturnos, driver, c, usuario)
+
+    rejeitadas_dn = RelatorioBatidasRejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano,
+                                                              tipo='DN').values()
+    if rejeitadas_dn:
+        rejeitadas_dn = pd.DataFrame(rejeitadas_dn)
+        pega_matricula(rejeitadas_dn, mes, ano)
 
     diurno_noturno = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
-                                                             tipo='DN').values()
+                                                             tipo='DN').order_by('-nome').values()
     diurno_noturno = pd.DataFrame(diurno_noturno)
-    diurno_noturno = diurno_noturno.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
-                                                  'importado_por', 'importado_por_id', 'data_upload'})
     diurno_noturno.columns = diurno_noturno.columns.str.replace('dia', '')
     diurno_noturno = pega_matricula(diurno_noturno, mes, ano)
+    diurno_noturno = diurno_noturno.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
+                                                  'importado_por', 'importado_por_id', 'data_upload'})
+
+    try:
+        if not rejeitadas_dn.empty:
+            for i, j in rejeitadas_dn.iterrows():
+                for a, b in diurno_noturno.iterrows():
+                    if b['matricula'] == j['matricula']:
+                        diurno_noturno = diurno_noturno[diurno_noturno['matricula'] != b['matricula']]
+    except AttributeError:
+        pass
+
+    for a, b in noturnos.iterrows():
+        c = 0
+        for dia in b[2:33]:
+            if dia != '':
+                c += 1
+        if c == 0:
+            diurno_noturno = diurno_noturno[diurno_noturno['matricula'] != b['matricula']]
+    diurno_noturno = diurno_noturno.reset_index(drop=True)
+
     print(diurno_noturno)
-    c = VinteQuatroHoras(diurno_noturno, driver, c)
+    c = VinteQuatroHoras(diurno_noturno, driver, c, usuario)
 
 
-def rejeita_especifico(mes, ano, driver, c, matricula):
+def rejeita_especifico(mes, ano, driver, c, matricula, usuario):
     diurnos = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                       tipo='D', empregado__matricula=matricula).values()
     diurnos = pd.DataFrame(diurnos)
@@ -133,7 +210,7 @@ def rejeita_especifico(mes, ano, driver, c, matricula):
     diurnos = diurnos.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
                                     'importado_por', 'importado_por_id', 'data_upload'})
     print(diurnos)
-    c = Diurno(diurnos, driver, c)
+    c = Diurno(diurnos, driver, c, usuario)
 
     noturnos = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                        tipo='N', empregado__matricula=matricula).values()
@@ -143,7 +220,7 @@ def rejeita_especifico(mes, ano, driver, c, matricula):
     noturnos = noturnos.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
                                       'importado_por', 'importado_por_id', 'data_upload'})
     print(noturnos)
-    c = Noturno(noturnos, driver, c)
+    c = Noturno(noturnos, driver, c, usuario)
 
     diurno_noturno = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                              tipo='DN', empregado__matricula=matricula).values()
@@ -153,35 +230,51 @@ def rejeita_especifico(mes, ano, driver, c, matricula):
     diurno_noturno = diurno_noturno.drop(columns={'id', 'empregado_id', 'importacao_id', 'importacao_id',
                                                   'importado_por', 'importado_por_id', 'data_upload'})
     print(diurno_noturno)
-    c = VinteQuatroHoras(diurno_noturno, driver, c)
+    c = VinteQuatroHoras(diurno_noturno, driver, c, usuario)
 
 
-def recalcula_todos(mes, ano, processo):
+def recalcula_todos(mes, ano, processo, usuario):
+    if mes < 10:
+        mes = f'0{mes}'
+
     mes_ano = f'{mes}{ano}'
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     confirmacoes = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                        saldo_banco_decimal__gte=0, saldo_mes_decimal__gte=0,
                                                        valor_total__gt=0).values()
+    recalculados = RelatorioBancosRecalculados.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+    recalculados = pd.DataFrame(recalculados)
     if confirmacoes:
         driver = inicia_driver()
         clica_banco(driver)
         confirmacoes = pd.DataFrame(confirmacoes)
         pega_matricula(confirmacoes, mes, ano)
+        if not recalculados.empty:
+            pega_matricula(recalculados, mes, ano)
+            recalculados['matricula'] = recalculados['matricula'].astype(int)
+            recalculados = recalculados['matricula']
+            for i in recalculados:
+                confirmacoes = confirmacoes[confirmacoes['matricula'] != i]
+
         confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        confirmacoes = confirmacoes['matricula']
-        RecalcularBanco(confirmacoes, driver, mes_ano, observacao)
+        confirmacoes = confirmacoes[['matricula', 'nome']]
+        print(confirmacoes.shape[0])
+        RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
         return 'ok'
     else:
         return 'erro'
 
 
-def recalcula_especifico(mes, ano, matricula, processo):
+def recalcula_especifico(mes, ano, matricula, processo, usuario):
+    if mes < 10:
+        mes = f'0{mes}'
+
     mes_ano = f'{mes}{ano}'
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     print(observacao)
     confirmacoes = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                        saldo_banco_decimal__gte=0, saldo_mes_decimal__gte=0,
-                                                       empregado__matricula=matricula).values()
+                                                       empregado__matricula=matricula, valor_total__gt=0).values()
     if confirmacoes:
         driver = inicia_driver()
         clica_banco(driver)
@@ -189,25 +282,34 @@ def recalcula_especifico(mes, ano, matricula, processo):
         confirmacoes = pd.DataFrame(confirmacoes)
         pega_matricula(confirmacoes, mes, ano)
         confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        confirmacoes = confirmacoes['matricula']
-        RecalcularBanco(confirmacoes, driver, mes_ano, observacao)
+        confirmacoes = confirmacoes[['matricula', 'empregado_id']]
+        RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
         return 'ok'
     else:
         return 'erro'
 
 
-def lanca_todos(mes, ano, mes_folha, ano_folha, processo):
-    folha = f'{mes_folha}/{ano_folha}'
-    observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
+def lanca_todos(mes, ano, mes_folha, ano_folha, processo, usuario):
+    if mes_folha < 10:
+        mes_folha = f'0{mes_folha}'
+    folha = f'Folha Normal {mes_folha}/{ano_folha}'
+    print(folha)
+    observacao = f'Horas extras {mes}/{ano}.Processo SEI {processo}.'
     confirmacoes = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     if confirmacoes:
         driver = inicia_driver()
-        login(driver, 'andre.ribeiro.1', 'l6r7w588')
         clica_folha(driver)
         confirmacoes = pd.DataFrame(confirmacoes)
         confirmacoes = pd.DataFrame(confirmacoes)
         pega_matricula(confirmacoes, mes, ano)
         confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
+        rubricas_lancadas = RelatorioRubricasLancadas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+        if rubricas_lancadas:
+            rubricas_lancadas = pd.DataFrame(rubricas_lancadas)
+            pega_matricula(rubricas_lancadas, mes, ano)
+            for i, j in rubricas_lancadas.iterrows():
+                confirmacoes = confirmacoes[confirmacoes['matricula'] != j['matricula']]
+        confirmacoes.reset_index(drop=True, inplace=True)
         confirmacoes['rubrica_diurna'] = ''
         confirmacoes['rubrica_noturna'] = ''
         for i, j in confirmacoes.iterrows():
@@ -219,13 +321,13 @@ def lanca_todos(mes, ano, mes_folha, ano_folha, processo):
                                                   'total', 'importado_por', 'importado_por_id'})
         print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo)
+        LancarRubricas(confirmacoes, driver, mes, ano, folha, observacao, usuario)
         return 'ok'
     else:
         return 'erro'
 
 
-def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo):
+def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo, usuario):
     folha = f'{mes_folha}/{ano_folha}'
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     print(observacao)
@@ -233,7 +335,6 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo):
                                                  empregado__matricula=matricula).values()
     if confirmacoes:
         driver = inicia_driver()
-        login(driver, 'andre.ribeiro.1', 'l6r7w588')
         clica_folha(driver)
         confirmacoes = pd.DataFrame(confirmacoes)
         confirmacoes = pd.DataFrame(confirmacoes)
@@ -250,7 +351,7 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo):
                                                   'total', 'importado_por', 'importado_por_id'})
         print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo)
+        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo, usuario)
         return 'ok'
     else:
         return 'erro'

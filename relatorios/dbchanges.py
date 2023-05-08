@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from empregados.models import Empregado, Importacoes
 from relatorios.models import RelatorioConfirmacao, RelatorioSolicitacao, RelatorioNegativos, \
-    RelatorioRejeitarBatidas, RelatorioErros, RelatorioEntradaSaida, RelatorioPagas, RelatorioCodigo90
+    RelatorioRejeitarBatidas, RelatorioErros, RelatorioEntradaSaida, RelatorioPagas, RelatorioCodigo90, VoltarNegativos
 
 
 def salva_relatorio_confirmacao(fields, usuario, mes, ano):
@@ -396,3 +396,57 @@ def salva_relatorio_erros(fields, usuario, mes, ano, tipo):
                 return document
         except ObjectDoesNotExist:
             pass
+
+
+def salva_voltar_negativos(fields, usuario, mes, ano):
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='voltar_negativos', defaults={
+        'importado_por_id': usuario.id,
+        'importado_por': usuario.username,
+        'data_upload': datetime.now(),
+    })
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='voltar_negativos')
+    try:
+        empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
+        if empregado:
+            document = VoltarNegativos.objects.update_or_create(
+                empregado=empregado, importacao=importacao,
+                defaults={
+                    'nome': fields['nome'],
+                    'dia1': fields['1'],
+                    'dia2': fields['2'],
+                    'dia3': fields['3'],
+                    'dia4': fields['4'],
+                    'dia5': fields['5'],
+                    'dia6': fields['6'],
+                    'dia7': fields['7'],
+                    'dia8': fields['8'],
+                    'dia9': fields['9'],
+                    'dia10': fields['10'],
+                    'dia11': fields['11'],
+                    'dia12': fields['12'],
+                    'dia13': fields['13'],
+                    'dia14': fields['14'],
+                    'dia15': fields['15'],
+                    'dia16': fields['16'],
+                    'dia17': fields['17'],
+                    'dia18': fields['18'],
+                    'dia19': fields['19'],
+                    'dia20': fields['20'],
+                    'dia21': fields['21'],
+                    'dia22': fields['22'],
+                    'dia23': fields['23'],
+                    'dia24': fields['24'],
+                    'dia25': fields['25'],
+                    'dia26': fields['26'],
+                    'dia27': fields['27'],
+                    'dia28': fields['28'],
+                    'dia29': fields['29'],
+                    'dia30': fields['30'],
+                    'dia31': fields['31'],
+                    'importado_por': usuario.username,
+                    'importado_por_id': usuario.id,
+                    'data_upload': datetime.now(),
+                })
+            return document
+    except ObjectDoesNotExist:
+        pass

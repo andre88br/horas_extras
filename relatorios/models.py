@@ -292,3 +292,48 @@ class RelatorioErros(models.Model):
         ordering = ['nome', 'data', 'escala', 'entrada', 'saida', 'horas_diurnas',
                     'horas_noturnas', 'horas_trabalhadas', 'importado_por', 'importado_por_id',
                     'data_upload']
+
+
+class VoltarNegativos(models.Model):
+    objects = models.Manager()
+    empregado = models.ForeignKey(
+        Empregado, on_delete=models.CASCADE
+    )
+    importacao = models.ForeignKey(
+        Importacoes, on_delete=models.CASCADE
+    )
+    nome = models.CharField(max_length=100)
+    dia1 = models.CharField(max_length=30, null=True)
+    dia2 = models.CharField(max_length=30, null=True)
+    dia3 = models.CharField(max_length=30, null=True)
+    dia4 = models.CharField(max_length=30, null=True)
+    dia5 = models.CharField(max_length=30, null=True)
+    dia6 = models.CharField(max_length=30, null=True)
+    dia7 = models.CharField(max_length=30, null=True)
+    dia8 = models.CharField(max_length=30, null=True)
+    dia9 = models.CharField(max_length=30, null=True)
+    dia10 = models.CharField(max_length=30, null=True)
+    dia11 = models.CharField(max_length=30, null=True)
+    dia12 = models.CharField(max_length=30, null=True)
+    dia13 = models.CharField(max_length=30, null=True)
+    dia14 = models.CharField(max_length=30, null=True)
+    dia15 = models.CharField(max_length=30, null=True)
+    dia16 = models.CharField(max_length=30, null=True)
+    dia17 = models.CharField(max_length=30, null=True)
+    dia18 = models.CharField(max_length=30, null=True)
+    dia19 = models.CharField(max_length=30, null=True)
+    dia20 = models.CharField(max_length=30, null=True)
+    dia21 = models.CharField(max_length=30, null=True)
+    dia22 = models.CharField(max_length=30, null=True)
+    dia23 = models.CharField(max_length=30, null=True)
+    dia24 = models.CharField(max_length=30, null=True)
+    dia25 = models.CharField(max_length=30, null=True)
+    dia26 = models.CharField(max_length=30, null=True)
+    dia27 = models.CharField(max_length=30, null=True)
+    dia28 = models.CharField(max_length=30, null=True)
+    dia29 = models.CharField(max_length=30, null=True)
+    dia30 = models.CharField(max_length=30, null=True)
+    dia31 = models.CharField(max_length=30, null=True)
+    importado_por = models.CharField(max_length=100)
+    importado_por_id = models.IntegerField()
+    data_upload = models.DateTimeField()

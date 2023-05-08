@@ -78,7 +78,7 @@ def processa_horas_extras(request):
             planilha_banco_mes = request.FILES.get("banco_mes")
             planilha_banco_total = request.FILES.get("banco_total")
             try:
-                if planilha_frequencia != '':
+                if planilha_frequencia != '' and planilha_frequencia is not None:
                     processa_frequencia(request, planilha_frequencia, mes, ano)
             except ValueError:
                 pass
@@ -110,9 +110,6 @@ def processa_horas_extras(request):
 
 
 def processa_frequencia(request, planilha, mes, ano):
-    busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='frequencia').all()
-    if busca:
-        busca.delete()
     frequencias_a_mostrar = []
     frequencia, data_min, data_max = arruma_frequencia(planilha)
     for i, j in frequencia.iterrows():
@@ -124,9 +121,6 @@ def processa_frequencia(request, planilha, mes, ano):
 
 
 def processa_banco_total(request, planilha_banco_total, mes, ano):
-    busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='banco_total').all()
-    if busca:
-        busca.delete()
     banco_total = arruma_banco(planilha_banco_total)
     banco_total_a_mostrar = []
 
@@ -139,9 +133,6 @@ def processa_banco_total(request, planilha_banco_total, mes, ano):
 
 
 def processa_banco_mes(request, planilha_banco_mes, mes, ano):
-    busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='banco_mes').all()
-    if busca:
-        busca.delete()
     banco_mes = arruma_saldo_mes(planilha_banco_mes)
     banco_mes_a_mostrar = []
 
