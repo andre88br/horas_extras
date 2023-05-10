@@ -65,7 +65,6 @@ pyinstaller==5.8.0
 pyinstaller-hooks-contrib==2023.0
 pyparsing==3.0.9
 pyphen==0.14.0
-pypiwin32==223
 PyQt5==5.15.9
 PyQt5-Qt5==5.15.2
 PyQt5-sip==12.11.1
