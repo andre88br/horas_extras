@@ -72,7 +72,7 @@ def SelecionarFolha(driver, folha):
         pass
 
 
-def InsereDados(j, driver, mes, ano, observacao, usuario, index):
+def InsereDados(j, driver, mes, ano, observacao, usuario, index, fator):
     for i in range(2 if j['rubrica_noturna'] == 878 else 1):
         # Limpa o campo e cola o código no campo Rubrica
         rubrica = ''
@@ -86,7 +86,6 @@ def InsereDados(j, driver, mes, ano, observacao, usuario, index):
         campo_rubrica.send_keys(rubrica)
 
         # Limpa o campo e cola o código no campo Fator
-        fator = 8
         campo_fator = driver.find_element(By.XPATH, '//*[@id="T11"]/table/tbody/tr[1]/td/table/tbody/tr[2]/td[4]/input')
         campo_fator.clear()
         campo_fator.send_keys(fator)
@@ -171,7 +170,7 @@ def InsereDados(j, driver, mes, ano, observacao, usuario, index):
             pass
 
 
-def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario):
+def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario, fator):
     if len(dados) == 0:
         pass
     else:
@@ -195,9 +194,9 @@ def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario):
                 incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
                 incluir.click()
 
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int+1)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
             elif matricula_anterior == matricula:
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int, fator)
             else:
                 driver.back()
 
@@ -212,6 +211,6 @@ def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario):
                 incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
                 incluir.click()
 
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int)
+                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
 
             matricula_anterior = matricula

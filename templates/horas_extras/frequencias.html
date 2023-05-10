@@ -110,7 +110,7 @@
                 <tr>
                     <th class="th-matricula">Matrícula</th>
                     <th class="th-nome">Nome</th>
-                    <th class="th-cargo">data</th>
+                    <th class="th-transacoes-frequencia-data">data</th>
                     <th class="th_transacoes-frequencia">Batida 1</th>
                     <th class="th_transacoes-frequencia">Batida 2</th>
                     <th class="th_transacoes-frequencia">Batida 3</th>
@@ -124,7 +124,7 @@
                         <tr class="par" data-id="{{ file.id }}">
                             <td class="td-matricula"><input type="text" value="{{ file.empregado.matricula }}" readonly></td>
                             <td class="td-nome-frequencia">{{ file.nome }}</td>
-                            <td class="td-transacoes-frequencia"><input type="text" value="{{ file.data|formata_data }}" readonly></td>
+                            <td class="td-transacoes-frequencia-data"><input type="text" value="{{ file.data|formata_data }}" readonly></td>
                             <td class="td-transacoes-frequencia"><input type="time" value="{{ file.batida1 }}" readonly></td>
                             <td class="td-transacoes-frequencia"><input type="time" value="{{ file.batida2 }}" readonly></td>
                             <td class="td-transacoes-frequencia"><input type="time" value="{{ file.batida3 }}" readonly></td>

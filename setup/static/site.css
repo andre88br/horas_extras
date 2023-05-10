@@ -214,11 +214,34 @@ button:hover{
     text-transform: uppercase;
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
-    width: 7.14%;
+    width: max-content;
     white-space: nowrap;
 
 }
 
+.th_transacoes-data{
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 4px;
+    text-align: center;
+    border-bottom: 1px solid black;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    border-top: 1px solid #CCCCCC;
+    white-space: nowrap;
+}
+
+.td-transacoes-frequencia-data{
+    font-size: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    border-right: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    width: min-content;
+    white-space: nowrap;
+
+}
 
 .par .td-nome {
     font-size: 12px;

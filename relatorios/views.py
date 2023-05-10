@@ -7,7 +7,7 @@ from django.contrib import messages
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_erros, \
     gera_relatorio_confirmacao, gera_relatorio_entrada_saida, gera_relatorio_codigo90, \
     gera_relatorio_negativos, gera_relatorio_rejeitar_batidas, gera_relatorio_pagas, gera_relatorio_setores, \
-    gera_relatorio_rejeitadas
+    gera_relatorio_rejeitadas, gera_voltar_negativos
 
 
 def relatorios(request):
@@ -99,6 +99,9 @@ def escolhe_relatorio(request):
 
         if tipo == 'rejeitadas':
             response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
+
+        if tipo == 'voltar_negativos':
+            response, arquivo, df = gera_voltar_negativos(mes, ano)
 
         if not response:
             messages.error(request, 'Relatório não disponível!')
