@@ -40,10 +40,6 @@ Jinja2==3.0.3
 JPype1==1.4.1
 keyboard==0.13.5
 Kivy==2.1.0
-kivy-deps.angle==0.3.2
-kivy-deps.glew==0.3.1
-kivy-deps.sdl2==0.4.5
-Kivy-Garden==0.1.4
 kiwisolver==1.4.4
 lxml==4.9.2
 MarkupSafe==2.1.2
@@ -103,5 +99,4 @@ whitenoise==6.4.0
 wsproto==1.2.0
 XlsxWriter==3.0.9
 xlwings==0.29.1
-yarl==1.7.2
 zopfli==0.2.2
