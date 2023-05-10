@@ -6,8 +6,8 @@ from empregados.models import Empregado, CargaHoraria, Importacoes
 from horas_extras.models import Confirmacao, Frequencia, BancoMes, BancoTotal, Solicitacao
 from relatorios.dbchanges import salva_relatorio_solicitacao, salva_relatorio_erros, salva_relatorio_entrada_saida, \
     salva_relatorio_confirmacao, salva_relatorio_negativos, salva_relatorio_codigo90, \
-    salva_relatorio_rejeitar_batidas, salva_relatorio_pagas
-from relatorios.models import RelatorioConfirmacao, RelatorioPagas
+    salva_relatorio_rejeitar_batidas, salva_relatorio_pagas, salva_voltar_negativos
+from relatorios.models import RelatorioConfirmacao, RelatorioPagas, RelatorioNegativos
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_confirmacao
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -24,7 +24,7 @@ escalas = {'M10': 4, 'M11': 4, 'M12': 4, 'M8': 4, 'T10': 4, 'T11': 4, 'T12': 4, 
            'DN5': 25, 'DN6': 25, 'M9': 4, 'N11': 4, 'TN1': 8, 'D9': 12, 'D10': 12, 'D11': 12,
            'N12': 7}
 
-escalas_códigos = {'M10': 500, 'M11': 501, 'M12': 502, 'M8': 503, 'T10': 504, 'T11': 505, 'T12': 506, 'T9': 507,
+escalas_codigos = {'M10': 500, 'M11': 501, 'M12': 502, 'M8': 503, 'T10': 504, 'T11': 505, 'T12': 506, 'T9': 507,
                    'M13': 513, 'M14': 516, 'M15': 518, 'M16': 520, 'M17': 522, 'M18': 524,
                    'N5': 526, 'T13': 527, 'T14': 529, 'T15': 531, 'T16': 533, 'T17': 535,
                    'T18': 537, 'T19': 539, 'MT15': 541, 'MT16': 542, 'MT17': 543, 'MT18': 544,
@@ -445,6 +445,23 @@ def calcula_he(ano, mes, user, final):
 
     response, excel_path_confirmacao, df = gera_relatorio_confirmacao(mes, ano, '', '', '')
     if final == 'true':
+        negativos = RelatorioNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+        negativos = pd.DataFrame(negativos)
+        pega_matricula(negativos, mes, ano)
+        volta_negativos = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+        volta_negativos = pd.DataFrame(volta_negativos)
+        pega_matricula(volta_negativos, mes, ano)
+        volta_negativos = volta_negativos[volta_negativos['matricula'].isin(negativos['matricula'])]
+
+        for i, j in volta_negativos.iterrows():
+            c = 1
+            for dia in j[17:48]:
+                if dia != '':
+                    volta_negativos.at[i, f'dia{c}'] = escalas_codigos[str(dia)]
+                c += 1
+        for i, j in volta_negativos.iterrows():
+            salva_voltar_negativos(j, user, mes, ano)
+
         pagas = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                     saldo_mes_decimal__gte=0, saldo_banco_decimal__gte=0,
                                                     valor_total__gt=0).values()
@@ -455,15 +472,6 @@ def calcula_he(ano, mes, user, final):
         pagas.insert(0, 'matricula', coluna_matricula)
         for i, j in pagas.iterrows():
             salva_relatorio_pagas(j, user, mes, ano)
-
-        volta_negativos = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
-                                                              saldo_mes_decimal__lt=0, saldo_banco_decimal__lt=0
-                                                              ).values()
-        volta_negativos = pd.DataFrame(volta_negativos)
-        for i, j in volta_negativos.iterrows():
-            for dia in j[15:47]:
-                if dia != '':
-                    volta_negativos.at[i, dia] = escalas_códigos[dia]
 
     conclusao = f'Processamento efetuado com sucesso:\n' \
                 f'D: {D}, N: {N}, DN: {DN}, Erros: {ERRO}'

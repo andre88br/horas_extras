@@ -61,12 +61,13 @@ def pagamento(request):
         mes_folha = int(str(data_folha).split('-')[1])
         ano_folha = int(str(data_folha).split('-')[0])
         matricula = request.POST.get('matricula')
+        fator = request.POST.get('fator')
         processo = request.POST.get('processo')
 
         if matricula == '':
-            resposta = lanca_todos(mes, ano, mes_folha, ano_folha, processo, request.user)
+            resposta = lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, request.user)
         else:
-            resposta = lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo, request.user)
+            resposta = lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, fator, processo, request.user)
 
         if int(mes) < 10:
             mes = f'0{mes}'

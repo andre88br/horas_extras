@@ -82,24 +82,25 @@
                             <option value="cod_90">Código 90</option>
                             <option value="rejeitar_batidas">Rejeitar batidas</option>
                             <option value="pagas">Pagas</option>
+                            <option value="voltar_negativos">Voltar Negativos</option>
                             <option value="entrada_saida">Entrada e saída</option>
                             <option value="setores">Setores</option>
                         </select>
-                        <div class="passar_mouse">
-                            <i class="fa-regular fa-circle-question"></i>
-                            <kbd class="mostrar2">
-                                <ul>
-                                    <dt>Solicitacao</dt><dd>Informações sobre o relatório Solicitação</dd>
-                                    <dt>Confirmação</dt><dd>Informações sobre o relatório Confirmação</dd>
-                                    <dt>Banco negativo</dt><dd>Informações sobre o relatório Banco negativo</dd>
-                                    <dt>Código 90</dt><dd>Informações sobre o relatório Código 90</dd>
-                                    <dt>Rejeitar batidas</dt><dd>Informações sobre o relatório Rejeitar batidas</dd>
-                                    <dt>Pagas</dt><dd>Informações sobre o relatório Pagas</dd>
-                                    <dt>Entrada e saída</dt> <dd>Informações sobre o relatório Entrada e saída</dd>
-                                    <dt>Setores</dt> <dd>Informações sobre o relatório Setores</dd>
-                                </ul>
-                            </kbd>
-                        </div>
+<!--                        <div class="passar_mouse">-->
+<!--                            <i class="fa-regular fa-circle-question"></i>-->
+<!--                            <kbd class="mostrar2">-->
+<!--                                <ul>-->
+<!--                                    <dt>Solicitacao</dt><dd>Informações sobre o relatório Solicitação</dd>-->
+<!--                                    <dt>Confirmação</dt><dd>Informações sobre o relatório Confirmação</dd>-->
+<!--                                    <dt>Banco negativo</dt><dd>Informações sobre o relatório Banco negativo</dd>-->
+<!--                                    <dt>Código 90</dt><dd>Informações sobre o relatório Código 90</dd>-->
+<!--                                    <dt>Rejeitar batidas</dt><dd>Informações sobre o relatório Rejeitar batidas</dd>-->
+<!--                                    <dt>Pagas</dt><dd>Informações sobre o relatório Pagas</dd>-->
+<!--                                    <dt>Entrada e saída</dt> <dd>Informações sobre o relatório Entrada e saída</dd>-->
+<!--                                    <dt>Setores</dt> <dd>Informações sobre o relatório Setores</dd>-->
+<!--                                </ul>-->
+<!--                            </kbd>-->
+<!--                        </div>-->
                     </div>
 
                     <label for="tipo3" id="tipo3_label">Tipo</label>
@@ -113,7 +114,7 @@
 
                     <label for="data">Mês/Ano inicial</label>
                     <div class="form-inline">
-                        <input type="month" name="data" id="data" class="col-6 row-cols-6" required>
+                        <input type="month" name="data" id="data" min="2023-01" class="col-6 row-cols-6" required>
                         <div class="passar_mouse">
                             <i class="fa-regular fa-circle-question"></i>
                             <kbd class="mostrar2">
@@ -125,6 +126,7 @@
 
                     <label for="data2">Mês/Ano final</label>
                     <div class="form-inline">
+
                     <input type="month" name="data2" id="data2" class="col-6 row-cols-6">
                     </div>
 

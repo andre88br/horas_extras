@@ -152,10 +152,8 @@ def arruma_campos(df, tipo, mes, ano):
         df = df.sort_values(by='mes/ano')
 
     if tipo == 'cod_90':
-        df = df.drop(columns={'empregado_id', 'importacao_id'})
-
-        df = df.drop(columns={'id', 'importado_por',
-                              'importado_por_id', 'data_upload'})
+        df = df.drop(columns={'id', 'importado_por', 'importado_por_id', 'data_upload',
+                              'empregado_id', 'importacao_id'})
 
     if tipo == 'setores':
         df['mes/ano'] = 0
@@ -168,6 +166,11 @@ def arruma_campos(df, tipo, mes, ano):
                 else f'0{int(importacao.mes)}/{int(importacao.ano)}'
 
         df = df.sort_values(by='mes/ano')
+
+    if tipo == 'voltar_negativos':
+        df.columns = df.columns.str.replace('dia', '')
+        df = df.drop(columns={'id', 'importado_por', 'importado_por_id',
+                              'empregado_id', 'importacao_id'})
 
     df.columns = df.columns.str.replace('_', ' ', regex=False).str.upper()
 
@@ -636,5 +639,32 @@ def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
             response = HttpResponse(file.read(),
                                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="Batidas rejeitadas - {mes}-{ano}.xlsx"'
+
+    return response, excel_path_rejeitar_batidas, df
+
+
+def gera_voltar_negativos(mes, ano):
+    empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+    empregados = pd.DataFrame(empregados)
+
+    df = VoltarNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+    response, excel_path_rejeitar_batidas = '', ''
+
+    if not df:
+        pass
+    else:
+        df = pd.DataFrame(df)
+        pega_matricula(empregados, df)
+        coluna_matricula = df['matricula']
+        df = df.drop(columns={'matricula'})
+        df.insert(0, 'matricula', coluna_matricula)
+        df = arruma_campos(df, 'voltar_negativos', mes, ano)
+        excel_path_rejeitar_batidas = f'Voltar negativos {mes}-{ano}.xlsx'
+        df.to_excel(excel_path_rejeitar_batidas, index=False, sheet_name='Voltar negativos')
+
+        with open(excel_path_rejeitar_batidas, 'rb') as file:
+            response = HttpResponse(file.read(),
+                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = f'attachment; filename="Voltar negativos - {mes}-{ano}.xlsx"'
 
     return response, excel_path_rejeitar_batidas, df

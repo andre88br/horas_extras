@@ -1,4 +1,5 @@
 import pandas as pd
+from selenium.common import SessionNotCreatedException
 
 from empregados.models import Empregado
 from pos_calculo.lancamento import LancarRubricas
@@ -29,20 +30,53 @@ def pega_matricula(df, mes, ano):
 
 
 def inicia_driver():
-    service = Service("chromedriver.exe")
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    # options.add_argument("--headless")
-    # Giving the path of chromedriver to selenium webdriver
-    driver = webdriver.Chrome(service=service, options=options)
+    try:
+        service = Service("chromedriver.exe")
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        # options.add_argument("--headless")
+        # Giving the path of chromedriver to selenium webdriver
+        driver = webdriver.Chrome(service=service, options=options)
 
-    # URL of the login page of site
-    # which you want to automate login.
-    url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+        # URL of the login page of site
+        # which you want to automate login.
+        url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
 
-    driver.get(url)
-    driver.stop_client()
-    driver.get(url)
+        driver.get(url)
+        driver.stop_client()
+        driver.get(url)
+    except SessionNotCreatedException:
+        try:
+            service = Service("chromedriver1.exe")
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            # options.add_argument("--headless")
+            # Giving the path of chromedriver to selenium webdriver
+            driver = webdriver.Chrome(service=service, options=options)
+
+            # URL of the login page of site
+            # which you want to automate login.
+            url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+
+            driver.get(url)
+            driver.stop_client()
+            driver.get(url)
+        except SessionNotCreatedException:
+            service = Service("chromedriver2.exe")
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            # options.add_argument("--headless")
+            # Giving the path of chromedriver to selenium webdriver
+            driver = webdriver.Chrome(service=service, options=options)
+
+            # URL of the login page of site
+            # which you want to automate login.
+            url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+
+            driver.get(url)
+            driver.stop_client()
+            driver.get(url)
+
     wait = WebDriverWait(driver, 10)
     wait.until(ec.presence_of_element_located((By.ID, 'login')))
     login(driver, 'andre.ribeiro.1', 'l6r7w588')
@@ -289,7 +323,7 @@ def recalcula_especifico(mes, ano, matricula, processo, usuario):
         return 'erro'
 
 
-def lanca_todos(mes, ano, mes_folha, ano_folha, processo, usuario):
+def lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, usuario):
     if mes_folha < 10:
         mes_folha = f'0{mes_folha}'
     folha = f'Folha Normal {mes_folha}/{ano_folha}'
@@ -299,7 +333,6 @@ def lanca_todos(mes, ano, mes_folha, ano_folha, processo, usuario):
     if confirmacoes:
         driver = inicia_driver()
         clica_folha(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
         confirmacoes = pd.DataFrame(confirmacoes)
         pega_matricula(confirmacoes, mes, ano)
         confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
@@ -321,13 +354,13 @@ def lanca_todos(mes, ano, mes_folha, ano_folha, processo, usuario):
                                                   'total', 'importado_por', 'importado_por_id'})
         print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, observacao, usuario)
+        LancarRubricas(confirmacoes, driver, mes, ano, folha, observacao, usuario, fator)
         return 'ok'
     else:
         return 'erro'
 
 
-def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo, usuario):
+def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, fator, processo, usuario):
     folha = f'{mes_folha}/{ano_folha}'
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     print(observacao)
@@ -336,7 +369,6 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo, usuari
     if confirmacoes:
         driver = inicia_driver()
         clica_folha(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
         confirmacoes = pd.DataFrame(confirmacoes)
         pega_matricula(confirmacoes, mes, ano)
         confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
@@ -351,7 +383,7 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, processo, usuari
                                                   'total', 'importado_por', 'importado_por_id'})
         print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo, usuario)
+        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo, usuario, fator)
         return 'ok'
     else:
         return 'erro'
