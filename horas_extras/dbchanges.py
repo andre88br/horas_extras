@@ -2,8 +2,8 @@ from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 from empregados.models import Empregado, Importacoes
+from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 
 
 def salva_confirmacao(fields, usuario, mes, ano, nao_cadastrados):

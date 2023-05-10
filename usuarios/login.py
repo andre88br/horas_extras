@@ -1,11 +1,10 @@
-import win32gui
+from selenium import webdriver
 from selenium.common import TimeoutException
 from selenium.webdriver import ActionChains
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 def TestaSenha(username, senha):
