@@ -10,12 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from pathlib import Path
 import os
-from dotenv import load_dotenv
-from django.contrib.messages import constants as messages
-import django_heroku
+from pathlib import Path
 
+from django.contrib.messages import constants as messages
+from dotenv import load_dotenv
+
+# import django_heroku
+#
 # django_heroku.settings(locals())
 
 
@@ -34,7 +36,7 @@ SECRET_KEY = str(os.getenv("SECRET_KEY"))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition

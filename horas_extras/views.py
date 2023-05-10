@@ -1,20 +1,17 @@
 import json
 
+from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 
 from empregados.models import Importacoes, Empregado
 from horas_extras.calcula import calcula_he, calcula_solicitacao, recalcula_solicitacao, recalcula_he
 from relatorios.models import RelatorioPagas
 from .dbchanges import salva_solicitacao, salva_confirmacao, salva_banco_total, salva_banco_mes
 from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
-from django.contrib import messages
-
 from .upload import valida_upload, arruma_dados_do_arquivo, processa_horas_extras
-from django.core.paginator import Paginator
-
 from .valida_formata_str import transforma_data_contrario
-
-from django.shortcuts import render
 
 
 def solicitacao_confirmacao_upload(request):

@@ -1,5 +1,5 @@
-from datetime import datetime, date
 import locale
+from datetime import datetime, date
 
 locale.setlocale(locale.LC_MONETARY, "pt-BR.UTF-8")
 

@@ -1,5 +1,10 @@
 import pandas as pd
+from selenium import webdriver
 from selenium.common import SessionNotCreatedException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait
 
 from empregados.models import Empregado
 from pos_calculo.lancamento import LancarRubricas
@@ -7,13 +12,6 @@ from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalc
 from pos_calculo.recalcular import RecalcularBanco
 from pos_calculo.rejeitar import Diurno, Noturno, VinteQuatroHoras
 from relatorios.models import RelatorioRejeitarBatidas, RelatorioConfirmacao, RelatorioPagas
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait
-
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
 
 
 def pega_matricula(df, mes, ano):

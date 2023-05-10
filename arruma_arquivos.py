@@ -1,8 +1,8 @@
+import warnings
 from datetime import time, datetime
 from zipfile import BadZipFile
 
 import pandas as pd
-import warnings
 
 from empregados.models import Empregado
 

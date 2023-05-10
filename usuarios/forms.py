@@ -1,9 +1,8 @@
+from datetime import datetime
+
 import pandas as pd
 from django import forms
 from django.contrib.auth.models import User
-
-
-from datetime import datetime
 
 from empregados.models import Importacoes
 
@@ -12,9 +11,9 @@ tudo = Importacoes.objects.values()
 tudo = pd.DataFrame(tudo)
 years = [2022]
 years_array = tudo.ano.unique()
+
 for year in years_array:
     years.append(year)
-print(years)
 
 
 class UsuariosForm(forms.Form):

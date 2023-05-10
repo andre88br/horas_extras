@@ -1,5 +1,3 @@
-import random
-import requests
 from django.contrib import auth
 from django.contrib.auth.models import User
 

@@ -1,5 +1,5 @@
-import locale
 import calendar
+import locale
 
 import pandas as pd
 from django.http import HttpResponse

@@ -1,19 +1,19 @@
+import locale
 from datetime import datetime
 
+from django.contrib import auth, messages
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from numpy import nan
-import locale
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
+from numpy import nan
 
 from relatorios.models import RelatorioPagas, RelatorioSolicitacao
 from .forms import YearForm
 from .models import AnoSelecionado
 from .utils import verifica_vazio, autenticar
-from django.contrib import auth, messages
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 

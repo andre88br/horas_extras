@@ -1,6 +1,7 @@
 import locale
-from django import template
 from datetime import date, datetime
+
+from django import template
 
 register = template.Library()
 

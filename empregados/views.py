@@ -1,15 +1,14 @@
-import pandas as pd
-from django.core.paginator import Paginator
 import json
+
+import pandas as pd
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect, get_object_or_404
 
 from empregados.dbchanges import salva_carga_horaria
 from empregados.models import Empregado, CargaHoraria
-from empregados.upload import importa_empregados
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-
 from empregados.models import Importacoes
+from empregados.upload import importa_empregados
 from horas_extras.models import BancoMes, BancoTotal, Frequencia, Confirmacao, Solicitacao
 from relatorios.models import RelatorioPagas
 from usuarios.utils import verifica_vazio
