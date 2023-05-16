@@ -1,1 +1,1 @@
-web: gunicorn horas_extras.wsgi
+web: gunicorn setup.wsgi
