@@ -1,7 +1,7 @@
 from datetime import datetime, date
-import locale
+# import locale
 
-locale.setlocale(locale.LC_MONETARY, "pt-BR.UTF-8")
+# locale.setlocale(locale.LC_MONETARY, "pt-BR.UTF-8")
 
 
 def formata_data_hora(data_hora):
