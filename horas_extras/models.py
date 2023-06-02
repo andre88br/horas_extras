@@ -12,7 +12,7 @@ class Confirmacao(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     dia1 = models.CharField(max_length=10)
     dia2 = models.CharField(max_length=10)
@@ -57,7 +57,7 @@ class Solicitacao(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     dia1 = models.CharField(max_length=10)
     dia2 = models.CharField(max_length=10)
@@ -102,7 +102,7 @@ class Frequencia(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=200)
     data = models.DateField()
     batida1 = models.TimeField()
     batida2 = models.TimeField()
@@ -124,7 +124,7 @@ class BancoMes(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=200)
     saldo = models.CharField(max_length=20)
     saldo_decimal = models.FloatField()
     data_upload = models.DateTimeField()
@@ -140,7 +140,7 @@ class BancoTotal(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=200)
     saldo = models.CharField(max_length=20)
     saldo_decimal = models.FloatField()
     data_upload = models.DateTimeField()

@@ -185,32 +185,55 @@ def LancarRubricas(dados, driver, mes, ano, folha, observacao, usuario, fator):
         matricula_anterior = None
 
         for i, j in dados.iterrows():
-            matricula = j['matricula']
-            index_as_int = int(str(i))
+            try:
+                matricula = j['matricula']
+                index_as_int = int(str(i))
 
-            if index_as_int == 0:
-                ColarMatricula(matricula, index_as_int, driver)
+                if index_as_int == 0:
+                    ColarMatricula(matricula, index_as_int, driver)
 
-                incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
-                incluir.click()
+                    incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
+                    incluir.click()
 
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
-            elif matricula_anterior == matricula:
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int, fator)
-            else:
-                driver.back()
+                    InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
+                elif matricula_anterior == matricula:
+                    InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int, fator)
+                else:
+                    try:
+                        wait = WebDriverWait(driver, 5)
+                        wait.until(ec.presence_of_element_located((By.XPATH,
+                                                                   "/html/body/table/tbody/tr/td/form/div/div[1]/div["
+                                                                   "1]/table/tbody/tr[1]/td/table/tbody/tr[2]"
+                                                                   "/td[1]/input")))
+                        driver.back()
 
-                wait = WebDriverWait(driver, 5)
-                wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
+                        wait = WebDriverWait(driver, 10)
+                        wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
 
-                frame1 = driver.find_element(By.ID, 'frame1')
-                driver.switch_to.frame(frame1)
+                        frame1 = driver.find_element(By.ID, 'frame1')
+                        driver.switch_to.frame(frame1)
 
-                ColarMatricula(matricula, index_as_int, driver)
+                        ColarMatricula(matricula, index_as_int, driver)
 
-                incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
-                incluir.click()
+                        incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
+                        incluir.click()
 
-                InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
+                        InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
+                    except TimeoutException:
 
-            matricula_anterior = matricula
+                        ColarMatricula(matricula, index_as_int, driver)
+
+                        incluir = driver.find_element(By.LINK_TEXT, 'Incluir')
+                        incluir.click()
+
+                        InsereDados(j, driver, mes, ano, observacao, usuario, index_as_int + 1, fator)
+                    finally:
+                        matricula_anterior = matricula
+            except UnexpectedAlertPresentException:
+                matricula = j['matricula']
+                index_as_int = int(str(i))
+                print(f"{index_as_int +1} - {j['matricula']}: Movimentado")
+                matricula_anterior = matricula
+                continue
+
+

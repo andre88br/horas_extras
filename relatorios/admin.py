@@ -1,90 +1,79 @@
 from django.contrib import admin
 
-# Register your models here.
-from pos_calculo.models import RelatorioBatidasRejeitadas
 from relatorios.models import RelatorioConfirmacao, RelatorioSolicitacao, RelatorioErros, RelatorioCodigo90, \
     RelatorioEntradaSaida, RelatorioRejeitarBatidas, RelatorioNegativos, RelatorioPagas, VoltarNegativos
 
 
 class ListandoRelatorioConfirmacao(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload", "setor")
-    list_display_links = ("nome", "empregado", "data_upload", "setor")
-    search_fields = ("empregado", "data_upload", "setor")
-    list_filter = ("empregado", "data_upload", "setor")
-    list_per_page = 100
+    list_display = ("id", "nome", "cargo", "setor")
+    list_display_links = ("nome", "cargo", "setor")
+    search_fields = ("nome", "cargo", "setor")
+    list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
+    list_per_page = 20
 
 
 class ListandoRelatorioSolicitacao(admin.ModelAdmin):
-    list_display = ("id", "nome", "data_upload", "setor")
-    list_display_links = ("nome", "data_upload", "setor")
-    search_fields = ("empregado", "data_upload", "setor")
-    list_filter = ("data_upload", "setor", "valor_total")
-    list_per_page = 100
+    list_display = ("id", "nome", "cargo", "setor")
+    list_display_links = ("nome", "cargo", "setor")
+    search_fields = ("nome", "cargo", "setor")
+    list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
+    list_per_page = 20
 
 
 class ListandoRelatorioRejeitarBatidas(admin.ModelAdmin):
-    list_display = ("id", "nome","empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("empregado", "data_upload")
-    list_per_page = 100
+    list_display = ("id", "nome", "tipo")
+    list_display_links = ("nome", "tipo")
+    search_fields = ("nome", "tipo")
+    list_filter = ("importacao__ano", "importacao__mes", "tipo")
+    list_per_page = 30
 
 
 class ListandoRelatorioErros(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("empregado", "data_upload")
-    list_per_page = 100
+    list_display = ("id", "nome", "data", "escala", "tipo")
+    list_display_links = ("nome", "data", "escala")
+    search_fields = ("nome", "tipo")
+    list_filter = ("importacao__ano", "importacao__mes", "tipo")
+    list_per_page = 20
 
 
 class ListandoRelatorioCodigo90(admin.ModelAdmin):
-    list_display = ("id", "empregado", "data_upload")
-    list_display_links = ("empregado", "data_upload")
-    search_fields = ("empregado","data_upload")
-    list_filter = ("empregado", "data_upload")
-    list_per_page = 100
+    list_display = ("id", "inicio", "fim")
+    list_display_links = ("inicio", "fim")
+    search_fields = ("inicio", "fim")
+    list_filter = ("importacao__ano", "importacao__mes",)
+    list_per_page = 20
 
 
 class ListandoRelatorioEntradaSaida(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("empregado", "data_upload")
-    list_per_page = 100
+    list_display = ("id", "nome", "cargo")
+    list_display_links = ("nome", "cargo")
+    search_fields = ("nome", "cargo")
+    list_filter = ("importacao__ano", "importacao__mes", "cargo")
+    list_per_page = 20
 
 
 class ListandoRelatorioNegativos(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("importacao__mes", "empregado", "data_upload")
-    list_per_page = 100
+    list_display = ("id", "nome", "cargo", "saldo_mes_decimal", "saldo_banco_decimal", "tipo")
+    list_display_links = ("nome", "cargo")
+    search_fields = ("nome", "cargo", "tipo")
+    list_filter = ("importacao__ano", "importacao__mes", "cargo", "tipo")
+    list_per_page = 20
 
 
 class ListandoRelatorioPagas(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("importacao__mes", "importacao__ano", "data_upload")
-    list_per_page = 100
-
-
-class ListandoRelatorioBatidasRejeitadas(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("empregado", "data_upload")
+    list_display = ("id", "nome", "setor")
+    list_display_links = ("nome", "setor")
+    search_fields = ("nome", "setor")
+    list_filter = ("importacao__mes", "importacao__ano", "setor")
     list_per_page = 100
 
 
 class ListandoVoltarNegativos(admin.ModelAdmin):
-    list_display = ("id", "nome", "empregado", "data_upload")
-    list_display_links = ("nome", "empregado", "data_upload")
-    search_fields = ("empregado", "data_upload")
-    list_filter = ("importacao__mes", "importacao__ano", "data_upload")
-    list_per_page = 100
-
+    list_display = ("id", "nome",)
+    list_display_links = ("nome", )
+    search_fields = ("id", "nome", )
+    list_filter = ("importacao__mes", "importacao__ano")
+    list_per_page = 20
 
 
 admin.site.register(RelatorioConfirmacao, ListandoRelatorioConfirmacao)
@@ -95,6 +84,5 @@ admin.site.register(RelatorioEntradaSaida, ListandoRelatorioEntradaSaida)
 admin.site.register(RelatorioRejeitarBatidas, ListandoRelatorioRejeitarBatidas)
 admin.site.register(RelatorioNegativos, ListandoRelatorioNegativos)
 admin.site.register(RelatorioPagas, ListandoRelatorioPagas)
-admin.site.register(RelatorioBatidasRejeitadas, ListandoRelatorioBatidasRejeitadas)
 admin.site.register(VoltarNegativos, ListandoVoltarNegativos)
 

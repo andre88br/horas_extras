@@ -20,7 +20,7 @@ def salva_relatorio_confirmacao(fields, usuario, mes, ano):
             document = RelatorioConfirmacao.objects.update_or_create(
                 empregado=empregado, importacao=importacao,
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
                     'salario': fields['salario'],
                     'insalubridade_periculosidade': fields['insalubridade'],
@@ -88,7 +88,7 @@ def salva_relatorio_solicitacao(fields, usuario, mes, ano):
             document = RelatorioSolicitacao.objects.update_or_create(
                 empregado=empregado, importacao=importacao,
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
                     'salario': fields['salario'],
                     'insalubridade_periculosidade': fields['insalubridade'],
@@ -155,7 +155,7 @@ def salva_relatorio_negativos(fields, usuario, mes, ano, tipo):
                 document = RelatorioNegativos.objects.update_or_create(
                     empregado=empregado, importacao=importacao,
                     defaults={
-                        'nome': fields['nome'],
+                        'nome': str(fields['nome']).upper(),
                         'cargo': fields['cargo'],
                         'saldo_mes': '',
                         'saldo_mes_decimal': 0,
@@ -183,7 +183,7 @@ def salva_relatorio_negativos(fields, usuario, mes, ano, tipo):
                 document = RelatorioNegativos.objects.update_or_create(
                     empregado=empregado, importacao=importacao,
                     defaults={
-                        'nome': fields['nome'],
+                        'nome': str(fields['nome']).upper(),
                         'cargo': fields['cargo'],
                         'saldo_mes': fields['saldo_mes'],
                         'saldo_mes_decimal': fields['saldo_mes_decimal'],
@@ -237,7 +237,7 @@ def salva_relatorio_rejeitar_batidas(fields, usuario, mes, ano, tipo):
             document = RelatorioRejeitarBatidas.objects.update_or_create(
                 empregado=empregado, importacao=importacao, tipo=tipo,
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'dia1': fields['1'],
                     'dia2': fields['2'],
                     'dia3': fields['3'],
@@ -291,7 +291,7 @@ def salva_relatorio_pagas(fields, usuario, mes, ano):
             document = RelatorioPagas.objects.update_or_create(
                 empregado=empregado, importacao=importacao,
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
                     'hs_diurnas': fields['horas_diurnas'],
                     'valor_diurnas': fields['valor_diurnas'],
@@ -321,7 +321,7 @@ def salva_relatorio_entrada_saida(fields, usuario, mes, ano):
             document = RelatorioEntradaSaida.objects.update_or_create(
                 empregado=empregado, importacao=importacao, data=str(fields['data']),
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
                     'escala': fields['escala'],
                     'entrada': fields['entrada'],
@@ -353,8 +353,8 @@ def salva_relatorio_erros(fields, usuario, mes, ano, tipo):
                 document = RelatorioErros.objects.update_or_create(
                     empregado=empregado, importacao=importacao, data=fields['data'],
                     defaults={
-                        'nome': fields['nome'],
-                        'escala': fields['escala'],
+                        'nome': str(fields['nome']).upper(),
+                        'escala': str(fields['escala']).upper(),
                         'entrada': '00:00',
                         'saida': '00:00',
                         'horas_trabalhadas': 0,
@@ -381,8 +381,8 @@ def salva_relatorio_erros(fields, usuario, mes, ano, tipo):
                 document = RelatorioErros.objects.update_or_create(
                     empregado=empregado, importacao=importacao, data=fields['data'],
                     defaults={
-                        'nome': fields['nome'],
-                        'escala': fields['escala'],
+                        'nome': str(fields['nome']).upper(),
+                        'escala': str(fields['escala']).upper(),
                         'entrada': '00:00',
                         'saida': '00:00',
                         'horas_trabalhadas': 0,
@@ -411,7 +411,7 @@ def salva_voltar_negativos(fields, usuario, mes, ano):
             document = VoltarNegativos.objects.update_or_create(
                 empregado=empregado, importacao=importacao,
                 defaults={
-                    'nome': fields['nome'],
+                    'nome': str(fields['nome']).upper(),
                     'dia1': fields['dia1'],
                     'dia2': fields['dia2'],
                     'dia3': fields['dia3'],

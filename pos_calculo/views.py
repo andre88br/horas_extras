@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.shortcuts import render
 
 from pos_calculo.processamento import rejeita_todos, rejeita_especifico, inicia_driver, \
-    clica_frequencia, recalcula_todos, recalcula_especifico, lanca_todos, lanca_especifico
+    clica_frequencia, recalcula_todos, recalcula_especifico, lanca_todos, lanca_especifico, voltar_todos, \
+    recalcula_negativos
 
 
 def rejeitar_batidas(request):
@@ -80,3 +81,40 @@ def pagamento(request):
     return render(request, "pos_calculo/pagamento.html")
 
 
+def voltar_batidas(request):
+    try:
+        if request.method == "POST":
+            data = request.POST.get('data')
+            mes = int(str(data).split('-')[1])
+            ano = int(str(data).split('-')[0])
+
+            driver = inicia_driver()
+            clica_frequencia(driver)
+            c = 0
+            voltar_todos(mes, ano, driver, c, request.user)
+            messages.success(request, 'Batidas desrejeitadas com sucesso')
+    except Exception as error:
+        messages.error(request, f'Erro: {error}')
+    return render(request, "pos_calculo/voltar_batidas.html")
+
+
+def recalcular_negativos(request):
+    try:
+        if request.method == "POST":
+            data = request.POST.get('data')
+            mes = int(str(data).split('-')[1])
+            ano = int(str(data).split('-')[0])
+            processo = request.POST.get('processo')
+
+            resposta = recalcula_negativos(mes, ano, processo, request.user)
+
+            if int(mes) < 10:
+                mes = f'0{mes}'
+
+            if resposta == 'ok':
+                messages.success(request, 'Bancos calculados com sucesso')
+            else:
+                messages.error(request, f'Matrícula não localizada na confirmação de horas extras do mês de {mes}/{ano}')
+    except Exception as error:
+        messages.error(request, f'Erro: {error}')
+    return render(request, "pos_calculo/recalcular_negativos.html")

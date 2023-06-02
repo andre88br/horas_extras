@@ -54,73 +54,76 @@ def gera_relatorio(request):
 
 
 def escolhe_relatorio(request):
-    if request.user.is_authenticated:
-        arquivo, response, df = '', '', ''
-        tipo = request.POST.get('tipo')
-        tipo3 = request.POST.get('tipo3')
-        matricula = request.POST.get('matricula')
-        data = request.POST.get('data')
-        data2 = request.POST.get('data2')
-        ano, mes = str(data).split('-')[0], str(data).split('-')[1]
-        if data2 != '' and data2 is not None:
-            ano2, mes2 = str(data2).split('-')[0], str(data2).split('-')[1]
-        else:
-            ano2, mes2 = '', ''
+    try:
+        if request.user.is_authenticated:
+            arquivo, response, df = '', '', ''
+            tipo = request.POST.get('tipo')
+            tipo3 = request.POST.get('tipo3')
+            matricula = request.POST.get('matricula')
+            data = request.POST.get('data')
+            data2 = request.POST.get('data2')
+            ano, mes = str(data).split('-')[0], str(data).split('-')[1]
+            if data2 != '' and data2 is not None:
+                ano2, mes2 = str(data2).split('-')[0], str(data2).split('-')[1]
+            else:
+                ano2, mes2 = '', ''
 
-        if tipo == 'solicitacao':
-            response, arquivo, df = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
+            if tipo == 'solicitacao':
+                response, arquivo, df = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'erros2':
-            response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
+            if tipo == 'erros2':
+                response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
 
-        if tipo == 'confirmacao':
-            response, arquivo, df = gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula)
+            if tipo == 'confirmacao':
+                response, arquivo, df = gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'erros':
-            response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
+            if tipo == 'erros':
+                response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
 
-        if tipo == 'entrada_saida':
-            response, arquivo, df = gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula)
+            if tipo == 'entrada_saida':
+                response, arquivo, df = gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'cod_90':
-            response, arquivo, df = gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula)
+            if tipo == 'cod_90':
+                response, arquivo, df = gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'negativos':
-            response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula)
+            if tipo == 'negativos':
+                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula)
 
-        if tipo == 'rejeitar_batidas':
-            response, arquivo, df = gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula)
+            if tipo == 'rejeitar_batidas':
+                response, arquivo, df = gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'pagas':
-            response, arquivo, df = gera_relatorio_pagas(mes, ano, matricula, mes2, ano2)
+            if tipo == 'pagas':
+                response, arquivo, df = gera_relatorio_pagas(mes, ano, matricula, mes2, ano2)
 
-        if tipo == 'setores':
-            response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
+            if tipo == 'setores':
+                response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
 
-        if tipo == 'rejeitadas':
-            response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
+            if tipo == 'rejeitadas':
+                response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
 
-        if tipo == 'voltar_negativos':
-            response, arquivo, df = gera_voltar_negativos(mes, ano)
+            if tipo == 'voltar_negativos':
+                response, arquivo, df = gera_voltar_negativos(mes, ano)
 
-        if not response:
-            messages.error(request, 'Relatório não disponível!')
-            render(request, 'relatorios/relatorios.html')
-        else:
+            if not response:
+                messages.error(request, 'Relatório não disponível!')
+                render(request, 'relatorios/relatorios.html')
+            else:
+                df = df.to_html(index=False)
 
-            df = df.to_html(index=False)
+                diretorio = os.getcwd()
+                for i in os.listdir(diretorio):
+                    if i == arquivo:
+                        caminho = os.path.join(diretorio, arquivo)
+                        os.remove(caminho)
 
-            diretorio = os.getcwd()
-            for i in os.listdir(diretorio):
-                if i == arquivo:
-                    caminho = os.path.join(diretorio, arquivo)
-                    os.remove(caminho)
+                arquivo = arquivo.replace('-', '/').replace('.xlsx', '').replace('.txt', '')
 
-            arquivo = arquivo.replace('-', '/').replace('.xlsx', '').replace('.txt', '')
-
-        return render(request, "relatorios/relatorios.html",
-                      context={'relatorio': df, 'nome': arquivo, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
-                               'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3})
+            return render(request, "relatorios/relatorios.html",
+                          context={'relatorio': df, 'nome': arquivo, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
+                                   'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3})
+    except:
+        messages.error(request, 'Relatório não disponível!')
+        return render(request, "relatorios/relatorios.html")
     else:
         return render(request, "usuarios/login.html")
 
@@ -167,11 +170,17 @@ def imprime(request):
         if tipo2 == 'rejeitar_batidas':
             response, arquivo, df = gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula)
 
+        if tipo2 == 'rejeitadas':
+            response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
+
         if tipo2 == 'pagas':
             response, arquivo, df = gera_relatorio_pagas(mes, ano, matricula, mes2, ano2)
 
         if tipo2 == 'setores':
             response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
+
+        if tipo2 == 'voltar_negativos':
+            response, arquivo, df = gera_voltar_negativos(mes, ano)
 
         diretorio = os.getcwd()
         for i in os.listdir(diretorio):
@@ -203,4 +212,3 @@ def imprime(request):
             return response
     else:
         return render(request, "usuarios/login.html")
-
