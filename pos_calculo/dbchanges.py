@@ -3,7 +3,8 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 from empregados.models import Importacoes, Empregado
-from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalculados, RelatorioRubricasLancadas
+from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalculados, RelatorioRubricasLancadas, \
+    RelatorioBatidasDesrejeitadas
 
 
 def salva_rejeitada(fields, usuario, mes, ano, data):
@@ -91,6 +92,49 @@ def salva_rubricas_lancadas(fields, usuario, mes, ano, rubrica, valor):
                     'importado_por_id': usuario.id,
                 })
             return document
+    except ObjectDoesNotExist as erro:
+        print(f'Erro: {erro}')
+        pass
+
+
+def salva_desrejeitada(fields, usuario, mes, ano, data):
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='desrejeitadas', defaults={
+            'importado_por_id': usuario.id,
+            'importado_por': usuario.username,
+            'data_upload': datetime.now(),
+        })
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='desrejeitadas')
+    try:
+        empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
+        batida1 = RelatorioBatidasDesrejeitadas.objects.filter(empregado__matricula=fields['matricula'],
+                                                            data=data, batida=1)
+        batida2 = RelatorioBatidasDesrejeitadas.objects.filter(empregado__matricula=fields['matricula'],
+                                                            data=data, batida=2)
+        if not batida1:
+            if empregado:
+                document = RelatorioBatidasDesrejeitadas.objects.update_or_create(
+                    empregado=empregado, importacao=importacao,
+                    data=data, batida=1, defaults={
+                        'nome': str(fields['nome']).upper(),
+                        'data_upload': datetime.now(),
+                        'importado_por': usuario.username,
+                        'importado_por_id': usuario.id,
+                        'tipo': fields['tipo'],
+                    })
+                return document
+        elif not batida2:
+            if empregado:
+                document = RelatorioBatidasDesrejeitadas.objects.update_or_create(
+                    empregado=empregado, importacao=importacao,
+                    data=data, batida=2, defaults={
+                        'nome': str(fields['nome']).upper(),
+                        'data_upload': datetime.now(),
+                        'importado_por': usuario.username,
+                        'importado_por_id': usuario.id,
+                        'tipo': fields['tipo'],
+                    })
+                return document
+
     except ObjectDoesNotExist as erro:
         print(f'Erro: {erro}')
         pass

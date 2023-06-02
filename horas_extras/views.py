@@ -720,7 +720,7 @@ def reprocessar(request):
                                    'files4': confirmacao, 'tipo': tipo})
         elif data is not None and tipo == 'confirmacao' and botao == 'processar':
             ano, mes = str(data).split('-')[0], str(data).split('-')[1]
-            nome = f'Solicitação {mes}/{ano}.xlsx'
+            nome = f'Confirmação {mes}/{ano}.xlsx'
             relatorio, conclusao = recalcula_he(matricula, ano, mes, usuario)
             relatorio = relatorio.to_html(index=False)
             messages.info(request, f'Processamento efetuado - {conclusao}')

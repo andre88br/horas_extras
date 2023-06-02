@@ -12,20 +12,12 @@ locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 def arruma_campos(df, tipo, mes, ano):
     if tipo == 'confirmacao':
-        df['saldo_mes_decimal'] = df['saldo_mes_decimal']. \
-            map(lambda x: format(x, '.2f'))
-        df['saldo_mes_decimal'] = df['saldo_mes_decimal']. \
-            astype(str).str.replace('.', ',', regex=False)
-        df['horas_trabalhadas'] = df['horas_trabalhadas']. \
-            map(lambda x: format(x, '.2f'))
-        df['horas_trabalhadas'] = df['horas_trabalhadas']. \
-            astype(str).str.replace('.', ',', regex=False)
+        df['saldo_mes_decimal'] = df['saldo_mes_decimal'].round(2)
+        df['horas_trabalhadas'] = df['horas_trabalhadas'].round(2)
 
     if tipo == 'solicitacao':
-        df['horas_totais'] = df['horas_totais']. \
-            map(lambda x: format(x, '.2f'))
-        df['horas_totais'] = df['horas_totais']. \
-            astype(str).str.replace('.', ',', regex=False)
+        df['horas_totais'] = df['horas_totais'].round(2)
+        df['horas_totais'] = df['horas_totais'].round(2)
         df['mes/ano'] = 0
 
         for i, j in df.iterrows():
@@ -51,18 +43,9 @@ def arruma_campos(df, tipo, mes, ano):
             map(lambda x: locale.currency(x, symbol=True))
         df['valor_total'] = df['valor_total']. \
             map(lambda x: locale.currency(x, symbol=True))
-        df['saldo_banco_decimal'] = df['saldo_banco_decimal']. \
-            map(lambda x: format(x, '.2f'))
-        df['saldo_banco_decimal'] = df['saldo_banco_decimal']. \
-            astype(str).str.replace('.', ',', regex=False)
-        df['horas_diurnas'] = df['horas_diurnas']. \
-            map(lambda x: format(x, '.2f'))
-        df['horas_diurnas'] = df['horas_diurnas']. \
-            astype(str).str.replace('.', ',', regex=False)
-        df['horas_noturnas'] = df['horas_noturnas']. \
-            map(lambda x: format(x, '.2f'))
-        df['horas_noturnas'] = df['horas_noturnas']. \
-            astype(str).str.replace('.', ',', regex=False)
+        df['saldo_banco_decimal'] = df['saldo_banco_decimal'].round(2)
+        df['horas_diurnas'] = df['horas_diurnas'].round(2)
+        df['horas_noturnas'] = df['horas_noturnas'].round(2)
         df.columns = df.columns.str.replace('dia', '')
         if calendar.monthrange(int(ano), int(mes))[1] == 30:
             df = df.drop(columns={'31'})
@@ -156,6 +139,9 @@ def arruma_campos(df, tipo, mes, ano):
                               'empregado_id', 'importacao_id'})
 
     if tipo == 'setores':
+        df['horas_trabalhadas'] = df['horas_trabalhadas']. \
+            astype(str).str.replace(',', '.').astype(float)
+        df['horas_trabalhadas'] = df['horas_trabalhadas'].round(2)
         df['mes/ano'] = 0
 
         for i, j in df.iterrows():
@@ -211,7 +197,6 @@ def gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        print(df)
         pega_matricula(empregados, df)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
@@ -300,7 +285,6 @@ def gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        print(df)
         pega_matricula(empregados, df)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
@@ -480,12 +464,11 @@ def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2):
     coluna_matricula = df['matricula']
     df = df.drop(columns={'matricula'})
     df.insert(0, 'matricula', coluna_matricula)
-    print(df)
     df = arruma_campos(df, 'pagas', mes, ano)
 
     if mes2 != '' and mes is not None:
         excel_path_pagas = f'HE Pagas de {mes}-{ano} até {mes2}-{ano2}.xlsx'
-        df.to_excel(excel_path_pagas, index=False, sheet_name='Solicitado')
+        df.to_excel(excel_path_pagas, index=False, sheet_name='Pagas')
 
         with open(excel_path_pagas, 'rb') as file:
             response = HttpResponse(file.read(),
@@ -493,7 +476,7 @@ def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2):
             response['Content-Disposition'] = f'attachment; filename="HE Pagas  de {mes}-{ano} até {mes2}-{ano2}.xlsx"'
     else:
         excel_path_pagas = f'HE Pagas {mes}-{ano}.xlsx'
-        df.to_excel(excel_path_pagas, index=False, sheet_name='Solicitado')
+        df.to_excel(excel_path_pagas, index=False, sheet_name='Pagas')
 
         with open(excel_path_pagas, 'rb') as file:
             response = HttpResponse(file.read(),
@@ -528,9 +511,9 @@ def gera_relatorio_setores(mes, ano, mes2, ano2):
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'setores', mes, ano)
-        print(df)
-        df = df[['MATRICULA', 'NOME', 'CARGO', 'MES/ANO', 'SETOR']]
-        if mes2 == '' and mes2 is None:
+        df = df[['MES/ANO', 'MATRICULA', 'CARGO', 'HORAS TRABALHADAS', 'SETOR']]
+
+        if mes2 == '' or mes2 is None:
             excel_path_setor = f'Horas Extras por setor {mes}-{ano}.xlsx'
             df.to_excel(excel_path_setor, index=False, sheet_name='Setores')
 
@@ -617,12 +600,19 @@ def gera_grafico_pagas(mes, ano, matricula, mes2, ano2):
 def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
+    rejeitar = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+    rejeitar = pd.DataFrame(rejeitar)
+    pega_matricula(empregados, rejeitar)
+    coluna_matricula = rejeitar['matricula']
+    rejeitar = rejeitar.drop(columns={'matricula'})
+    rejeitar.insert(0, 'matricula', coluna_matricula)
+    rejeitar = arruma_campos(rejeitar, 'rejeitar_batidas', mes, ano)
     if matricula == '':
         df = RelatorioBatidasRejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
     else:
         df = RelatorioBatidasRejeitadas.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
                                                        importacao__ano=ano).order_by('nome').values()
-    response, excel_path_rejeitar_batidas = '', ''
+    response, excel_path_batidas_rejeitadas = '', ''
     if not df:
         pass
     else:
@@ -632,15 +622,59 @@ def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'batidas_rejeitadas', mes, ano)
-        excel_path_rejeitar_batidas = f'Batidas rejeitadas {mes}-{ano}.xlsx'
-        df.to_excel(excel_path_rejeitar_batidas, index=False, sheet_name='Batidas rejeitadas')
 
-        with open(excel_path_rejeitar_batidas, 'rb') as file:
+        print(rejeitar)
+
+        rejeitard = rejeitar[rejeitar['TIPO'] == 'D'].copy(deep=True)
+        df_d = df[df['TIPO'] == 'D'].copy(deep=True)
+        rejeitard = rejeitard[~rejeitard['MATRICULA'].isin(df_d['MATRICULA'])]
+
+        if not rejeitard.empty:
+            for a, b in rejeitard.iterrows():
+                c = 0
+                for dia in b[2:32]:
+                    if dia != '':
+                        c += 1
+                if c == 0:
+                    rejeitard = rejeitard[rejeitard['MATRICULA'] != b['MATRICULA']]
+
+        rejeitarn = rejeitar[rejeitar['TIPO'] == 'N'].copy(deep=True)
+        df_n = df[df['TIPO'] == 'N'].copy(deep=True)
+        rejeitarn = rejeitarn[~rejeitarn['MATRICULA'].isin(df_n['MATRICULA'])]
+
+        if not rejeitarn.empty:
+            for a, b in rejeitarn.iterrows():
+                c = 0
+                for dia in b[2:32]:
+                    if dia != '':
+                        c += 1
+                if c == 0:
+                    rejeitarn = rejeitarn[rejeitarn['MATRICULA'] != b['MATRICULA']]
+
+        rejeitardn = rejeitar[rejeitar['TIPO'] == 'DN'].copy(deep=True)
+        df_dn = df[df['TIPO'] == 'DN'].copy(deep=True)
+        rejeitardn = rejeitardn[~rejeitardn['MATRICULA'].isin(df_dn['MATRICULA'])]
+
+        if not rejeitardn.empty:
+            for a, b in rejeitardn.iterrows():
+                c = 0
+                for dia in b[2:32]:
+                    if dia != '':
+                        c += 1
+                if c == 0:
+                    rejeitardn = rejeitardn[rejeitardn['MATRICULA'] != b['MATRICULA']]
+
+        rejeitar = pd.concat([rejeitard, rejeitarn, rejeitardn], ignore_index=True)
+
+        excel_path_batidas_rejeitadas = f'Falta rejeitar {mes}-{ano}.xlsx'
+        rejeitar.to_excel(excel_path_batidas_rejeitadas, index=False, sheet_name='Falta rejeitar')
+
+        with open(excel_path_batidas_rejeitadas, 'rb') as file:
             response = HttpResponse(file.read(),
                                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = f'attachment; filename="Batidas rejeitadas - {mes}-{ano}.xlsx"'
+            response['Content-Disposition'] = f'attachment; filename="Falta rejeitar - {mes}-{ano}.xlsx"'
 
-    return response, excel_path_rejeitar_batidas, df
+    return response, excel_path_batidas_rejeitadas, rejeitar
 
 
 def gera_voltar_negativos(mes, ano):
@@ -648,7 +682,7 @@ def gera_voltar_negativos(mes, ano):
     empregados = pd.DataFrame(empregados)
 
     df = VoltarNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
-    response, excel_path_rejeitar_batidas = '', ''
+    response, excel_path_voltar_negativos = '', ''
 
     if not df:
         pass
@@ -659,12 +693,12 @@ def gera_voltar_negativos(mes, ano):
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'voltar_negativos', mes, ano)
-        excel_path_rejeitar_batidas = f'Voltar negativos {mes}-{ano}.xlsx'
-        df.to_excel(excel_path_rejeitar_batidas, index=False, sheet_name='Voltar negativos')
+        excel_path_voltar_negativos = f'Voltar negativos {mes}-{ano}.xlsx'
+        df.to_excel(excel_path_voltar_negativos, index=False, sheet_name='Voltar negativos')
 
-        with open(excel_path_rejeitar_batidas, 'rb') as file:
+        with open(excel_path_voltar_negativos, 'rb') as file:
             response = HttpResponse(file.read(),
                                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename="Voltar negativos - {mes}-{ano}.xlsx"'
 
-    return response, excel_path_rejeitar_batidas, df
+    return response, excel_path_voltar_negativos, df

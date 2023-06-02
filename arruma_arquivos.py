@@ -196,7 +196,7 @@ def arruma_confirmacao_solicitacao(planilhas):
                 sem_setor.append(planilha.name)
             setor = arruma_setor(setor)
             df = pd.read_excel(planilha, skiprows=4, engine='openpyxl')
-            df['setor'] = setor
+            df['setor'] = str(setor).strip().upper()
             df_list.append(df)
         except BadZipFile:
             planilhas_com_erro.append(planilha.name)
@@ -207,6 +207,7 @@ def arruma_confirmacao_solicitacao(planilhas):
     df = df.drop('Unnamed: 0', axis=1)
     df = df.rename(columns={'SIAPE': 'matricula', 'NOME COMPLETO': 'nome', 'CARGO': 'cargo'})
     df['matricula'] = pd.to_numeric(df['matricula'], errors='coerce')
+    df['cargo'] = df['cargo'].str.replace('TECNICO', 'TÉCNICO').str.strip()
     df.dropna(subset='matricula', inplace=True)
     df['matricula'] = df['matricula'].astype(int)
     df = df.fillna(value='')
@@ -257,9 +258,15 @@ def arruma_setor(setor):
         setor = 'UNIDADE DE CLINICA CIRURGICA'
     if str(setor).strip().upper() == 'UNIDADE DA CRIANÇA E DO ADOLESCENTE / UTI PEDIATRICA':
         setor = 'UNIDADE DE CRIANCA E ADOLESCENTE'
+    if 'UCA' in str(setor).strip().upper():
+        setor = 'UNIDADE DE CRIANCA E ADOLESCENTE'
     if str(setor).strip().upper() == 'UNIDADE DE FARMACIA CLÍNICA E DISPENSAÇÃO FARMACEUTICA':
         setor = 'UNIDADE DE FARMACIA CLINICA E DISPENSACAO FARMACEUTICA'
     if str(setor).strip().upper() == 'UNIDADE DE SAÚDE DA MULHER':
         setor = 'UNIDADE DE SAUDE DA MULHER'
+    if 'ALMOXARIFADO' in str(setor).strip().upper():
+        setor = 'UNIDADE DE ALMOXARIFADO E CONTROLE DE ESTOQUES'
+    if str(setor).strip().upper() == 'UNIDADE DE CRIANÇA E DO ADOLESCENTE UNIDADE DE URGENCIA E EMERGENCIA':
+        setor = 'UNIDADE DA CRIANÇA E DO ADOLESCENTE UNIDADE DE URGENCIA E EMERGENCIA'
 
     return setor

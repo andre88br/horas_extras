@@ -11,7 +11,7 @@ class RelatorioConfirmacao(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     salario = models.FloatField()
     insalubridade_periculosidade = models.FloatField()
@@ -80,7 +80,7 @@ class RelatorioSolicitacao(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     salario = models.FloatField()
     insalubridade_periculosidade = models.FloatField()
@@ -147,7 +147,7 @@ class RelatorioNegativos(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     saldo_mes = models.CharField(max_length=30)
     saldo_mes_decimal = models.FloatField()
@@ -184,7 +184,7 @@ class RelatorioRejeitarBatidas(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     dia1 = models.CharField(max_length=30, null=True)
     dia2 = models.CharField(max_length=30, null=True)
     dia3 = models.CharField(max_length=30, null=True)
@@ -231,7 +231,7 @@ class RelatorioPagas(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     qtd = models.IntegerField(default=1)
     hs_diurnas = models.FloatField()
     valor_diurnas = models.FloatField()
@@ -252,7 +252,7 @@ class RelatorioEntradaSaida(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     cargo = models.CharField(max_length=100)
     data = models.CharField(max_length=15)
     escala = models.CharField(max_length=10)
@@ -275,7 +275,7 @@ class RelatorioErros(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     data = models.CharField(max_length=15)
     escala = models.CharField(max_length=10)
     entrada = models.CharField(max_length=15)
@@ -302,7 +302,7 @@ class VoltarNegativos(models.Model):
     importacao = models.ForeignKey(
         Importacoes, on_delete=models.CASCADE
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=200)
     dia1 = models.CharField(max_length=30, null=True)
     dia2 = models.CharField(max_length=30, null=True)
     dia3 = models.CharField(max_length=30, null=True)

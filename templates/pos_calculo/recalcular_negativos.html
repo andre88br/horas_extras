@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu.html' %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+            $('#tipo3_label').hide();
+            $('#tipo3').hide();
+
+
+
+        $('#tipo').change(function(){
+            if($(this).val() === 'erros' || $(this).val() === 'negativos') {
+                $('#tipo3_label').show();
+                $('#tipo3').show();
+
+
+            }
+            else if($(this).val() !== 'erros' || $(this).val() !== 'negativos') {
+                $('#tipo3_label').hide();
+                $('#tipo3').hide();
+
+            }
+            else{
+                $('#tipo3_label').hide();
+                $('#tipo3').hide();
+            }
+
+        });
+
+    });
+</script>
+
+
+<link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" />
+
+<div class="escolhe-mes">
+
+    <div id="conteudo">
+
+    {% if relatorio %}
+        <h1>{{ nome }}</h1>
+
+        <form class="form-importar" action="{% url 'imprime' %}" method="POST" id="imprime" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input id="mes" name="mes" value="{{ mes }}" hidden>
+            <input id="ano" name="ano" value="{{ ano }}" hidden>
+            <input id="mes2" name="mes2" value="{{ mes2 }}" hidden>
+            <input id="ano2" name="ano2" value="{{ ano2 }}" hidden>
+            <input id="nome" name="nome" value="{{ nome }}" hidden>
+            <input id="tipo2" name="tipo2" value="{{ tipo }}" hidden>
+            <input id="tipo3" name="tipo3" value="{{ tipo3 }}" hidden>
+            <input id="matricula" name="matricula" value="{{ matricula }}" hidden>
+            <button type="submit" class="btn_analisar" id="imprimir">Imprimir</button>
+        </form>
+
+        <table id="tabela">
+             {{ relatorio|safe }}
+        </table>
+
+   {% else %}
+
+        <h1 xmlns="http://www.w3.org/1999/html">Recalcular negativos</h1>
+        {% include 'partials/_messages.html' %}
+        <div class="row align-left">
+            <div  class="col-md">
+
+                <form class="form-importar" action="{% url 'recalcular_negativos' %}" method="POST" id="form" enctype="multipart/form-data" >
+                    {% csrf_token %}
+                    <label for="data">Mês/Ano</label>
+                    <div class="form-inline">
+                        <input type="month" name="data" id="data" class="col-6 row-cols-6" required>
+                    </div>
+
+                    <label for="processo" id="label_processo">Processo</label>
+                    <div class="form-inline">
+                        <input type="text" name="processo" id="processo" class="col-6 row-cols-6">
+                        <div class="passar_mouse">
+                            <i class="fa-regular fa-circle-question">  </i>
+                                <kbd class="mostrar">Informar o número do processo de horas extras. </kbd>
+                        </div>
+                    </div>
+
+                    <div class="col-12 row-cols-12">
+                        <button type="submit" class="btn_analisar"  id="processar"><i class="fa-solid fa-microchip"><br>Processar</i></button>
+                    </div>
+                </form>
+            </div>
+
+            <div  class="col-md"></div>
+            <div  class="col-md"></div>
+        </div>
+
+    {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

@@ -4,10 +4,12 @@ import pandas as pd
 
 from empregados.models import Empregado, CargaHoraria, Importacoes
 from horas_extras.models import Confirmacao, Frequencia, BancoMes, BancoTotal, Solicitacao
+from pos_calculo.models import RelatorioBatidasRejeitadas
 from relatorios.dbchanges import salva_relatorio_solicitacao, salva_relatorio_erros, salva_relatorio_entrada_saida, \
     salva_relatorio_confirmacao, salva_relatorio_negativos, salva_relatorio_codigo90, \
     salva_relatorio_rejeitar_batidas, salva_relatorio_pagas, salva_voltar_negativos
-from relatorios.models import RelatorioConfirmacao, RelatorioPagas, RelatorioNegativos
+from relatorios.models import RelatorioConfirmacao, RelatorioPagas, RelatorioNegativos, RelatorioErros, \
+    RelatorioCodigo90, RelatorioRejeitarBatidas, RelatorioEntradaSaida
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_confirmacao
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -33,7 +35,7 @@ escalas_codigos = {'M10': 500, 'M11': 501, 'M12': 502, 'M8': 503, 'T10': 504, 'T
                    'MT32': 564, 'MT33': 566, 'MT34': 568, 'MT35': 569, 'MT36': 570, 'MT37': 572, 'MT38': 574,
                    'MT39': 576, 'MT40': 578, 'MT41': 580, 'MT42': 582, 'MT43': 583, 'D5': 584, 'D6': 586,
                    'D7': 588, 'D8': 590, 'N6': 592, 'N7': 594, 'N8': 596, 'N9': 598, 'N10': 600, 'DN4': 602,
-                   'DN5': 603, 'DN6': 604, 'M9': 4, 'N11': 4, 'TN1': 8, 'D9': 12, 'D10': 12, 'D11': 590}
+                   'DN5': 603, 'DN6': 604, 'M9': 605, 'N11': 607, 'TN1': 618, 'D9': 619, 'D10': 621, 'D11': 623}
 
 
 def calcula_solicitacao(ano, mes, user):
@@ -350,8 +352,8 @@ def calcula_he(ano, mes, user, final):
                     if (11 > (j['batida1'].hour + j['batida1'].minute / 60) > 0) and \
                             (11 > (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) > 0) and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = ((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = (25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
+                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -383,7 +385,7 @@ def calcula_he(ano, mes, user, final):
                     horas_trabalhadas = ((j['batida4'].hour + j['batida4'].minute / 60) - (
                             j['batida1'].hour + j['batida1'].minute / 60)) \
                                         - ((j['batida3'].hour + j['batida3'].minute / 60) - (
-                            j['batida2'].hour + j['batida2'].minute / 60))
+                                            j['batida2'].hour + j['batida2'].minute / 60))
                     df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                     df.at[i, 'horas_diurnas'] = horas_trabalhadas
                     entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -475,7 +477,6 @@ def calcula_he(ano, mes, user, final):
 
     conclusao = f'Processamento efetuado com sucesso:\n' \
                 f'D: {D}, N: {N}, DN: {DN}, Erros: {ERRO}'
-    print(f'D: {D}, N: {N}, DN: {DN}, ERRO: {ERRO}')
 
     return df, conclusao
 
@@ -509,18 +510,17 @@ def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
                 for i in range(1, 32):
                     if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
                                              (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
-                                                 '%d/%m/%Y')
-                                             )].empty:
+                                                 '%d/%m/%Y'))].empty:
                         rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' and rejeitar_batidas_d.at[j, 'data'].day == i \
-                               and 'DN' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
-                               and 'N' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                            if rejeitar_batidas_d.at[j, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j, 'data'].day == i \
+                            and 'DN' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                            and 'N' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             else ''
 
         for i in range(1, 32):
             rejeitar_batidas_d[str(i)] = rejeitar_batidas_d[str(i)]. \
                 apply(lambda x: x.strftime('%d/%m/%Y') if x != '' and x not in escalas.keys() else '')
-        print(rejeitar_batidas_d)
         rejeitar_batidas_d = rejeitar_batidas_d.drop(columns={'data', 'batida1', 'batida2', 'batida3', 'batida4',
                                                               'batida5', 'batida6', 'salario', 'insalubridade',
                                                               'cargo', 'saldo_mes', 'saldo_mes_decimal', 'saldo_banco',
@@ -551,12 +551,12 @@ def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
                 for i in range(1, 32):
                     if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
                                              (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
-                                                 '%d/%m/%Y')
-                                             )].empty:
+                                                 '%d/%m/%Y'))].empty:
                         rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' and rejeitar_batidas_d.at[j, 'data'].day == i \
-                               and 'N' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
-                               and 'D' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                            if rejeitar_batidas_d.at[j, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j, 'data'].day == i \
+                            and 'N' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                            and 'D' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             else ''
 
         for i in range(1, 32):
@@ -593,11 +593,11 @@ def rejeitar_batidas_dn(df, entrada_saida, user, mes, ano):
                 for i in range(1, 32):
                     if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
                                              (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
-                                                 '%d/%m/%Y')
-                                             )].empty:
+                                                 '%d/%m/%Y'))].empty:
                         rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' and rejeitar_batidas_d.at[j, 'data'].day == i \
-                               and 'DN' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                            if rejeitar_batidas_d.at[j, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j, 'data'].day == i \
+                            and 'DN' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             else ''
 
         for i in range(1, 32):
@@ -769,7 +769,44 @@ def recalcula_solicitacao(matricula, ano, mes, user):
     return df, conclusao
 
 
+def deleta_relatorios2(matricula, mes, ano):
+    busca = RelatorioNegativos.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                              importacao__mes=mes, tipo='confirmacao').all()
+    if busca:
+        busca.delete()
+    busca = RelatorioErros.objects.filter(empregado__matricula=matricula, importacao__ano=ano, importacao__mes=mes,
+                                          tipo='confirmacao').all()
+    if busca:
+        busca.delete()
+    busca = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                                importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+    busca = RelatorioCodigo90.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                             importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+    busca = RelatorioRejeitarBatidas.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                                    importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+    busca = RelatorioBatidasRejeitadas.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                                      importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+    busca = RelatorioPagas.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                          importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+    busca = RelatorioEntradaSaida.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
+                                                 importacao__mes=mes).all()
+    if busca:
+        busca.delete()
+
+
 def recalcula_he(matricula, ano, mes, user):
+    deleta_relatorios2(matricula, mes, ano)
+
     #  Busca empregados
     empregados = Empregado.objects.filter(matricula=matricula, mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
@@ -845,7 +882,6 @@ def recalcula_he(matricula, ano, mes, user):
     df = df.sort_values(by=['matricula', 'data'])
     df = df.reset_index(drop=True)
     df.index += 1
-
     N = 0
     D = 0
     DN = 0
@@ -983,9 +1019,8 @@ def recalcula_he(matricula, ano, mes, user):
                     if (11 > (j['batida1'].hour + j['batida1'].minute / 60) > 0) and \
                             (11 > (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) > 0) and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = ((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
-                                             (df.iloc[ind + 1]['batida1'].hour + df.iloc[ind + 1][
-                                                 'batida1'].minute / 60))
+                        horas_trabalhadas = (25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
+                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1017,7 +1052,7 @@ def recalcula_he(matricula, ano, mes, user):
                     horas_trabalhadas = ((j['batida4'].hour + j['batida4'].minute / 60) - (
                             j['batida1'].hour + j['batida1'].minute / 60)) \
                                         - ((j['batida3'].hour + j['batida3'].minute / 60) - (
-                            j['batida2'].hour + j['batida2'].minute / 60))
+                                            j['batida2'].hour + j['batida2'].minute / 60))
                     df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                     df.at[i, 'horas_diurnas'] = horas_trabalhadas
                     entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -1085,17 +1120,17 @@ def recalcula_he(matricula, ano, mes, user):
     if not pagas.empty:
         pagar = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
                                                     importacao__ano=ano, saldo_mes_decimal__gte=0,
-                                                    saldo_banco_decimal__gte=0, valor_total__gt=0).values()
-        pagar = pd.DataFrame(pagar)
-        pega_matricula(pagar, mes, ano)
-        coluna_matricula = pagar['matricula']
-        pagar = pagar.drop(columns={'matricula'})
-        pagar.insert(0, 'matricula', coluna_matricula)
-        for i, j in pagar.iterrows():
-            salva_relatorio_pagas(j, user, mes, ano)
+                                                    saldo_banco_decimal__gte=0, horas_trabalhadas__gt=0).values()
+        if pagar:
+            pagar = pd.DataFrame(pagar)
+            pega_matricula(pagar, mes, ano)
+            coluna_matricula = pagar['matricula']
+            pagar = pagar.drop(columns={'matricula'})
+            pagar.insert(0, 'matricula', coluna_matricula)
+            for i, j in pagar.iterrows():
+                salva_relatorio_pagas(j, user, mes, ano)
 
     conclusao = f'Processamento efetuado com sucesso:\n' \
                 f'D: {D}, N: {N}, DN: {DN}, Erros: {ERRO}'
-    print(f'D: {D}, N: {N}, DN: {DN}, ERRO: {ERRO}')
 
     return df, conclusao
