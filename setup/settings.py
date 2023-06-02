@@ -167,6 +167,7 @@ WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# DISABLE_COLLECTSTATIC=1
 
 MESSAGE_TAGS = {
     messages.ERROR: "danger",
