@@ -304,6 +304,10 @@ button:hover{
         text-transform: lowercase;
 }
 
+.form-control .user{
+        text-transform: lowercase;
+}
+
 .par .td_importacoes2{
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
