@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
         'https://localhost',
         'https://127.0.0.1',
         'https://[::1]',
-        'https://880a-187-69-82-151.ngrok-free.app']
+        'https://17a8-189-93-231-10.ngrok-free.app']
 
 # Application definition
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "empregados",
     "relatorios",
     "pos_calculo",
+    "planilhas",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

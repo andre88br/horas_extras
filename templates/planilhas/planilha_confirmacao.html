@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static %}
 {% load convert %}
 {% block content %}
@@ -62,50 +62,86 @@
   }
 </script>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+            $('#setor_adm').hide();
+            $('#label_setor_adm').hide();
+            $('#setor_ass').hide();
+            $('#label_setor_ass').hide();
 
-{% include 'partials/menu.html' %}
+
+
+        let selectElement = document.querySelector(".divisao");
+        selectElement.addEventListener("change", function() {
+
+            if($(selectElement).val() === 'ASSISTENCIAL') {
+                $('#setor_ass').show();
+                $('#label_setor_ass').show();
+                $('#setor_adm').hide();
+                $('#label_setor_adm').hide();
+
+
+            }
+            else if($(selectElement).val() === 'ADMINISTRATIVA') {
+                $('#setor_adm').show();
+                $('#label_setor_adm').show();
+                $('#setor_ass').hide();
+                $('#label_setor_ass').hide();
+
+            }
+            else{
+                $('#setor_adm').hide();
+                $('#label_setor_adm').hide();
+                $('#setor_ass').hide();
+                $('#label_setor_ass').hide();
+            }
+
+        });
+
+    });
+</script>
+
+
+{% include 'partials/menu2.html' %}
 
 <div class="escolhe-mes">
 
 <div id="conteudo">
 
-        <h1>Confirmação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+        <h1>Confirmação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }} {% if setor is not None and setor != '' %} - {{ setor }} {% endif %}</h1>
     {% include 'partials/_voltar.html' %}
 
 
 {% include 'partials/_messages.html' %}
 
-<form class="busca" method="get" action="{% url 'confirmacao' files2 %}">
-            <input type="text" name="q" placeholder="Buscar empregado">
-            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
-            </form>
-<div class="pagination">
+    <form class="busca" method="POST" action="{% url 'planilha_confirmacao' files2 %}">
+        {% csrf_token %}
+        <input type="text" name="divisao" value="{{ divisao }}" hidden>
+        <input type="text" name="setor" value="{{ setor }}" hidden>
+        <input type="text" name="q" placeholder="Buscar empregado">
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
+    </form>
 
+    <div class="pagination">
+        {% if files.has_previous %}
+        <form method="POST" action="?page={{ files.previous_page_number }}">
+            {% csrf_token %}
+            <input type="text" name="divisao" value="{{ divisao }}" hidden>
+            <input type="text" name="setor" value="{{ setor }}" hidden>
+            <button class="prev"><i class="fa-solid fa-backward-fast"></i> Anterior</button>
+        </form>
+        {% endif %}
+        {% if files.has_next %}
+         <form method="POST" action="?page={{ files.next_page_number }}">
+             {% csrf_token %}
+             <input type="text" name="divisao" value="{{ divisao }}" hidden>
+             <input type="text" name="setor" value="{{ setor }}" hidden>
+             <button class="next" >Próximo <i class="fa-solid fa-forward-fast"></i></button>
+         </form>
+        {% endif %}
+    </div>
 
-
-            {% if files.has_previous %}
-            <a href="?page={{ files.previous_page_number }}">
-                <button class="prev"><i class="fa-solid fa-backward-fast"></i> Anterior</button>
-            </a>
-            {% endif %}
-
-            {% for page in paginator.get_page_range %}
-                {% if files.number == page %}
-                    <strong>{{ page }}</strong>
-                {% else %}
-                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
-                {% endif %}
-            {% endfor %}
-
-            {% if files.has_next %}
-            <a href="?page={{ files.next_page_number }}">
-                <button class="next" >Próximo <i class="fa-solid fa-forward-fast"></i></button>
-            </a>
-            {% endif %}
-        </div>
-
-
-        <main class="tabela-transacoes">
+    <main class="tabela-transacoes">
 
         {% if files %}
             <table id="confirmacao">
@@ -152,8 +188,8 @@
                 {% for file in files %}
                         <tr class="par">
                             <td class="td-matricula" contenteditable="true">{{ file.empregado.matricula }}</td>
-                            <td class="td-nome">{{ file.nome }}</td>
-                            <td class="td-cargo">{{ file.cargo }}</td>
+                            <td class="td-nome">{{ file.empregado.nome }}</td>
+                            <td class="td-cargo">{{ file.empregado.cargo }}</td>
                             <td class="td_importacoes" contenteditable="true" >{{ file.dia1 }}</td>
                             <td class="td_importacoes" contenteditable="true" >{{ file.dia2 }}</td>
                             <td class="td_importacoes" contenteditable="true" >{{ file.dia3 }}</td>

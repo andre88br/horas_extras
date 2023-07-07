@@ -39,12 +39,15 @@ escalas_codigos = {'M10': 500, 'M11': 501, 'M12': 502, 'M8': 503, 'T10': 504, 'T
 
 
 def calcula_solicitacao(ano, mes, user):
+    print('Deletando relatórios existentes...')
     deleta_relatorios('solicitacao', mes, ano, final='')
 
+    print('Buscando empregados...')
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     empregados.drop(columns={'data_atualizacao', 'importacao_id', 'id'}, inplace=True)
 
+    print('Buscando solicitação...')
     solicitacao = Solicitacao.objects.filter(importacao_id__mes=mes, importacao_id__ano=ano).values()
     solicitacao = pd.DataFrame(solicitacao)
     solicitacao['matricula'] = 0
@@ -60,6 +63,7 @@ def calcula_solicitacao(ano, mes, user):
         renomeacao['dia' + str(i)] = str(i)
     df = df.rename(columns=renomeacao)
 
+    print('Buscando banco de horas...')
     saldo_banco = BancoTotal.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     saldo_banco = pd.DataFrame(saldo_banco)
     pega_matricula(saldo_banco, mes, ano)
@@ -76,6 +80,7 @@ def calcula_solicitacao(ano, mes, user):
     df['horas_noturnas'] = df['horas_noturnas'] = [0] * len(df)
     df['valor_noturnas'] = df['valor_noturnas'] = [0] * len(df)
 
+    print('Buscando carga horária...')
     cargas = CargaHoraria.objects.filter(importacao__mes=mes, importacao__ano=ano, carga_horaria__gt=0).values()
     cargas = pd.DataFrame(cargas)
     pega_matricula(cargas, mes, ano)
@@ -88,6 +93,7 @@ def calcula_solicitacao(ano, mes, user):
     DN = 0
     ERRO = 0
     erros = []
+    print('Calculando horas trabalhadas...')
     for i, j in df.iterrows():
         matricula = j['matricula']
         nome = j['nome']
@@ -112,6 +118,7 @@ def calcula_solicitacao(ano, mes, user):
                 erros.append(linha)
                 ERRO += 1
 
+    print('Calculando valores...')
     for i, j in df.iterrows():
         df.at[i, 'valor_diurnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j['horas_diurnas'] * 1.5
         df.at[i, 'valor_noturnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j[
@@ -120,20 +127,24 @@ def calcula_solicitacao(ano, mes, user):
 
     df['saldo_banco'] = df['saldo_banco'].astype(str)
 
+    print('Salvando relatório da Solicitação...')
     for i, j in df.iterrows():
         if j['saldo_banco_decimal'] >= 0:
             salva_relatorio_solicitacao(j, user, mes, ano)
 
+    print('Salvando relatório de Erros...')
     erros = pd.DataFrame(erros)
     for i, j in erros.iterrows():
         salva_relatorio_erros(j, user, mes, ano, 'solicitacao')
 
+    print('Salvando relatório de Bancos negativos...')
     negativos = df[(df['saldo_banco_decimal'] < 0)].copy(deep=True)
     negativos = negativos[['matricula', 'nome', 'cargo', 'saldo_banco', 'saldo_banco_decimal', 'setor']]
 
     for i, j in negativos.iterrows():
         salva_relatorio_negativos(j, user, mes, ano, 'solicitacao')
 
+    print('Gerando visualização...')
     response, excel_path_solicitacao, df = gera_relatorio_solicitacao(mes, ano, '', '', '')
 
     conclusao = f'Processamento efetuado com sucesso:\n' \
@@ -143,13 +154,17 @@ def calcula_solicitacao(ano, mes, user):
 
 
 def calcula_he(ano, mes, user, final):
+    print('Deletando Relatórios existentes...')
     deleta_relatorios('confirmacao', mes, ano, final)
+
     #  Busca empregados
+    print('Buscando Empregados...')
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     empregados.drop(columns={'data_atualizacao', 'importacao_id', 'id'}, inplace=True)
 
     # Busca planilha de confirmação e junta com a tabela empregados
+    print('Buscando Confirmação...')
     confirmacao = Confirmacao.objects.filter(importacao__ano=ano, importacao__mes=mes).values()
     confirmacao = pd.DataFrame(confirmacao)
     confirmacao['matricula'] = 0
@@ -166,6 +181,7 @@ def calcula_he(ano, mes, user, final):
     df = df.rename(columns=renomeacao)
 
     # Busca planilha de saldo do banco do mês e junta com a tabela anterior
+    print('Buscando Saldo de horas do mês...')
     saldo_mes = BancoMes.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     saldo_mes = pd.DataFrame(saldo_mes)
     pega_matricula(saldo_mes, mes, ano)
@@ -176,6 +192,7 @@ def calcula_he(ano, mes, user, final):
     df = pd.merge(df, saldo_mes, on='matricula', how='left')
 
     # Busca planilha de saldo do banco total e junta com a tabela anterior
+    print('Buscando Banco de horas...')
     saldo_banco = BancoTotal.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     saldo_banco = pd.DataFrame(saldo_banco)
     pega_matricula(saldo_banco, mes, ano)
@@ -187,6 +204,8 @@ def calcula_he(ano, mes, user, final):
     df = pd.merge(df, saldo_banco, on='matricula', how='left')
 
     # Busca planilha de frequência e junta com a tabela anterior
+    print('Buscando Frequência...')
+
     frequencia = Frequencia.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     frequencia = pd.DataFrame(frequencia)
     pega_matricula(frequencia, mes, ano)
@@ -203,6 +222,7 @@ def calcula_he(ano, mes, user, final):
     df['horas_noturnas'] = df['horas_noturnas'] = [0] * len(df)
     df['valor_noturnas'] = df['valor_noturnas'] = [0] * len(df)
 
+    print('Buscando Carga horária...')
     cargas = CargaHoraria.objects.filter(importacao__mes=mes, importacao__ano=ano, carga_horaria__gt=0).values()
     cargas = pd.DataFrame(cargas)
     pega_matricula(cargas, mes, ano)
@@ -224,6 +244,7 @@ def calcula_he(ano, mes, user, final):
     entrada_saida = []
     ind = 1
 
+    print('Calculando horas trabalhadas...')
     for i, j in df.iterrows():
         linha = {}
         matricula = j['matricula']
@@ -404,19 +425,24 @@ def calcula_he(ano, mes, user, final):
             c2 += 1
         ind += 1
 
+    print('Calculando valores...')
     for i, j in df.iterrows():
         df.at[i, 'valor_diurnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j['horas_diurnas'] * 1.5
         df.at[i, 'valor_noturnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j[
             'horas_noturnas'] * 1.5 * 1.2
         df.at[i, 'valor_total'] = df.at[i, 'valor_diurnas'] + df.at[i, 'valor_noturnas']
 
+    print('Salvando Relatório de Entrada e saída...')
     entrada_saida = pd.DataFrame(entrada_saida)
     for i, j in entrada_saida.iterrows():
         salva_relatorio_entrada_saida(j, user, mes, ano)
         if not final == 'true':
+            if i == 1:
+                print('Salvando Relatório código 90...')
             salva_relatorio_codigo90(j, user, mes, ano)
 
     if not final == 'true':
+        print('Salvando Relatório Rejeitar batidas...')
         rejeitar_batidas_d(df, entrada_saida, user, mes, ano)
         rejeitar_batidas_n(df, entrada_saida, user, mes, ano)
         rejeitar_batidas_dn(df, entrada_saida, user, mes, ano)
@@ -431,13 +457,16 @@ def calcula_he(ano, mes, user, final):
                        'horas_noturnas', 'valor_noturnas']].sum(numeric_only=False)
     df = df.reset_index(drop=False)
 
+    print('Salvando relatório da Confirmação...')
     for i, j in df.iterrows():
         salva_relatorio_confirmacao(j, user, mes, ano)
 
+    print('Salvando relatório de Erros...')
     erros = pd.DataFrame(erros)
     for i, j in erros.iterrows():
         salva_relatorio_erros(j, user, mes, ano, 'confirmacao')
 
+    print('Salvando relatório de Bancos negativos...')
     negativos = df[(df['saldo_banco_decimal'] < 0) | (df['saldo_mes_decimal'] < 0)].copy(deep=True)
     negativos = negativos[['matricula', 'nome', 'cargo', 'saldo_mes', 'saldo_mes_decimal',
                            'saldo_banco', 'saldo_banco_decimal', 'setor']]
@@ -447,6 +476,7 @@ def calcula_he(ano, mes, user, final):
 
     response, excel_path_confirmacao, df = gera_relatorio_confirmacao(mes, ano, '', '', '')
     if final == 'true':
+        print('Salvando Relatório Voltar escala negativos...')
         negativos = RelatorioNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
         negativos = pd.DataFrame(negativos)
         pega_matricula(negativos, mes, ano)
@@ -464,6 +494,7 @@ def calcula_he(ano, mes, user, final):
         for i, j in volta_negativos.iterrows():
             salva_voltar_negativos(j, user, mes, ano)
 
+        print('Salvando Relatório Pagas...')
         pagas = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                     saldo_mes_decimal__gte=0, saldo_banco_decimal__gte=0,
                                                     valor_total__gt=0).values()
@@ -475,6 +506,7 @@ def calcula_he(ano, mes, user, final):
         for i, j in pagas.iterrows():
             salva_relatorio_pagas(j, user, mes, ano)
 
+    print('Gerando visualização...')
     conclusao = f'Processamento efetuado com sucesso:\n' \
                 f'D: {D}, N: {N}, DN: {DN}, Erros: {ERRO}'
 
@@ -500,7 +532,7 @@ def insere_linha(linha, matricula, nome, cargo, data, a_maiusculo, entrada, said
 
 def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
     rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] >= 0)].copy(deep=True)
+                            (df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
@@ -517,7 +549,6 @@ def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
                             and 'DN' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             and 'N' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             else ''
-
         for i in range(1, 32):
             rejeitar_batidas_d[str(i)] = rejeitar_batidas_d[str(i)]. \
                 apply(lambda x: x.strftime('%d/%m/%Y') if x != '' and x not in escalas.keys() else '')
@@ -541,7 +572,7 @@ def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
 
 def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
     rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] >= 0)].copy(deep=True)
+                            (df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
@@ -558,7 +589,6 @@ def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
                             and 'N' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             and 'D' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
                             else ''
-
         for i in range(1, 32):
             rejeitar_batidas_d[str(i)] = rejeitar_batidas_d[str(i)]. \
                 apply(lambda x: x.strftime('%d/%m/%Y') if x != '' and x not in escalas.keys() else '')
@@ -583,7 +613,7 @@ def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
 
 def rejeitar_batidas_dn(df, entrada_saida, user, mes, ano):
     rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] >= 0)].copy(deep=True)
+                            (df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
@@ -641,12 +671,17 @@ def deleta_relatorios(tipo, mes, ano, final):
         if busca:
             busca.delete()
 
+
         if final != 'true':
             busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='rel_codigo90').all()
             if busca:
                 busca.delete()
 
             busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='rel_rejeitar_batidas').all()
+            if busca:
+                busca.delete()
+
+            busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='desrejeitadas').all()
             if busca:
                 busca.delete()
 
@@ -663,8 +698,10 @@ def deleta_relatorios(tipo, mes, ano, final):
             busca.delete()
 
         busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='rel_negativos_conf').all()
+        busca2 = Importacoes.objects.filter(mes=mes, ano=ano, tipo='voltar_negativos').all()
         if busca:
             busca.delete()
+            busca2.delete()
 
 
 def recalcula_solicitacao(matricula, ano, mes, user):
@@ -786,6 +823,7 @@ def deleta_relatorios2(matricula, mes, ano):
                                              importacao__mes=mes).all()
     if busca:
         busca.delete()
+
     busca = RelatorioRejeitarBatidas.objects.filter(empregado__matricula=matricula, importacao__ano=ano,
                                                     importacao__mes=mes).all()
     if busca:

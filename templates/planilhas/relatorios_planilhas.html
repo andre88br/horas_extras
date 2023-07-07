@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static %}
 {% load convert %}
 {% block content %}
 
-{% include 'partials/menu.html' %}
+{% include 'partials/menu2.html' %}
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -74,17 +74,8 @@
                     <div class="form-inline">
                         <select id="tipo" name="tipo" class="col-6 row-cols-6">
                             <option value=""></option>
-                            <option value="solicitacao">Solicitação</option>
-                            <option value="confirmacao">Confirmação</option>
-                            <option value="negativos">Banco negativo</option>
-                            <option value="erros">Erros</option>
-                            <option value="cod_90">Código 90</option>
-                            <option value="rejeitar_batidas">Rejeitar batidas</option>
-                            <option value="rejeitadas">Falta rejeitar</option>
-                            <option value="pagas">Pagas</option>
-                            <option value="voltar_negativos">Voltar Negativos</option>
-                            <option value="entrada_saida">Entrada e saída</option>
-                            <option value="setores">Setores</option>
+                            <option value="solicitacao_planilha">Solicitação</option>
+                            <option value="confirmacao_planilha">Confirmação</option>
                         </select>
 <!--                        <div class="passar_mouse">-->
 <!--                            <i class="fa-regular fa-circle-question"></i>-->

@@ -14,6 +14,19 @@ def arruma_campos(df, tipo, mes, ano):
     if tipo == 'confirmacao':
         df['saldo_mes_decimal'] = df['saldo_mes_decimal'].round(2)
         df['horas_trabalhadas'] = df['horas_trabalhadas'].round(2)
+        df['mes/ano'] = 0
+
+        for i, j in df.iterrows():
+            importacao = Importacoes.objects.filter(id=j['importacao_id']).values()
+            importacao = pd.DataFrame(importacao)
+            df.at[i, 'mes/ano'] = f'{importacao.mes}/{importacao.ano}' \
+                if len(str(f'{importacao.mes}/{importacao.ano}')) == 7 \
+                else f'0{int(importacao.mes)}/{int(importacao.ano)}'
+        coluna_mes_ano = df['mes/ano']
+        df = df.drop(columns={'mes/ano'})
+        df.insert(0, 'mes/ano', coluna_mes_ano)
+
+        df = df.sort_values(by=['nome', 'mes/ano'])
 
     if tipo == 'solicitacao':
         df['horas_totais'] = df['horas_totais'].round(2)

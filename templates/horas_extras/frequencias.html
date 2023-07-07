@@ -77,6 +77,7 @@
 <div id="conteudo">
 
         <h1>Frequência {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+         {% include 'partials/_voltar.html' %}
 
 {% include 'partials/_messages.html' %}
 <form class="busca" method="get" action="{% url 'frequencias' files2 %}">

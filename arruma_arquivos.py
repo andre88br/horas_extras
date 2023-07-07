@@ -211,8 +211,9 @@ def arruma_confirmacao_solicitacao(planilhas):
     df.dropna(subset='matricula', inplace=True)
     df['matricula'] = df['matricula'].astype(int)
     df = df.fillna(value='')
+
     df = df.groupby(['matricula', 'nome', 'cargo']) \
-        .apply(lambda x: x.iloc[:, :33].agg(lambda y: ''.join(set(y)))) \
+        .apply(lambda x: x.iloc[:, :32].agg(lambda y: ''.join(set(y)))) \
         .reset_index(drop=False)
 
     for i, j in df.iterrows():
@@ -223,6 +224,39 @@ def arruma_confirmacao_solicitacao(planilhas):
     df['nome'] = df['nome'].str.replace(' - EXTRA', '')
     df = df.reset_index(drop=True)
     return df, planilhas_com_erro, sem_setor
+
+
+def arruma_confirmacao_solicitacao_planilha(planilhas):
+    df_list = []
+    planilhas_com_erro = []
+    for planilha in planilhas:
+        try:
+            df = pd.read_excel(planilha, skiprows=4, engine='openpyxl')
+            df_list.append(df)
+        except BadZipFile:
+            planilhas_com_erro.append(planilha.name)
+    df = pd.concat(df_list, ignore_index=True)
+    df = df.iloc[:, :35]
+    df = df.drop('Unnamed: 0', axis=1)
+    df = df.rename(columns={'SIAPE': 'matricula', 'NOME COMPLETO': 'nome', 'CARGO': 'cargo'})
+    df['matricula'] = pd.to_numeric(df['matricula'], errors='coerce')
+    df['cargo'] = df['cargo'].str.replace('TECNICO', 'TÉCNICO').str.strip()
+    df.dropna(subset='matricula', inplace=True)
+    df['matricula'] = df['matricula'].astype(int)
+    df = df.fillna(value=' ')
+
+    df = df.groupby(['matricula', 'nome', 'cargo']) \
+        .apply(lambda x: x.iloc[:, :32].agg(lambda y: ''.join(set(y)))) \
+        .reset_index(drop=False)
+
+    for i, j in df.iterrows():
+        if 'EXTRA' not in str(df.iloc[i:i + 1, 1:2]):
+            df.iloc[i:i + 1, 1:2] = None
+
+    df.dropna(subset='nome', inplace=True)
+    df['nome'] = df['nome'].str.replace(' - EXTRA', '')
+    df = df.reset_index(drop=True)
+    return df, planilhas_com_erro
 
 
 def arruma_carga_horaria(planilha, mes, ano):
@@ -270,3 +304,11 @@ def arruma_setor(setor):
         setor = 'UNIDADE DA CRIANÇA E DO ADOLESCENTE UNIDADE DE URGENCIA E EMERGENCIA'
 
     return setor
+
+
+def arruma_empregados(planilha):
+    df = pd.read_excel(planilha)
+    df = df.rename(columns={'Matricula': 'matricula', 'Nome': 'nome', 'Cargo': 'cargo'})
+    df = df[['matricula', 'nome', 'cargo']]
+    df = df.dropna(subset='matricula')
+    return df

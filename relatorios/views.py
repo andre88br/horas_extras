@@ -121,8 +121,8 @@ def escolhe_relatorio(request):
             return render(request, "relatorios/relatorios.html",
                           context={'relatorio': df, 'nome': arquivo, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
                                    'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3})
-    except:
-        messages.error(request, 'Relatório não disponível!')
+    except Exception as e:
+        messages.error(request, f'Erro {e}')
         return render(request, "relatorios/relatorios.html")
     else:
         return render(request, "usuarios/login.html")

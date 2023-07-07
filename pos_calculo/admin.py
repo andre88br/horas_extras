@@ -1,7 +1,8 @@
 # Register your models here.
 from django.contrib import admin
 
-from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioRubricasLancadas, RelatorioBatidasDesrejeitadas
+from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioRubricasLancadas, RelatorioBatidasDesrejeitadas, \
+    RelatorioBancosRecalculados
 
 
 class ListandoRelatorioBatidasRejeitadas(admin.ModelAdmin):
@@ -28,7 +29,18 @@ class ListandoRelatorioBatidasDesrejeitadas(admin.ModelAdmin):
     list_per_page = 30
 
 
+class ListandoRelatorioBancosRecalculados(admin.ModelAdmin):
+    list_display = ("id", "nome", "empregado")
+    list_display_links = ("nome", )
+    search_fields = ("nome", )
+    list_filter = ("importacao__ano", "importacao__mes", )
+    list_per_page = 30
+
+
 admin.site.register(RelatorioBatidasRejeitadas, ListandoRelatorioBatidasRejeitadas)
 admin.site.register(RelatorioRubricasLancadas, ListaRubricasLancadas)
 admin.site.register(RelatorioBatidasDesrejeitadas, ListandoRelatorioBatidasDesrejeitadas)
+admin.site.register(RelatorioBancosRecalculados, ListandoRelatorioBancosRecalculados)
+
+
 

@@ -1,0 +1,128 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+
+{% include 'partials/menu2.html' %}
+<div class="escolhe-mes">
+
+    <div id="conteudo">
+
+        <br><br>
+        {% include 'partials/_messages.html' %}
+
+        <h1>Solicitações</h1>
+
+        <div class="tabela-transacoes">
+            <table>
+                <tr class="tr_th">
+                    <th>Mês/Ano</th>
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Opções</th>
+                </tr>
+                {% if files2 %}
+                {% for file in files2 %}
+                    <tr class="par">
+                        <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                        <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                        <td class="td_opcoes2">{{ file.importado_por }}</td>
+
+                        <td class="td_opcoes">
+                            <form action="{% url 'planilha_solicitacao' file.id%}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div>
+                                    Setor: {{ formSetor.setor }}<br>
+                                    <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% endif %}
+
+            </table>
+            {% if not files2 %}
+            <div class="form-importar">
+                <h6 class="td_importacoes col-lg-2" align="center">Sem solicitações importadas!</h6>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="pagination">
+            {% if files2.has_previous %}
+                <button class="prev"><a href="?page={{ files2.previous_page_number }}"><i class="fa-solid fa-backward-fast"></i> Anterior</a></button>
+            {% endif %}
+
+            {% for page in paginator.get_page_range %}
+                {% if files2.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+
+            {% if files2.has_next %}
+                <button class="next" ><a href="?page={{ files2.next_page_number }}">Próximo <i class="fa-solid fa-forward-fast"></i></a></button>
+            {% endif %}
+        </div>
+
+        <h1>Confirmações</h1>
+
+        <div class="tabela-transacoes">
+            <table>
+                <tr class="tr_th">
+                    <th>Mês/Ano</th>
+                    <th>Data importaçao</th>
+                    <th>Usuário</th>
+                    <th>Opções</th>
+                </tr>
+                {% if files %}
+                {% for file in files %}
+                    <tr class="par">
+                        <td class="td_opcoes">{% if file.mes < 10 %}0{% endif %}{{ file.mes }}/{{ file.ano }}</td>
+                        <td class="td_opcoes">{{ file.data_upload|formata_data_hora }}</td>
+                        <td class="td_opcoes2">{{ file.importado_por }}</td>
+
+                        <td class="td_opcoes">
+                            <form action="{% url 'planilha_confirmacao' file.id %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div>
+                                    Setor: {{ formSetor.setor }}<br>
+                                    <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% endif %}
+
+            </table>
+            {% if not files %}
+            <div class="form-importar">
+                <h6 class="td_importacoes col-lg-2" align="center">Sem confirmações importadas!</h6>
+            {% endif %}
+        </div>
+        </div>
+        <div class="pagination">
+            {% if files.has_previous %}
+                <button class="prev"><a href="?page={{ files.previous_page_number }}"><i class="fa-solid fa-backward-fast"></i> Anterior</a></button>
+            {% endif %}
+
+            {% for page in paginator.get_page_range %}
+                {% if files.number == page %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+
+            {% if files.has_next %}
+                <button class="next" ><a href="?page={{ files.next_page_number }}">Próximo <i class="fa-solid fa-forward-fast"></i></a></button>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

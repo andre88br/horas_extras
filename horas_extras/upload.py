@@ -143,3 +143,38 @@ def processa_banco_mes(request, planilha_banco_mes, mes, ano):
 
     if len(banco_mes_a_mostrar) == 0:
         raise KeyError
+
+
+def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
+    if tipo == 'Confirmação':
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Confirmação').all()
+        if busca:
+            busca.delete()
+
+        confirmacao_a_mostar = []
+        nao_cadastrados = []
+
+        for i, j in dados.iterrows():
+            document, nao_cadastrados = salva_confirmacao(j, request.user, mes, ano, nao_cadastrados)
+            confirmacao_a_mostar.append(document)
+        if len(confirmacao_a_mostar) == 0:
+            raise KeyError
+        else:
+            resposta = "OK"
+            return resposta, nao_cadastrados
+    if tipo == 'Solicitação':
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Solicitação').all()
+        if busca:
+            busca.delete()
+        solicitacao_a_mostar = []
+        nao_cadastrados = []
+
+        for i, j in dados.iterrows():
+            document, nao_cadastrados = salva_solicitacao(j, request.user, mes, ano, nao_cadastrados)
+            solicitacao_a_mostar.append(document)
+
+        if len(solicitacao_a_mostar) == 0:
+            raise KeyError
+        else:
+            resposta = "OK"
+            return resposta, nao_cadastrados

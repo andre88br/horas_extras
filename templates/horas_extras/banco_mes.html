@@ -41,6 +41,7 @@
 <div id="conteudo">
 
         <h1>Banco mês {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+    {% include 'partials/_voltar.html' %}
 
 {% include 'partials/_messages.html' %}
 

@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static %}
 {% block content %}
-{% include 'partials/menu.html' %}
+{% include 'partials/menu2.html' %}
 <div class="escolhe-mes">
 
 <div id="conteudo">
@@ -11,7 +11,7 @@
 
             {% include 'partials/_messages.html' %}
 
-        <form class="busca" method="get" action="{% url 'empregados' files2 %}">
+        <form class="busca" method="get" action="{% url 'listaempregados' files2 %}">
             <input type="text" name="q" placeholder="Buscar empregado">
             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
         </form>
@@ -45,9 +45,7 @@
             <tr class="tr_th">
                 <th class="th-matricula">Matrícula</th>
                 <th class="th-nome">Nome</th>
-                <th class="th-matricula">Salário</th>
-                <th class="th-matricula">Insalubridade</th>
-                <th>opções</th>
+                <th class="th-cargo">Cargo</th>
             </tr>
         {% if files %}
             {% for file in files %}
@@ -56,19 +54,12 @@
                     <tr class="par">
                         <td class="td-matricula">{{ file.matricula }}</td>
                         <td class="td-nome">{{ file.nome }}</td>
-                        <td class="td-matricula">R$ {{ file.salario|floatformat:2 }}</td>
-                        <td class="td-matricula">R$ {{ file.insalubridade|floatformat:2 }}</td>
-                        <td class="td_opcoes">
-                           <a href="{% url 'editar_empregado' file.id %}">
-                                <button type="button" value="editar" name="btn_editar" class="btn_editar" ><i class="fa-solid fa-pen-to-square"><br>editar</i></button>
-                           </a>
-                                <button type="submit" value="remover"  name="btn_deletar" class="btn_deletar"><i class="fa-solid fa-trash"><br>excluir</i></button>
-                        </td>
+                        <td class="td-cargo">{{ file.cargo }}</td>
                     </tr>
                 <input name="file_id" value="{{ file.id }}" hidden>
                 <input name="files2" value="{{ files2 }}" hidden>
                 <input name="pagina" value="empregado" hidden>
-                </form>
+            </form>
                 {% endfor %}
         {% endif %}
         </table>

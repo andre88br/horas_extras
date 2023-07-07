@@ -1,0 +1,37 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu2.html' %}
+
+<div class="escolhe-mes">
+<div id="conteudo">
+<h1></h1>
+    {% include 'partials/_messages.html' %}
+    <br>
+        <table>
+            <tr class="tr_th">
+                <th>Nome</th>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>opções</th>
+            </tr>
+             <tr class="par">
+                        <td class="td_importacoes">{{ user.first_name }} {{ user.last_name }}</td>
+                        <td class="td_importacoes2">{{ user.username }}</td>
+                        <td class="td_importacoes2">{{ user.email }}</td>
+                        <td class="td_opcoes">
+                            <a href="{% url 'editar_usuario_planilha' user.id %}">
+                                <button type="submit" value="editar" name="btn_editar" class="btn_editar" ><i class="fa-solid fa-user-pen"><br>editar</i></button>
+                            </a>
+                        </td>
+                    </tr>
+        </table>
+
+
+
+</div>
+</div>
+
+{% endblock %}
