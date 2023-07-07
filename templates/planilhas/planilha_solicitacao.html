@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static %}
 {% load convert %}
 {% block content %}
@@ -63,18 +63,21 @@
 </script>
 
 
-{% include 'partials/menu.html' %}
+{% include 'partials/menu2.html' %}
 
 <div class="escolhe-mes">
 
 <div id="conteudo">
-        <h1>Solicitação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}</h1>
+        <h1>Solicitação {% if files.0.importacao.mes < 10 %}0{% endif %}{{ files.0.importacao.mes }}/{{ files.0.importacao.ano }}{% if setor is not None and setor != '' %} - {{ setor }} {% endif %}</h1>
 
     {% include 'partials/_voltar.html' %}
 
 {% include 'partials/_messages.html' %}
 
-<form class="busca" method="get" action="{% url 'solicitacao' files2 %}">
+<form class="busca" method="POST" action="{% url 'planilha_solicitacao' files2 %}">
+            {% csrf_token %}
+            <input type="text" name="divisao" value="{{ divisao }}" hidden>
+            <input type="text" name="setor" value="{{ setor }}" hidden>
             <input type="text" name="q" placeholder="Buscar empregado">
             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i>Buscar</button>
             </form>
@@ -83,23 +86,20 @@
 
 
             {% if files.has_previous %}
-            <a href="?page={{ files.previous_page_number }}">
-                <button class="prev"><i class="fa-solid fa-backward-fast"></i> Anterior</button>
-            </a>
+            <form method="POST" action="?page={{ files.previous_page_number }}">
+            {% csrf_token %}
+            <input type="text" name="divisao" value="{{ divisao }}" hidden>
+            <input type="text" name="setor" value="{{ setor }}" hidden>
+            <button class="prev"><i class="fa-solid fa-backward-fast"></i> Anterior</button>
+        </form>
             {% endif %}
-
-            {% for page in paginator.get_page_range %}
-                {% if files.number == page %}
-                    <strong>{{ page }}</strong>
-                {% else %}
-                    <span class="current-page"><a href="?page={{ page }}">{{ page }}</a></span>
-                {% endif %}
-            {% endfor %}
-
             {% if files.has_next %}
-            <a href="?page={{ files.next_page_number }}">
-                <button class="next" >Próximo <i class="fa-solid fa-forward-fast"></i></button>
-            </a>
+           <form method="POST" action="?page={{ files.next_page_number }}">
+             {% csrf_token %}
+             <input type="text" name="divisao" value="{{ divisao }}" hidden>
+             <input type="text" name="setor" value="{{ setor }}" hidden>
+             <button class="next" >Próximo <i class="fa-solid fa-forward-fast"></i></button>
+         </form>
             {% endif %}
         </div>
 
@@ -151,8 +151,8 @@
                 {% for file in files %}
                         <tr class="par">
                             <td class="td-matricula" contenteditable="true">{{ file.empregado.matricula }}</td>
-                            <td class="td-nome-conf_sol">{{ file.nome }}</td>
-                            <td class="td-cargo">{{ file.cargo }}</td>
+                            <td class="td-nome-conf_sol">{{ file.empregado.nome }}</td>
+                            <td class="td-cargo">{{ file.empregado.cargo }}</td>
                             <td class="td_importacoes" contenteditable="true">{{ file.dia1 }}</td>
                             <td class="td_importacoes" contenteditable="true">{{ file.dia2 }}</td>
                             <td class="td_importacoes" contenteditable="true">{{ file.dia3 }}</td>

@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from numpy import nan
 
+from planilhas.forms import *
 from relatorios.models import RelatorioPagas, RelatorioSolicitacao
 from .forms import YearForm
 from .models import AnoSelecionado
@@ -61,6 +62,14 @@ def cadastro(request):
 
 def login(request):
     if request.method == "POST":
+
+        formTipo = TipoForm(request.POST or None)
+        formDiv = DivForm(request.POST or None)
+        formDiv.fields['divisao'].widget.attrs['class'] = 'divisao'
+        formSetor = SetForm(request.POST or None)
+        formSetor.fields['setor2'].widget.attrs['class'] = 'adm'
+        formSetor.fields['setor'].widget.attrs['class'] = 'ass'
+        formDate = DateForm(request.POST)
         user = request.POST["user"]
         senha = request.POST["senha"]
 
@@ -68,7 +77,12 @@ def login(request):
             messages.error(request, "Nome e/ou senha não pode ser vazio")
             return redirect("login")
         if autenticar(request, user, senha):
-            return redirect("dashboard")
+            if request.user.is_superuser:
+                return redirect("dashboard")
+            else:
+                return render(request, "planilhas/planilha_upload.html",
+                              context={'formDiv': formDiv, 'formSetor': formSetor, 'formTipo': formTipo,
+                                       'formDate': formDate})
         else:
             messages.error(request, "Usuário e/ou senha inválidos!")
     return render(request, "usuarios/login.html")

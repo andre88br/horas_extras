@@ -1,0 +1,141 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% load convert %}
+{% block content %}
+
+{% include 'partials/menu2.html' %}
+
+<script>
+    window.addEventListener('load', function() {
+  let loader = document.getElementById('loader');
+  loader.style.display = 'none';
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  let loader = document.getElementById('loader');
+  loader.style.display = 'block';
+});
+</script>
+
+<script type="text/javascript">
+
+
+    $(document).ready(function() {
+            $('#setor_adm').hide();
+            $('#label_setor_adm').hide();
+            $('#setor_ass').hide();
+            $('#label_setor_ass').hide();
+
+
+
+        let selectElement = document.querySelector(".divisao");
+        selectElement.addEventListener("change", function() {
+
+            var assElement = document.getElementsByClassName("ass");
+            var admElement = document.getElementsByClassName("adm");
+
+            if($(selectElement).val() === 'ASSISTENCIAL') {
+                $('#setor_ass').show();
+                $('#setor_adm').hide();
+                $('#setor').hide();
+
+                admElement.required = false;
+                assElement.required = true;
+
+
+            }
+            else if($(selectElement).val() === 'ADMINISTRATIVA') {
+                $('#setor_adm').show();
+                $('#setor_ass').hide();
+                $('#setor').hide();
+
+                assElement.required = false;
+                admElement.required = true;
+
+            }
+            else{
+                $('#setor_adm').hide();
+                $('#setor_ass').hide();
+                $('#setor').show();
+            }
+
+        });
+
+    });
+</script>
+
+<link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" />
+
+
+<div class="escolhe-mes">
+
+<div id="conteudo">
+    <h1 xmlns="http://www.w3.org/1999/html">Importar Solicitação/confirmação</h1>
+
+        {% include 'partials/_messages.html' %}
+    <div class="row align-left">
+        <div  class="col-md">
+
+            <form class="form-importar" action="{% url 'planilha_upload' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <label for="data">Mês/Ano</label><br>
+                <div class="form-inline">
+                    <div id="data" class="form-inline">
+                    {{ formDate.data }}
+                    </div>
+<!--                    <div class="passar_mouse">-->
+<!--                        <i class="fa-regular fa-circle-question"></i>-->
+<!--                        <kbd class="mostrar2">-->
+<!--                            <ul>-->
+
+<!--                            </ul>-->
+<!--                        </kbd>-->
+<!--                    </div>-->
+                </div>
+
+                <label for="tipo">Tipo</label><br>
+                <div id="tipo" class="form-inline">
+                    {{ formTipo.tipo }}
+                </div>
+
+                <label for="divisao">Divisão</label><br>
+                <div id="divisao" class="form-inline">
+                      {{ formDiv.divisao }}
+                </div>
+
+                <label id="label_setor" for="setor_ass">Unidade</label>
+                 <div id="setor" class="form-inline">
+                     <select>
+                         <option value="">-----------------------</option>
+                     </select>
+                 </div>
+
+                 <div id="setor_adm" class="form-inline">
+                     {{ formSetor.setor2 }}
+                 </div>
+
+                 <div id="setor_ass" class="form-inline">
+                     {{ formSetor.setor }}
+                 </div>
+
+                <br>
+                <label for="arquivo">Selecione o arquivo para realizar o upload</label><br>
+                <input class="arquivo" name="upload" type="file" id="arquivo" accept=".xlsx, .xlsm" multiple required><br>
+
+                <div class="col-10 row-cols-10">
+                    <button type="submit" value="importar" class="btn_analisar" ><i class="fa-solid fa-file-arrow-up"><br>Importar</i></button>
+                </div>
+            </form>
+
+
+    </div>
+        <div  class="col-md"></div>
+        <div  class="col-md"></div>
+    </div>
+
+</div>
+</div>
+
+
+{% endblock %}

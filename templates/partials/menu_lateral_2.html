@@ -1,0 +1,51 @@
+{% load static %}
+
+
+     <!-- Menu lateral -->
+
+    <div id="menu">
+        {% if user.is_authenticated %}
+
+        <ul class="navbar-nav">
+
+          <li class="menu-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="planilhasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+               <i class="fa-regular fa-file-excel"></i> Planilhas
+            </a>
+            <ul class="menu-item dropdown" aria-labelledby="planilhasDropdown">
+                <li><a class="menu-item dropdown-item" href="{% url 'planilha_upload'%}"><i class="fa-solid fa-file-import"></i> Importar planilhas</a></li>
+                <li><a class="menu-item dropdown-item" href="{% url 'planilha_importacoes' %}"> <i class="fa-solid fa-table-list"></i> Vizualisar planilhas</a></li>
+            </ul>
+          </li>
+
+            <li class="menu-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="usuariosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                    <i class="fa-solid fa-user-group"></i> Usuários
+                </a>
+                <ul class="menu-item dropdown" aria-labelledby="usuariosDropdown">
+                    <li><a class="menu-item dropdown-item" href="{% url 'usuarios_planilhas'%}"><i class="fa-solid fa-list"></i> Editar usuário</a></li>
+                </ul>
+            </li>
+            {% if user.is_superuser %}
+             <li class="menu-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="empregadosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-user-doctor"></i> <i class="fa-solid fa-user-nurse"></i> Empregados
+                </a>
+                <ul class="menu-item dropdown" aria-labelledby="empregadosDropdown">
+                    <li><a class="menu-item dropdown-item" href="{% url 'importacoes_listaempregados' %}"><i class="fa-solid fa-list"></i> Listar empregados</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'listaempregados_upload' %}"><i class="fa-solid fa-file-upload"></i> Importar empregados</a></li>
+                </ul>
+            </li>
+
+
+            <li class="menu-item">
+                <a class="menu-item dropdown-item" href="{% url 'relatorios_planilhas' %}"><i class="fa-regular fa-file-lines"></i> Relatórios</a>
+            </li>
+        {% endif %}
+
+
+        {% endif %}
+
+    </div>
+
+
