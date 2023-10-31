@@ -245,6 +245,7 @@ def calcula_he(ano, mes, user, final):
     ind = 1
 
     print('Calculando horas trabalhadas...')
+
     for i, j in df.iterrows():
         linha = {}
         matricula = j['matricula']
@@ -254,7 +255,7 @@ def calcula_he(ano, mes, user, final):
         c2 = 1
         for a in j[1:32]:
             a_maiusculo = str(a).upper()
-            if str(j['cargo']).upper() != 'ASSISTENTE ADMINISTRATIVO':
+            if 'ADMINISTRATIVO' not in str(j['cargo']).upper():
                 if ('D' in a_maiusculo or 'M' in a_maiusculo or 'T' in a_maiusculo) and 'N' not in a_maiusculo \
                         and j['data'].day == c2 and j['data'].month == mes:
                     if (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \
@@ -537,17 +538,17 @@ def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
 
-        for j in range(1, rejeitar_batidas_d.shape[0]):
-            if rejeitar_batidas_d.at[j, 'data'].month == rejeitar_batidas_d['data'][1].month:
+        for j in range(0, rejeitar_batidas_d.shape[0]):
+            if rejeitar_batidas_d.at[j+1, 'data'].month == rejeitar_batidas_d['data'][1].month:
                 for i in range(1, 32):
-                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
-                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
+                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j+1, 'matricula']) &
+                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j+1, 'data'].strftime(
                                                  '%d/%m/%Y'))].empty:
-                        rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' \
-                            and rejeitar_batidas_d.at[j, 'data'].day == i \
-                            and 'DN' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
-                            and 'N' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                        rejeitar_batidas_d.at[j+1, str(i)] = rejeitar_batidas_d.at[j+1, 'data'] \
+                            if rejeitar_batidas_d.at[j+1, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j+1, 'data'].day == i \
+                            and 'DN' not in str(rejeitar_batidas_d.at[j+1, str(i)]).upper() \
+                            and 'N' not in str(rejeitar_batidas_d.at[j+1, str(i)]).upper() \
                             else ''
         for i in range(1, 32):
             rejeitar_batidas_d[str(i)] = rejeitar_batidas_d[str(i)]. \
@@ -576,23 +577,21 @@ def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
-
-        for j in range(1, rejeitar_batidas_d.shape[0]):
-            if rejeitar_batidas_d.at[j, 'data'].month == rejeitar_batidas_d['data'][1].month:
+        for j in range(0, rejeitar_batidas_d.shape[0]):
+            if rejeitar_batidas_d.at[j+1, 'data'].month == rejeitar_batidas_d['data'][1].month:
                 for i in range(1, 32):
-                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
-                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
+                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j+1, 'matricula']) &
+                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j+1, 'data'].strftime(
                                                  '%d/%m/%Y'))].empty:
-                        rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' \
-                            and rejeitar_batidas_d.at[j, 'data'].day == i \
-                            and 'N' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
-                            and 'D' not in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                        rejeitar_batidas_d.at[j+1, str(i)] = rejeitar_batidas_d.at[j+1, 'data'] \
+                            if rejeitar_batidas_d.at[j+1, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j+1, 'data'].day == i \
+                            and 'N' in str(rejeitar_batidas_d.at[j+1, str(i)]).upper() \
+                            and 'D' not in str(rejeitar_batidas_d.at[j+1, str(i)]).upper() \
                             else ''
         for i in range(1, 32):
             rejeitar_batidas_d[str(i)] = rejeitar_batidas_d[str(i)]. \
                 apply(lambda x: x.strftime('%d/%m/%Y') if x != '' and x not in escalas.keys() else '')
-
         rejeitar_batidas_d = rejeitar_batidas_d.drop(columns={'data', 'batida1', 'batida2', 'batida3', 'batida4',
                                                               'batida5', 'batida6', 'salario', 'insalubridade',
                                                               'cargo', 'saldo_mes', 'saldo_mes_decimal', 'saldo_banco',
@@ -618,16 +617,16 @@ def rejeitar_batidas_dn(df, entrada_saida, user, mes, ano):
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
 
-        for j in range(1, rejeitar_batidas_d.shape[0]):
-            if rejeitar_batidas_d.at[j, 'data'].month == rejeitar_batidas_d['data'][1].month:
+        for j in range(0, rejeitar_batidas_d.shape[0]):
+            if rejeitar_batidas_d.at[j+1, 'data'].month == rejeitar_batidas_d['data'][1].month:
                 for i in range(1, 32):
-                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j, 'matricula']) &
-                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j, 'data'].strftime(
+                    if not entrada_saida.loc[(entrada_saida['matricula'] == rejeitar_batidas_d.at[j+1, 'matricula']) &
+                                             (entrada_saida['data'] == rejeitar_batidas_d.at[j+1, 'data'].strftime(
                                                  '%d/%m/%Y'))].empty:
-                        rejeitar_batidas_d.at[j, str(i)] = rejeitar_batidas_d.at[j, 'data'] \
-                            if rejeitar_batidas_d.at[j, str(i)] != '' \
-                            and rejeitar_batidas_d.at[j, 'data'].day == i \
-                            and 'DN' in str(rejeitar_batidas_d.at[j, str(i)]).upper() \
+                        rejeitar_batidas_d.at[j+1, str(i)] = rejeitar_batidas_d.at[j+1, 'data'] \
+                            if rejeitar_batidas_d.at[j+1, str(i)] != '' \
+                            and rejeitar_batidas_d.at[j+1, 'data'].day == i \
+                            and 'DN' in str(rejeitar_batidas_d.at[j+1, str(i)]).upper() \
                             else ''
 
         for i in range(1, 32):
@@ -670,7 +669,6 @@ def deleta_relatorios(tipo, mes, ano, final):
         busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='rel_confirmacao').all()
         if busca:
             busca.delete()
-
 
         if final != 'true':
             busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='rel_codigo90').all()
@@ -938,7 +936,7 @@ def recalcula_he(matricula, ano, mes, user):
         c2 = 1
         for a in j[1:32]:
             a_maiusculo = str(a).upper()
-            if str(j['cargo']).upper() != 'ASSISTENTE ADMINISTRATIVO':
+            if 'ADMINISTRATIVO' not in str(j['cargo']).upper():
                 if ('D' in a_maiusculo or 'M' in a_maiusculo or 'T' in a_maiusculo) and 'N' not in a_maiusculo \
                         and j['data'].day == c2 and j['data'].month == mes:
                     if (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \

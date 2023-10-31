@@ -1,3 +1,4 @@
+from time import sleep
 
 from django.core.exceptions import ObjectDoesNotExist
 from selenium.common import TimeoutException, NoAlertPresentException, UnexpectedAlertPresentException
@@ -10,29 +11,21 @@ from pos_calculo.dbchanges import salva_rejeitada
 from pos_calculo.models import RelatorioBatidasRejeitadas
 
 
-def ColarMatricula(matricula, index_as_int, driver):
-    if int(index_as_int) > 0:
-        campo_matricula = driver.find_element(By.NAME, 'servMatr')
-        campo_matricula.clear()
-        try:
-            wait = WebDriverWait(driver, 5)
-            alert = wait.until(ec.alert_is_present())
-            alert.accept()
-        except UnexpectedAlertPresentException:
-            driver.switch_to.alert.accept()
-            pass
-        except NoAlertPresentException:
-            pass
-        except TimeoutException:
-            pass
-        finally:
-            campo_matricula = driver.find_element(By.NAME, 'servMatr')
-            campo_matricula.send_keys(matricula)
-            campo_matricula.send_keys(Keys.TAB)
-    else:
-        campo_matricula = driver.find_element(By.NAME, 'servMatr')
-        campo_matricula.send_keys(matricula)
-        campo_matricula.send_keys(Keys.TAB)
+def ColarMatricula(matricula, c, driver):
+
+    wait = WebDriverWait(driver, 30)
+    wait.until(ec.presence_of_element_located((By.NAME, 'servMatr')))
+    campo_matricula = driver.find_element(By.NAME, 'servMatr')
+    campo_matricula.clear()
+    try:
+        wait = WebDriverWait(driver, 2)
+        alert = wait.until(ec.alert_is_present())
+        alert.accept()
+    except TimeoutException:
+        pass
+
+    campo_matricula.send_keys(matricula)
+    campo_matricula.send_keys(Keys.TAB)
 
 
 def PegaDia(dia):
@@ -46,16 +39,35 @@ def PegaDia(dia):
 
 def InsereData(data, driver):
 
-    wait = WebDriverWait(driver, 120)
-    wait.until(ec.presence_of_element_located((By.NAME, 'diaAnoMesI')))
+    try:
+        wait = WebDriverWait(driver, 120)
+        wait.until(ec.presence_of_element_located((By.NAME, 'diaAnoMesI')))
 
-    campo_data = driver.find_element(By.NAME, 'diaAnoMesI')
-    campo_data.clear()
-    campo_data.send_keys(data)
-    campo_data.send_keys(Keys.TAB)
+        campo_data = driver.find_element(By.NAME, 'diaAnoMesI')
+        campo_data.clear()
+        campo_data.send_keys(data)
+        campo_data.send_keys(Keys.TAB)
 
-    pesquisar = driver.find_element(By.TAG_NAME, 'td').find_element(By.TAG_NAME, 'img')
-    pesquisar.click()
+        pesquisar = driver.find_element(By.TAG_NAME, 'td').find_element(By.TAG_NAME, 'img')
+        pesquisar.click()
+    except:
+        driver.refresh()
+        wait = WebDriverWait(driver, 30)
+        wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
+
+        frame1 = driver.find_element(By.ID, 'frame1')
+        driver.switch_to.frame(frame1)
+
+        wait = WebDriverWait(driver, 120)
+        wait.until(ec.presence_of_element_located((By.NAME, 'diaAnoMesI')))
+
+        campo_data = driver.find_element(By.NAME, 'diaAnoMesI')
+        campo_data.clear()
+        campo_data.send_keys(data)
+        campo_data.send_keys(Keys.TAB)
+
+        pesquisar = driver.find_element(By.TAG_NAME, 'td').find_element(By.TAG_NAME, 'img')
+        pesquisar.click()
 
 
 def dois_cliques(l, linha, linha_texto, driver, data, dia, j, usuario, c):
@@ -151,10 +163,6 @@ def Excecao(driver):
             wait = WebDriverWait(driver, 2)
             alert = wait.until(ec.alert_is_present())
             alert.accept()
-
-            wait2 = WebDriverWait(driver, 2)
-            alert2 = wait2.until(ec.alert_is_present())
-            alert2.accept()
         except UnexpectedAlertPresentException:
             driver.switch_to.alert.accept()
             break
@@ -174,11 +182,16 @@ def Noturno(dados, driver, c, usuario):
         if dias > 0:
             ColarMatricula(matricula, c, driver)
 
-        for dia in j[2:33]:
-            if str(dia) != '':
-                data = PegaDia(dia)
-                InsereData(data, driver)
-                ValidaNoturno(dia, data, driver, j, usuario, c)
+            try:
+                for dia in j[2:33]:
+                    if str(dia) != '':
+                        data = PegaDia(dia)
+                        InsereData(data, driver)
+                        ValidaNoturno(dia, data, driver, j, usuario, c)
+            except:
+                print(f'{c} - {matricula}: Movimentado)')
+                c += 1
+                continue
         c += 1
     return c
 
@@ -193,11 +206,16 @@ def Diurno(dados, driver, c, usuario):
         if dias > 0:
             ColarMatricula(matricula, c, driver)
 
-        for dia in j[2:33]:
-            if str(dia) != '':
-                data = PegaDia(dia)
-                InsereData(data, driver)
-                ValidaDiurno(dia, data, driver, j, usuario, c)
+            try:
+                for dia in j[2:33]:
+                    if str(dia) != '':
+                        data = PegaDia(dia)
+                        InsereData(data, driver)
+                        ValidaDiurno(dia, data, driver, j, usuario, c)
+            except:
+                print(f'{c} - {matricula}: Movimentado')
+                c += 1
+                continue
         c += 1
     return c
 
@@ -212,10 +230,15 @@ def VinteQuatroHoras(dados, driver, c, usuario):
         if dias > 0:
             ColarMatricula(matricula, c, driver)
 
-        for dia in j[2:33]:
-            if str(dia) != '':
-                data = PegaDia(dia)
-                InsereData(data, driver)
-                ValidaDiurno(dia, data, driver, j, usuario, c)
+            try:
+                for dia in j[2:33]:
+                    if str(dia) != '':
+                        data = PegaDia(dia)
+                        InsereData(data, driver)
+                        ValidaDiurno(dia, data, driver, j, usuario, c)
+            except:
+                print(f'{c} - {matricula}: Movimentado)')
+                c += 1
+                continue
         c += 1
     return c

@@ -62,7 +62,7 @@ def salva_banco_recalculado(fields, usuario, mes, ano):
         if empregado:
             document = RelatorioBancosRecalculados.objects.update_or_create(
                 empregado=empregado, importacao=importacao, defaults={
-                    'nome': str(fields['nome']).upper(),
+                    'nome': str(fields[1]).upper(),
                     'data_upload': datetime.now(),
                     'importado_por': usuario.username,
                     'importado_por_id': usuario.id,

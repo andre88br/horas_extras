@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from arruma_arquivos import arruma_confirmacao_solicitacao, arruma_empregados, arruma_confirmacao_solicitacao_planilha
-from empregados.models import Importacoes
+from arruma_arquivos import  arruma_empregados, arruma_confirmacao_solicitacao_planilha
 from .dbchanges import salva_confirmacao_planilha, salva_solicitacao_planilha, salva_listaempregados
 
 

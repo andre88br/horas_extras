@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -76,6 +77,8 @@ def salva_relatorio_confirmacao(fields, usuario, mes, ano):
 
 
 def salva_relatorio_solicitacao(fields, usuario, mes, ano):
+    num_dias = int(calendar.monthrange(int(ano), int(mes))[1])
+
     Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='rel_solicitacao', defaults={
         'importado_por_id': usuario.id,
         'importado_por': usuario.username,

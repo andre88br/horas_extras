@@ -1,6 +1,5 @@
 import pandas as pd
 from selenium import webdriver
-from selenium.common import SessionNotCreatedException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -32,52 +31,68 @@ def pega_matricula(df, mes, ano):
 
 
 def inicia_driver():
-    try:
-        service = Service("chromedriver.exe")
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        # options.add_argument("--headless")
-        # Giving the path of chromedriver to selenium webdriver
-        driver = webdriver.Chrome(service=service, options=options)
+    # try:
+    service = Service("chromedriver.exe")
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    # options.add_argument("--headless")
+    # Giving the path of chromedriver to selenium webdriver
+    driver = webdriver.Chrome(service=service, options=options)
 
-        # URL of the login page of site
-        # which you want to automate login.
-        url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+    # URL of the login page of site
+    # which you want to automate login.
+    url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
 
-        driver.get(url)
-        driver.stop_client()
-        driver.get(url)
-    except SessionNotCreatedException:
-        try:
-            service = Service("chromedriver1.exe")
-            options = webdriver.ChromeOptions()
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
-            # options.add_argument("--headless")
-            # Giving the path of chromedriver to selenium webdriver
-            driver = webdriver.Chrome(service=service, options=options)
-
-            # URL of the login page of site
-            # which you want to automate login.
-            url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
-
-            driver.get(url)
-            driver.stop_client()
-            driver.get(url)
-        except SessionNotCreatedException:
-            service = Service("chromedriver2.exe")
-            options = webdriver.ChromeOptions()
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
-            # options.add_argument("--headless")
-            # Giving the path of chromedriver to selenium webdriver
-            driver = webdriver.Chrome(service=service, options=options)
-
-            # URL of the login page of site
-            # which you want to automate login.
-            url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
-
-            driver.get(url)
-            driver.stop_client()
-            driver.get(url)
+    driver.get(url)
+    driver.stop_client()
+    driver.get(url)
+    # except SessionNotCreatedException:
+    #     try:
+    #         service = Service("chromedriver1.exe")
+    #         options = webdriver.ChromeOptions()
+    #         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    #         # options.add_argument("--headless")
+    #         # Giving the path of chromedriver to selenium webdriver
+    #         driver = webdriver.Chrome(service=service, options=options)
+    #
+    #         # URL of the login page of site
+    #         # which you want to automate login.
+    #         url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+    #
+    #         driver.get(url)
+    #         driver.stop_client()
+    #         driver.get(url)
+    #     except SessionNotCreatedException:
+    #         try:
+    #             service = Service("chromedriver2.exe")
+    #             options = webdriver.ChromeOptions()
+    #             options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    #             # options.add_argument("--headless")
+    #             # Giving the path of chromedriver to selenium webdriver
+    #             driver = webdriver.Chrome(service=service, options=options)
+    #
+    #             # URL of the login page of site
+    #             # which you want to automate login.
+    #             url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+    #
+    #             driver.get(url)
+    #             driver.stop_client()
+    #             driver.get(url)
+    #         except SessionNotCreatedException:
+    #             service = Service("chromedriver3.exe")
+    #             options = webdriver.ChromeOptions()
+    #             options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    #             # options.add_argument("--headless")
+    #             # Giving the path of chromedriver to selenium webdriver
+    #             driver = webdriver.Chrome(service=service, options=options)
+    #
+    #             # URL of the login page of site
+    #             # which you want to automate login.
+    #             url = "https://sigp.ebserh.gov.br/csp/ebserh/index.csp"
+    #
+    #             driver.get(url)
+    #             driver.stop_client()
+    #             driver.get(url)
 
     wait = WebDriverWait(driver, 10)
     wait.until(ec.presence_of_element_located((By.ID, 'login')))
@@ -269,7 +284,7 @@ def recalcula_todos(mes, ano, processo, usuario):
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     confirmacoes = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano,
                                                        saldo_banco_decimal__gte=0, saldo_mes_decimal__gte=0,
-                                                       valor_total__gt=0).values()
+                                                       valor_total__gt=0).order_by('-nome').values()
     recalculados = RelatorioBancosRecalculados.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     recalculados = pd.DataFrame(recalculados)
     if confirmacoes:
