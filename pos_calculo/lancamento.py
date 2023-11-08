@@ -80,8 +80,10 @@ def InsereDados(j, driver, mes, ano, observacao, usuario, index, fator):
             rubrica = j['rubrica_diurna']
         if i == 1:
             rubrica = j['rubrica_noturna']
+
         campo_rubrica = driver.find_element(By.XPATH, "/html/body/table/tbody/tr/td/form/div/div[1]/div["
                                                       "1]/table/tbody/tr[1]/td/table/tbody/tr[2]/td[1]/input")
+
         campo_rubrica.clear()
         campo_rubrica.send_keys(rubrica)
 

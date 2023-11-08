@@ -14,13 +14,15 @@ from pos_calculo.dbchanges import salva_banco_recalculado
 def ColarMatricula(matricula, index_as_int, driver):
     if int(index_as_int) > 0:
         try:
-            wait = WebDriverWait(driver, 1)
+            wait = WebDriverWait(driver, 3)
             wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
 
             frame1 = driver.find_element(By.ID, 'frame1')
             driver.switch_to.frame(frame1)
         except TimeoutException:
             pass
+        wait = WebDriverWait(driver, 3)
+        wait.until(ec.presence_of_element_located((By.ID, 'servMatricula')))
         campo_matricula = driver.find_element(By.ID, 'servMatricula')
         campo_matricula.clear()
         try:
@@ -35,10 +37,14 @@ def ColarMatricula(matricula, index_as_int, driver):
         except TimeoutException:
             pass
         finally:
+            wait = WebDriverWait(driver, 3)
+            wait.until(ec.presence_of_element_located((By.ID, 'servMatricula')))
             campo_matricula = driver.find_element(By.ID, 'servMatricula')
             campo_matricula.send_keys(matricula)
             campo_matricula.send_keys(Keys.TAB)
     else:
+        wait = WebDriverWait(driver, 3)
+        wait.until(ec.presence_of_element_located((By.ID, 'servMatricula')))
         campo_matricula = driver.find_element(By.ID, 'servMatricula')
         campo_matricula.send_keys(matricula)
         campo_matricula.send_keys(Keys.TAB)
@@ -48,18 +54,29 @@ def RecalcularNegativos(dados, driver, mes_ano, observacao, usuario):
     if len(dados) == 0:
         pass
     else:
-        campo_mes_ano = driver.find_element(By.ID, 'MesAno')
-        campo_mes_ano.send_keys(mes_ano)
-        campo_mes_ano.send_keys(Keys.TAB)
-        c = 0
+        c = len(dados)
         for i, j in dados.iterrows():
+            try:
+                wait = WebDriverWait(driver, 3)
+                wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
+
+                frame1 = driver.find_element(By.ID, 'frame1')
+                driver.switch_to.frame(frame1)
+            except TimeoutException:
+                pass
+            wait = WebDriverWait(driver, 5)
+            wait.until(ec.presence_of_element_located((By.ID, 'MesAno')))
+            campo_mes_ano = driver.find_element(By.ID, 'MesAno')
+            campo_mes_ano.send_keys(mes_ano)
+            campo_mes_ano.send_keys(Keys.TAB)
 
             matricula = int(j['matricula'])
             index_as_int = int(str(i))
 
             ColarMatricula(matricula, index_as_int, driver)
 
-            if 'banco de horas' not in str(driver.find_element(By.ID, 'observacao').get_attribute('value')):
+            if 'Recalculo do banco de horas' not in str(
+                    driver.find_element(By.ID, 'observacao').get_attribute('value')):
 
                 campo_observacao = driver.find_element(By.ID, 'observacao')
                 campo_observacao.send_keys(observacao)
@@ -82,9 +99,10 @@ def RecalcularNegativos(dados, driver, mes_ano, observacao, usuario):
 
                 fechar = driver.find_element(By.ID, 'progressCloseButton')
                 fechar.click()
-                print(f'{c+1}-{matricula}: Banco recalculado com sucesso!')
-                c += 1
+                print(f'{c}-{matricula}: Banco recalculado com sucesso!')
+                c -= 1
                 salva_banco_recalculado(j, usuario, mes_ano[:2], mes_ano[2:])
+                driver.refresh()
                 continue
             except NoSuchElementException:
                 pass
@@ -97,7 +115,8 @@ def RecalcularNegativos(dados, driver, mes_ano, observacao, usuario):
 
             fechar = driver.find_element(By.ID, 'progressCloseButton')
             fechar.click()
-            print(f'{c+1}-{matricula}: Banco recalculado com sucesso!')
-            c += 1
+            print(f'{c}-{matricula}: Banco recalculado com sucesso!')
+            c -= 1
             salva_banco_recalculado(j, usuario, mes_ano[:2], mes_ano[2:])
+            driver.refresh()
 

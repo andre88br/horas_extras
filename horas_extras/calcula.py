@@ -532,8 +532,7 @@ def insere_linha(linha, matricula, nome, cargo, data, a_maiusculo, entrada, said
 
 
 def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
-    rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] > 0)].copy(deep=True)
+    rejeitar_batidas_d = df[(df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
@@ -572,8 +571,7 @@ def rejeitar_batidas_d(df, entrada_saida, user, mes, ano):
 
 
 def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
-    rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] > 0)].copy(deep=True)
+    rejeitar_batidas_d = df[(df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1
@@ -611,8 +609,7 @@ def rejeitar_batidas_n(df, entrada_saida, user, mes, ano):
 
 
 def rejeitar_batidas_dn(df, entrada_saida, user, mes, ano):
-    rejeitar_batidas_d = df[(df['saldo_banco_decimal'] >= 0) & (df['saldo_mes_decimal'] >= 0) &
-                            (df['horas_diurnas'] > 0)].copy(deep=True)
+    rejeitar_batidas_d = df[(df['horas_diurnas'] > 0)].copy(deep=True)
     if not rejeitar_batidas_d.empty:
         rejeitar_batidas_d = rejeitar_batidas_d.reset_index(drop=True)
         rejeitar_batidas_d.index += 1

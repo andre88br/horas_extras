@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 from empregados.models import Empregado
 from pos_calculo.lancamento import LancarRubricas
@@ -401,6 +402,7 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, fator, processo,
 def voltar_todos(mes, ano, driver, c, usuario):
     voltar = VoltarNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     voltar = pd.DataFrame(voltar)
+    print(voltar)
     pega_matricula(voltar, mes, ano)
 
     desrejeitadas_d = RelatorioBatidasDesrejeitadas.objects.filter(importacao__mes=mes, importacao__ano=ano,

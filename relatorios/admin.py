@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from relatorios.models import RelatorioConfirmacao, RelatorioSolicitacao, RelatorioErros, RelatorioCodigo90, \
-    RelatorioEntradaSaida, RelatorioRejeitarBatidas, RelatorioNegativos, RelatorioPagas, VoltarNegativos
+from relatorios.models import *
 
 
 class ListandoRelatorioConfirmacao(admin.ModelAdmin):
@@ -76,6 +75,14 @@ class ListandoVoltarNegativos(admin.ModelAdmin):
     list_per_page = 20
 
 
+# class ListandoFaltaRejeitar(admin.ModelAdmin):
+#     list_display = ("id", "nome",)
+#     list_display_links = ("nome", )
+#     search_fields = ("id", "nome", )
+#     list_filter = ("importacao__mes", "importacao__ano")
+#     list_per_page = 20
+
+
 admin.site.register(RelatorioConfirmacao, ListandoRelatorioConfirmacao)
 admin.site.register(RelatorioSolicitacao, ListandoRelatorioSolicitacao)
 admin.site.register(RelatorioErros, ListandoRelatorioErros)
@@ -85,4 +92,5 @@ admin.site.register(RelatorioRejeitarBatidas, ListandoRelatorioRejeitarBatidas)
 admin.site.register(RelatorioNegativos, ListandoRelatorioNegativos)
 admin.site.register(RelatorioPagas, ListandoRelatorioPagas)
 admin.site.register(VoltarNegativos, ListandoVoltarNegativos)
+# admin.site.register(FaltaRejeitar, ListandoVoltarNegativos)
 
