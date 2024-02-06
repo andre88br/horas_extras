@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
+
+
 <link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" />
 
 
@@ -29,8 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="row align-left">
         <div  class="col-md">
 
-
-            <form class="form-importar" action="{% url 'upload' %}" method="POST" enctype="multipart/form-data">
+                <form class="form-importar" id="upload_form"  action="{% url 'upload' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
                 <label for="data">Mês/Ano</label><br>
@@ -67,6 +69,50 @@ document.addEventListener('DOMContentLoaded', function() {
         <div  class="col-md"></div>
         <div  class="col-md"></div>
     </div>
+
+<!--     <div class="progress" id="progress">-->
+<!--         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>-->
+<!--     </div>-->
+
+<!--    <script>-->
+<!--        const data = document.getElementById('data');-->
+<!--        const tipo = document.getElementById('tipo');-->
+<!--        const arquivo = document.getElementById('arquivo');-->
+<!--        const progress_bar = document.getElementById('progress');-->
+
+<!--        $("#upload_form").submit(function (e){-->
+<!--            e.preventDefault();-->
+<!--            $form = $(this)-->
+<!--            const dados = {-->
+<!--                'data': data.value,-->
+<!--                'tipo': tipo.value,-->
+<!--                'upload': arquivo.files[0],-->
+<!--            };-->
+
+<!--            $.ajax({-->
+<!--                type:'POST',-->
+<!--                url: "{% url 'upload' %}",-->
+<!--                data: {'dados': JSON.stringify(dados), 'csrfmiddlewaretoken': '{{ csrf_token }}'},-->
+<!--                dataType: 'json',-->
+<!--                beforeSend: function (){-->
+
+<!--                },-->
+<!--                xhr:function (){-->
+
+<!--                },-->
+<!--                success: function (){-->
+
+<!--                },-->
+<!--                error: function (){-->
+
+<!--                },-->
+<!--                cache: false,-->
+<!--                contentType: false,-->
+<!--                processData: false,-->
+<!--            });-->
+<!--        });-->
+
+<!--    </script>-->
 
         {% if files2 %}
           <h1>Solicitações</h1>

@@ -57,15 +57,18 @@
             </li>
 
             <li class="menu-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="basesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="posDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-bars-progress"></i> Pós Cálculo
                 </a>
                 <ul class="menu-item dropdown" aria-labelledby="basesDropdown">
                     <li><a class="menu-item dropdown-item" href="{% url 'rejeitar_batidas' %}"> <i class="fa-regular fa-calendar-xmark"></i> Rejeitar batidas</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'excluir_escalas' %}"><i class="fa-solid fa-calendar-xmark"></i> Inserir sem jornada</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'recalcular_banco' %}"><i class="fa-solid fa-calculator"></i> Recalcular banco</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'pagamento' %}"><i class="fa-solid fa-file-invoice-dollar"></i> Lançar pagamento</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'voltar_batidas' %}"><i class="fa-solid fa-arrow-rotate-left"></i> Voltar batidas</a></li>
+                    <li><a class="menu-item dropdown-item" href="{% url 'voltar_escalas' %}"><i class="fa-solid fa-clock-rotate-left"></i> Voltar escalas</a></li>
                     <li><a class="menu-item dropdown-item" href="{% url 'recalcular_negativos' %}"><i class="fa-solid fa-user-minus"></i> Recalcular negativos</a></li>
+
                 </ul>
             </li>
 

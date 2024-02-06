@@ -7,13 +7,31 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        // esconder inputs de frequencia e banco_mes inicialmente
-            $('#label_data').hide();
-            $('#data').hide();
-            $('#processar').hide();
-            $('#verifica_bases').hide();
-            $('#label_processamentoFinal').hide();
-            $('#processamentoFinal').hide();
+        "{% if tipo == 'confirmacao' %}"
+                $('#label_data').show();
+                $('#data').show();
+                $('#processar').show();
+                $('#verifica_bases').show();
+                $('#label_processamentoFinal').show();
+                $('#processamentoFinal').show();
+
+        "{% elif tipo == 'solicitacao' %}"
+                $('#label_data').show();
+                $('#data').show();
+                $('#processar').show();
+                $('#verifica_bases').show();
+                $('#label_processamentoFinal').hide();
+                $('#processamentoFinal').hide();
+
+        "{% else %}"
+
+                $('#label_data').hide();
+                $('#data').hide();
+                $('#processar').hide();
+                $('#verifica_bases').hide();
+                $('#label_processamentoFinal').hide();
+                $('#processamentoFinal').hide();
+        "{% endif %}"
 
 
         // quando a opção confirmacao for selecionada, mostrar inputs de frequencia e banco_mes
@@ -75,8 +93,16 @@
                     <div class="form-inline">
                       <select id="tipo" name="tipo" class="col-6 row-cols-6">
                         <option value=""></option>
-                        <option value="solicitacao">Solicitação</option>
-                        <option value="confirmacao">Confirmação</option>
+                          {% if tipo == 'confirmacao' %}
+                              <option value="solicitacao">Solicitação</option>
+                              <option value="confirmacao" selected>Confirmação</option>
+                          {% elif tipo == 'solicitacao' %}
+                              <option value="solicitacao" selected>Solicitação</option>
+                              <option value="confirmacao">Confirmação</option>
+                          {% else %}
+                              <option value="solicitacao">Solicitação</option>
+                              <option value="confirmacao">Confirmação</option>
+                          {% endif %}
                       </select>
                     </div>
 
@@ -85,7 +111,7 @@
                     <label for="data" id="label_data">Selecione o mês para processar as horas extras</label>
                     <div class="row">
                          <div class="col-6 row-cols-6">
-                            <input type="month" id="data" name="data" required>
+                            <input type="month" id="data" name="data" value="{{ ano }}-{{ mes }}" required>
                         </div>
                     </div>
 

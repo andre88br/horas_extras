@@ -8,4 +8,7 @@ urlpatterns = [
     path("recalcular_negativos", views.recalcular_negativos, name="recalcular_negativos"),
     path("pagamento", views.pagamento, name="pagamento"),
     path("voltar_batidas", views.voltar_batidas, name="voltar_batidas"),
+    path("voltar_escalas", views.voltar_escalas, name="voltar_escalas"),
+    path("excluir_escalas", views.excluir_escalas, name="excluir_escalas"),
+
 ]

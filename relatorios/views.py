@@ -7,7 +7,7 @@ from horas_extras.calcula import calcula_he
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_erros, \
     gera_relatorio_confirmacao, gera_relatorio_entrada_saida, gera_relatorio_codigo90, \
     gera_relatorio_negativos, gera_relatorio_rejeitar_batidas, gera_relatorio_pagas, gera_relatorio_setores, \
-    gera_relatorio_rejeitadas, gera_voltar_negativos
+    gera_relatorio_rejeitadas, gera_voltar_negativos, gera_escalas_voltadas
 
 
 def relatorios(request):
@@ -104,6 +104,9 @@ def escolhe_relatorio(request):
             if tipo == 'voltar_negativos':
                 response, arquivo, df = gera_voltar_negativos(mes, ano)
 
+            if tipo == 'escalas_voltadas':
+                response, arquivo, df = gera_escalas_voltadas(mes, ano)
+
             if not response:
                 messages.error(request, 'Relatório não disponível!')
                 render(request, 'relatorios/relatorios.html')
@@ -181,6 +184,9 @@ def imprime(request):
 
         if tipo2 == 'voltar_negativos':
             response, arquivo, df = gera_voltar_negativos(mes, ano)
+
+        if tipo2 == 'escalas_voltadas':
+            response, arquivo, df = gera_escalas_voltadas(mes, ano)
 
         diretorio = os.getcwd()
         for i in os.listdir(diretorio):

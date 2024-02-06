@@ -13,7 +13,6 @@ from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 from .upload import valida_upload, arruma_dados_do_arquivo, processa_horas_extras
 from .valida_formata_str import transforma_data_contrario
 
-
 def solicitacao_confirmacao_upload(request):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -632,7 +631,7 @@ def processar(request):
                 if botao == 'bases' or len(solicitacao) == 0 or len(banco_total) == 0:
                     return render(request, "horas_extras/processar.html",
                                   context={"files3": banco_total, 'files5': solicitacao, 'mes': mes,
-                                           'ano': ano, })
+                                           'ano': ano, 'tipo':tipo})
                 elif botao == 'processar':
                     nome = f'Solicitação 0{mes}/{ano}.xlsx'
                     relatorio, conclusao = calcula_solicitacao(ano, mes, usuario)
@@ -666,7 +665,7 @@ def processar(request):
                     return render(request, "horas_extras/processar.html",
                                   context={"files": frequencias, "files2": banco_mes, "files3": banco_total,
                                            'files4': confirmacao, 'files6': frequencia, 'mes': mes,
-                                           'ano': ano, })
+                                           'ano': ano, 'tipo':tipo})
                 elif botao == 'processar':
                     pagas = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano)
                     if pagas:

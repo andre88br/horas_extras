@@ -48,7 +48,6 @@ class Confirmacao(models.Model):
     data_upload = models.DateTimeField()
     setor = models.CharField(max_length=100)
 
-
 class Solicitacao(models.Model):
     objects = models.Manager()
     empregado = models.ForeignKey(

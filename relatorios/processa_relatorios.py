@@ -1,10 +1,9 @@
-import calendar
 import locale
 
 import pandas as pd
 from django.http import HttpResponse
 
-from pos_calculo.models import RelatorioBatidasRejeitadas
+from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioEscalaVoltada
 from .dbchanges import *
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -715,3 +714,32 @@ def gera_voltar_negativos(mes, ano):
             response['Content-Disposition'] = f'attachment; filename="Voltar negativos - {mes}-{ano}.xlsx"'
 
     return response, excel_path_voltar_negativos, df
+
+
+
+def gera_escalas_voltadas(mes, ano):
+    empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
+    empregados = pd.DataFrame(empregados)
+
+    df = RelatorioEscalaVoltada.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+    response, excel_path_escalas_voltadas = '', ''
+
+    if not df:
+        pass
+    else:
+        df = pd.DataFrame(df)
+        pega_matricula(empregados, df)
+        coluna_matricula = df['matricula']
+        df = df.drop(columns={'matricula'})
+        df.insert(0, 'matricula', coluna_matricula)
+        df = df[['matricula', 'nome', 'data', 'escala']]
+        df = arruma_campos(df, 'escalas_voltadas', mes, ano)
+        excel_path_escalas_voltadas = f'Escalas voltadas {mes}-{ano}.xlsx'
+        df.to_excel(excel_path_escalas_voltadas, index=False, sheet_name='Escalas voltadas')
+
+        with open(excel_path_escalas_voltadas, 'rb') as file:
+            response = HttpResponse(file.read(),
+                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = f'attachment; filename="Escalas voltadas - {mes}-{ano}.xlsx"'
+
+    return response, excel_path_escalas_voltadas, df

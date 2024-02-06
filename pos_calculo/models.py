@@ -67,3 +67,35 @@ class RelatorioBatidasDesrejeitadas(models.Model):
     data_upload = models.DateTimeField(default=timezone.now)
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
+
+
+class RelatorioEscalaVoltada(models.Model):
+    objects = models.Manager
+    empregado = models.ForeignKey(
+        Empregado, on_delete=models.CASCADE
+    )
+    importacao = models.ForeignKey(
+        Importacoes, on_delete=models.CASCADE
+    )
+    nome = models.CharField(max_length=200)
+    data = models.CharField(max_length=30)
+    escala = models.CharField(max_length=30)
+    data_upload = models.DateTimeField(default=timezone.now)
+    importado_por = models.CharField(max_length=100)
+    importado_por_id = models.IntegerField()
+
+
+class RelatorioEscalaTirada(models.Model):
+    objects = models.Manager
+    empregado = models.ForeignKey(
+        Empregado, on_delete=models.CASCADE
+    )
+    importacao = models.ForeignKey(
+        Importacoes, on_delete=models.CASCADE
+    )
+    nome = models.CharField(max_length=200)
+    data = models.CharField(max_length=30)
+    escala = models.CharField(max_length=30)
+    data_upload = models.DateTimeField(default=timezone.now)
+    importado_por = models.CharField(max_length=100)
+    importado_por_id = models.IntegerField()

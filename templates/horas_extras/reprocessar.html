@@ -265,19 +265,28 @@
                   <div>
                       <select id="tipo" name="tipo" class="col-6 row-cols-6">
                           <option value=""></option>
-                          <option value="solicitacao">Solicitação</option>
-                          <option value="confirmacao">Confirmação</option>
+                              {% if tipo == 'confirmacao' %}
+                                  <option value="solicitacao">Solicitação</option>
+                                  <option value="confirmacao" selected>Confirmação</option>
+                              {% elif tipo == 'solicitacao' %}
+                                  <option value="solicitacao" selected>Solicitação</option>
+                                  <option value="confirmacao">Confirmação</option>
+                              {% else %}
+                                  <option value="solicitacao">Solicitação</option>
+                                  <option value="confirmacao">Confirmação</option>
+                              {% endif %}
                       </select>
                   </div>
 
-
                   </div>
-
-
                     <label for="matricula" id="label_matricula">Matrícula</label>
                     <div class="row">
                         <div class="col-6 row-cols-6">
+                            {% if matricula != '' %}
+                            <input type="text" name="matricula" id="matricula" value="{{ matricula }}">
+                            {% else %}
                             <input type="text" name="matricula" id="matricula">
+                            {% endif %}
                         </div>
                         <div class="col-1 cols-1">
                             <button type="submit" class="btn_salvar" id="pesquisar" name="pesquisar"><i class="fa-solid fa-magnifying-glass"><br>Pesquisar</i></button>
@@ -287,7 +296,7 @@
                     <label for="data" id="label_data">Selecione o mês para processar as horas extras</label>
                      <div class="row">
                          <div class="col-6 row-cols-6">
-                            <input type="month" id="data" name="data"  required>
+                            <input type="month" id="data" name="data"  value="{{ ano }}-{{ mes }}" required>
                          </div>
                      </div>
                     {% if matricula %}

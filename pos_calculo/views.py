@@ -3,7 +3,9 @@ from django.shortcuts import render
 
 from pos_calculo.processamento import rejeita_todos, rejeita_especifico, inicia_driver, \
     clica_frequencia, recalcula_todos, recalcula_especifico, lanca_todos, lanca_especifico, voltar_todos, \
-    recalcula_negativos
+    recalcula_negativos, clica_horario_excepcional
+from pos_calculo.tirar_escala import tirar_escala
+from pos_calculo.voltar_negativos import voltar_escala
 
 
 def rejeitar_batidas(request):
@@ -98,6 +100,25 @@ def voltar_batidas(request):
     return render(request, "pos_calculo/voltar_batidas.html")
 
 
+def voltar_escalas(request):
+    if request.method == "POST":
+        data = request.POST.get('data')
+        mes = int(str(data).split('-')[1])
+        ano = int(str(data).split('-')[0])
+        try:
+            driver = inicia_driver()
+            clica_horario_excepcional(driver)
+            c = 0
+            voltar_escala(mes, ano, driver, c, request.user)
+            messages.success(request, 'Escalas incluídas com sucesso')
+        except Exception as error:
+            if str(error) == "'matricula'":
+                messages.error(request, f'Sem escalas para voltar do mês de {mes}/{ano}')
+            else:
+                messages.error(request, f'Erro: {error}')
+    return render(request, "pos_calculo/voltar_escalas.html")
+
+
 def recalcular_negativos(request):
     try:
         if request.method == "POST":
@@ -118,3 +139,23 @@ def recalcular_negativos(request):
     except Exception as error:
         messages.error(request, f'Erro: {error}')
     return render(request, "pos_calculo/recalcular_negativos.html")
+
+
+def excluir_escalas(request):
+    if request.method == "POST":
+        data = request.POST.get('data')
+        mes = int(str(data).split('-')[1])
+        ano = int(str(data).split('-')[0])
+        try:
+            driver = inicia_driver()
+            clica_horario_excepcional(driver)
+            print("horario_excepcional")
+            c = 0
+            tirar_escala(mes, ano, driver, c, request.user)
+            messages.success(request, 'Escalas excluídas com sucesso')
+        except Exception as error:
+            if str(error) == "'matricula'":
+                messages.error(request, f'Sem escalas para excluir do mês de {mes}/{ano}')
+            else:
+                messages.error(request, f'Erro: {error}')
+    return render(request, "pos_calculo/excluir_escalas.html")

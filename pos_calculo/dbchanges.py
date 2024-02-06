@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from empregados.models import Importacoes, Empregado
 from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalculados, RelatorioRubricasLancadas, \
-    RelatorioBatidasDesrejeitadas
+    RelatorioBatidasDesrejeitadas, RelatorioEscalaVoltada, RelatorioEscalaTirada
 
 
 def salva_rejeitada(fields, usuario, mes, ano, data):
@@ -134,6 +134,58 @@ def salva_desrejeitada(fields, usuario, mes, ano, data):
                         'tipo': fields['tipo'],
                     })
                 return document
+
+    except ObjectDoesNotExist as erro:
+        print(f'Erro: {erro}')
+        pass
+
+
+def salva_escala_voltada(fields, escala, usuario, mes, ano, data):
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='escala_voltada', defaults={
+            'importado_por_id': usuario.id,
+            'importado_por': usuario.username,
+            'data_upload': datetime.now(),
+        })
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='escala_voltada')
+    try:
+        empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
+        if empregado:
+            document = RelatorioEscalaVoltada.objects.update_or_create(
+                empregado=empregado, importacao=importacao,
+                data=data, defaults={
+                    'nome': str(fields['nome']).upper(),
+                    'data_upload': datetime.now(),
+                    'importado_por': usuario.username,
+                    'importado_por_id': usuario.id,
+                    'escala': escala,
+                })
+            return document
+
+    except ObjectDoesNotExist as erro:
+        print(f'Erro: {erro}')
+        pass
+
+
+def salva_escala_tirada(fields, escala, usuario, mes, ano, data):
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='escala_tirada', defaults={
+            'importado_por_id': usuario.id,
+            'importado_por': usuario.username,
+            'data_upload': datetime.now(),
+        })
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='escala_tirada')
+    try:
+        empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
+        if empregado:
+            document = RelatorioEscalaTirada.objects.update_or_create(
+                empregado=empregado, importacao=importacao,
+                data=data, defaults={
+                    'nome': str(fields['nome']).upper(),
+                    'data_upload': datetime.now(),
+                    'importado_por': usuario.username,
+                    'importado_por_id': usuario.id,
+                    'escala': escala,
+                })
+            return document
 
     except ObjectDoesNotExist as erro:
         print(f'Erro: {erro}')

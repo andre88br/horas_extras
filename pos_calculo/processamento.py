@@ -113,6 +113,18 @@ def clica_frequencia(driver):
     frame1 = driver.find_element(By.ID, 'frame1')
     driver.switch_to.frame(frame1)
 
+def clica_horario_excepcional(driver):
+    wait = WebDriverWait(driver, 30)
+    wait.until(ec.presence_of_element_located((By.LINK_TEXT, 'Cadastro Horário Excepcional')))
+    frequencia = driver.find_element(By.LINK_TEXT, 'Cadastro Horário Excepcional')
+    frequencia.click()
+
+    wait = WebDriverWait(driver, 30)
+    wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
+
+    frame1 = driver.find_element(By.ID, 'frame1')
+    driver.switch_to.frame(frame1)
+
 
 def clica_banco(driver):
     wait = WebDriverWait(driver, 30)
@@ -371,7 +383,7 @@ def lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, usuario):
 
 
 def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, fator, processo, usuario):
-    folha = f'{mes_folha}/{ano_folha}'
+    folha = f'Folha Normal {mes_folha}/{ano_folha}'
     observacao = f'Recalculo do banco de horas após processamento de horas extras, processo SEI {processo}'
     print(observacao)
     confirmacoes = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano,
@@ -517,6 +529,7 @@ def recalcula_negativos(mes, ano, processo, usuario):
     negativos = pd.DataFrame(negativos)
     pega_matricula(negativos, mes, ano)
     negativos['matricula'] = negativos['matricula'].astype(int)
+    negativos = negativos.sort_values(by='matricula', ascending=True)
     print(negativos)
 
     driver = inicia_driver()

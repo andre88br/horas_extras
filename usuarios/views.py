@@ -264,7 +264,10 @@ def retorna_total_pago(request):
         else:
             total = RelatorioPagas.objects.filter(importacao__ano=ano
                                                   ).all().aggregate(Sum('total'))['total__sum']
-            total = locale.currency(total, symbol=False, grouping=True)
+            try:
+                total = locale.currency(total, symbol=False, grouping=True)
+            except:
+                total = 0
             if request.method == "GET":
                 return JsonResponse({'total': total})
     else:
@@ -290,14 +293,14 @@ def retorna_total_solicitado(request):
             total = locale.currency(sum(ano2022), symbol=False, grouping=True)
         elif ano == 2023:
             total2 = 563062.37 + 477583.13 + 453645.18 + 502795.78
-            total3 = RelatorioSolicitacao.objects.filter(~Q(valor_total=nan), importacao__ano=datetime.now().year,
+            total3 = RelatorioSolicitacao.objects.filter(~Q(valor_total=nan), importacao__ano=ano,
                                                          saldo_banco_decimal__gte=0, importacao__mes__gt=4
                                                          ).all().aggregate(Sum('valor_total'))['valor_total__sum']
             if total3 is None:
                 total3 = 0
             total = locale.currency(total2 + total3, symbol=False, grouping=True)
         else:
-            total3 = RelatorioSolicitacao.objects.filter(~Q(valor_total=nan), importacao__ano=datetime.now().year,
+            total3 = RelatorioSolicitacao.objects.filter(~Q(valor_total=nan), importacao__ano=ano,
                                                          saldo_banco_decimal__gte=0
                                                          ).all().aggregate(Sum('valor_total'))['valor_total__sum']
             if total3 is None:
@@ -344,7 +347,10 @@ def retorna_diferenca(request):
             solicitado = RelatorioSolicitacao.objects.filter(~Q(valor_total=nan), importacao__ano=ano,
                                                              saldo_banco_decimal__gte=0,
                                                              ).all().aggregate(Sum('valor_total'))['valor_total__sum']
-            total = locale.currency(solicitado - pago, symbol=False, grouping=True)
+            try:
+                total = locale.currency(solicitado - pago, symbol=False, grouping=True)
+            except:
+                total = locale.currency(solicitado, symbol=False, grouping=True)
 
         if request.method == "GET":
             return JsonResponse({'total': total})
