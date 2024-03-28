@@ -36,8 +36,7 @@ ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
         'https://localhost',
         'https://127.0.0.1',
-        'https://[::1]',
-        'https://17a8-189-93-231-10.ngrok-free.app']
+        'https://horaextra.serveo.net']
 
 # Application definition
 

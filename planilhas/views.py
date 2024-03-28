@@ -250,12 +250,12 @@ def planilha_importacoes(request):
         formSetor = SetorForm(request.POST or None)
         formSetor.fields['setor'].widget.attrs['class'] = 'ass'
 
-        solicitacoes_a_mostar = Importacoes.objects.filter(tipo='PlanilhaSolicitação').order_by("-ano", "mes").all()
+        solicitacoes_a_mostar = Importacoes.objects.filter(tipo='planilhasolicitação').order_by("-ano", "mes").all()
         paginator = Paginator(solicitacoes_a_mostar, 2)
         page = request.GET.get('page')
         solicitacoes_paginadas = paginator.get_page(page)
 
-        confirmacoes_a_mostar = Importacoes.objects.filter(tipo='PlanilhaConfirmação').order_by("-ano", "mes").all()
+        confirmacoes_a_mostar = Importacoes.objects.filter(tipo='planilhaconfirmação').order_by("-ano", "mes").all()
         paginator = Paginator(confirmacoes_a_mostar, 2)
         page = request.GET.get('page')
         confirmacoes_paginadas = paginator.get_page(page)

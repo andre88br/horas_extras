@@ -13,6 +13,7 @@ from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 from .upload import valida_upload, arruma_dados_do_arquivo, processa_horas_extras
 from .valida_formata_str import transforma_data_contrario
 
+
 def solicitacao_confirmacao_upload(request):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -48,16 +49,16 @@ def solicitacao_confirmacao_upload(request):
                 return render(
                     request,
                     "horas_extras/solicitacao_confirmacao_upload.html",
-                    context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()[:2],
-                             "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()[
+                    context={"files": Importacoes.objects.filter(tipo='confirmação').order_by("-ano", "-mes").all()[:2],
+                             "files2": Importacoes.objects.filter(tipo='solicitação').order_by("-ano", "-mes").all()[
                                        :2]},
                 )
 
         return render(
             request,
             "horas_extras/solicitacao_confirmacao_upload.html",
-            context={"files": Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()[:2],
-                     "files2": Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()[:2]},
+            context={"files": Importacoes.objects.filter(tipo='confirmação').order_by("-ano", "-mes").all()[:2],
+                     "files2": Importacoes.objects.filter(tipo='solicitação').order_by("-ano", "-mes").all()[:2]},
         )
     else:
         messages.error(request, 'Faça o login para acessar essa página!')
@@ -66,14 +67,14 @@ def solicitacao_confirmacao_upload(request):
 
 def importacoes(request):
     if request.user.is_authenticated:
-        importacoes_lista_confirmacao = Importacoes.objects.filter(tipo='Confirmação').values()
-        importacoes_lista_solicitacao = Importacoes.objects.filter(tipo='Solicitação').values()
-        solicitacoes_a_mostar = Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()
+        importacoes_lista_confirmacao = Importacoes.objects.filter(tipo='confirmação').values()
+        importacoes_lista_solicitacao = Importacoes.objects.filter(tipo='solicitação').values()
+        solicitacoes_a_mostar = Importacoes.objects.filter(tipo='solicitação').order_by("-ano", "-mes").all()
         paginator = Paginator(solicitacoes_a_mostar, 4)
         page = request.GET.get('page')
         solicitacoes_paginadas = paginator.get_page(page)
 
-        confirmacoes_a_mostar = Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all()
+        confirmacoes_a_mostar = Importacoes.objects.filter(tipo='confirmação').order_by("-ano", "-mes").all()
         paginator = Paginator(confirmacoes_a_mostar, 4)
         page = request.GET.get('page')
         confirmacoes_paginadas = paginator.get_page(page)
@@ -178,13 +179,13 @@ def deleta_mes(request, file_id):
     if request.user.is_authenticated:
         importacao = get_object_or_404(Importacoes, pk=file_id)
         importacao.delete()
-        importacoes_lista_confirmacao = Importacoes.objects.filter(tipo='Confirmação').values()
-        importacoes_lista_solicitacao = Importacoes.objects.filter(tipo='Solicitação').values()
+        importacoes_lista_confirmacao = Importacoes.objects.filter(tipo='confirmação').values()
+        importacoes_lista_solicitacao = Importacoes.objects.filter(tipo='solicitação').values()
         if not importacoes_lista_solicitacao or not importacoes_lista_confirmacao:
             messages.error(request, "Sem planilhas importadas")
         return render(request, "horas_extras/importacoes.html", context={
-            'files': Importacoes.objects.filter(tipo='Confirmação').order_by("-ano", "-mes").all(),
-            'files2': Importacoes.objects.filter(tipo='Solicitação').order_by("-ano", "-mes").all()},
+            'files': Importacoes.objects.filter(tipo='confirmação').order_by("-ano", "-mes").all(),
+            'files2': Importacoes.objects.filter(tipo='solicitação').order_by("-ano", "-mes").all()},
                       )
     else:
         messages.error(request, 'Faça o login para acessar essa página!')
@@ -618,7 +619,7 @@ def processar(request):
                 botao = 'bases'
 
             if tipo == 'solicitacao':
-                solicitacao = Importacoes.objects.filter(tipo='Solicitação', mes=mes, ano=ano).order_by("-ano",
+                solicitacao = Importacoes.objects.filter(tipo='solicitação', mes=mes, ano=ano).order_by("-ano",
                                                                                                         "-mes").all()
                 if len(solicitacao) == 0:
                     messages.error(request, f'Planilhas de solicitação do mês 0{mes}/{ano} não foram importadas')
@@ -631,7 +632,7 @@ def processar(request):
                 if botao == 'bases' or len(solicitacao) == 0 or len(banco_total) == 0:
                     return render(request, "horas_extras/processar.html",
                                   context={"files3": banco_total, 'files5': solicitacao, 'mes': mes,
-                                           'ano': ano, 'tipo':tipo})
+                                           'ano': ano, 'tipo': tipo})
                 elif botao == 'processar':
                     nome = f'Solicitação 0{mes}/{ano}.xlsx'
                     relatorio, conclusao = calcula_solicitacao(ano, mes, usuario)
@@ -655,7 +656,7 @@ def processar(request):
                                                                                                         "-mes").all()
                 if len(banco_total) == 0:
                     messages.error(request, f'Banco de horas do mês 0{mes}/{ano} não foi importado')
-                confirmacao = Importacoes.objects.filter(tipo='Confirmação', mes=mes, ano=ano).order_by("-ano",
+                confirmacao = Importacoes.objects.filter(tipo='confirmação', mes=mes, ano=ano).order_by("-ano",
                                                                                                         "-mes").all()
                 if len(confirmacao) == 0:
                     messages.error(request, f'Planilhas de confirmação do mês 0{mes}/{ano} não foram importadas')
@@ -665,7 +666,7 @@ def processar(request):
                     return render(request, "horas_extras/processar.html",
                                   context={"files": frequencias, "files2": banco_mes, "files3": banco_total,
                                            'files4': confirmacao, 'files6': frequencia, 'mes': mes,
-                                           'ano': ano, 'tipo':tipo})
+                                           'ano': ano, 'tipo': tipo})
                 elif botao == 'processar':
                     pagas = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano)
                     if pagas:

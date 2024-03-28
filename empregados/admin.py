@@ -12,19 +12,39 @@ class ListandoImportacoes(admin.ModelAdmin):
 
 
 class ListandoEmpregado(admin.ModelAdmin):
-    list_display = ("id", "matricula", "nome")
+    list_display = ("id", "matricula", "nome", "mes", "ano")
     list_display_links = ("matricula", "nome")
     search_fields = ("matricula", "nome")
     list_filter = ("importacao__ano", "importacao__mes")
     list_per_page = 200
 
+    @staticmethod
+    def ano(obj):
+        return obj.importacao.ano
+
+    @staticmethod
+    def mes(obj):
+        return obj.importacao.mes
+
 
 class ListandoCargaHoraria(admin.ModelAdmin):
-    list_display = ("id", "nome", "carga_horaria")
-    list_display_links = ("nome", "carga_horaria")
+    list_display = ("id", "matricula", "nome", "carga_horaria", "mes", "ano")
+    list_display_links = ("matricula", "nome", "carga_horaria")
     search_fields = ("nome", "carga_horaria")
     list_filter = ("carga_horaria", "importacao__ano", "importacao__mes")
     list_per_page = 200
+
+    @staticmethod
+    def ano(obj):
+        return obj.importacao.ano
+
+    @staticmethod
+    def mes(obj):
+        return obj.importacao.mes
+
+    @staticmethod
+    def matricula(obj):
+        return obj.empregado.matricula
 
 
 admin.site.register(Importacoes, ListandoImportacoes)

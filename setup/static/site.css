@@ -304,7 +304,7 @@ button:hover{
         text-transform: lowercase;
 }
 
-.form-control .user{
+#user, #email{
         text-transform: lowercase;
 }
 

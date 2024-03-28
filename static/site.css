@@ -304,6 +304,7 @@ button:hover{
         text-transform: lowercase;
 }
 
+
 .par .td_importacoes2{
     border-right: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
@@ -892,4 +893,8 @@ tr td{
 
 #progress-bar {
   margin-top: 1em;
+}
+
+.row data{
+    padding: 20px;
 }

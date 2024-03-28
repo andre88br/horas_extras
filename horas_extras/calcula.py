@@ -261,8 +261,8 @@ def calcula_he(ano, mes, user, final):
                     if (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) != 0 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) == 0:
-                        horas_trabalhadas = (j['batida2'].hour + j['batida2'].minute / 60) - \
-                                            (j['batida1'].hour + j['batida1'].minute / 60)
+                        horas_trabalhadas = round((j['batida2'].hour + j['batida2'].minute / 60) - \
+                                            (j['batida1'].hour + j['batida1'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -273,8 +273,8 @@ def calcula_he(ano, mes, user, final):
                     elif (j['batida1'].hour + j['batida1'].minute / 60) < 10 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) < 10 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) > 16 and j['batida4'] == 0:
-                        horas_trabalhadas = (j['batida3'].hour + j['batida3'].minute / 60) - \
-                                            (j['batida2'].hour + j['batida2'].minute / 60)
+                        horas_trabalhadas = round((j['batida3'].hour + j['batida3'].minute / 60) - \
+                                            (j['batida2'].hour + j['batida2'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -286,8 +286,8 @@ def calcula_he(ano, mes, user, final):
                             (j['batida2'].hour + j['batida2'].minute / 60) < 10 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) < 16 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) > 16:
-                        horas_trabalhadas = (j['batida4'].hour + j['batida4'].minute / 60) - \
-                                            (j['batida3'].hour + j['batida3'].minute / 60)
+                        horas_trabalhadas = round((j['batida4'].hour + j['batida4'].minute / 60) - \
+                                            (j['batida3'].hour + j['batida3'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -308,8 +308,8 @@ def calcula_he(ano, mes, user, final):
                         (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
                     if (j['batida1'].hour + j['batida1'].minute / 60) >= 17 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = ((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -322,8 +322,8 @@ def calcula_he(ano, mes, user, final):
                             ((j['batida2'].hour + j['batida2'].minute / 60) >= 17) and \
                             (j['batida3'].hour + j['batida3'].minute / 60) == 0 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida2'].hour + j['batida2'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida2'].hour + j['batida2'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -337,8 +337,8 @@ def calcula_he(ano, mes, user, final):
                             (j['batida3'].hour + j['batida3'].minute / 60) >= 17 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) == 0 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida3'].hour + j['batida3'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida3'].hour + j['batida3'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -352,8 +352,8 @@ def calcula_he(ano, mes, user, final):
                             (j['batida3'].hour + j['batida3'].minute / 60) > 0 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) >= 17 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida4'].hour + j['batida4'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida4'].hour + j['batida4'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)),2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -374,8 +374,8 @@ def calcula_he(ano, mes, user, final):
                     if (11 > (j['batida1'].hour + j['batida1'].minute / 60) > 0) and \
                             (11 > (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) > 0) and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = (25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
-                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)
+                        horas_trabalhadas = round((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
+                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -404,10 +404,10 @@ def calcula_he(ano, mes, user, final):
                 if a != '' and j['data'].day == c2 and j['data'].month == mes and \
                         (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \
                         (j['batida4'].hour + j['batida4'].minute / 60) != 0:
-                    horas_trabalhadas = ((j['batida4'].hour + j['batida4'].minute / 60) - (
+                    horas_trabalhadas = round(((j['batida4'].hour + j['batida4'].minute / 60) - (
                             j['batida1'].hour + j['batida1'].minute / 60)) \
                                         - ((j['batida3'].hour + j['batida3'].minute / 60) - (
-                                            j['batida2'].hour + j['batida2'].minute / 60))
+                                            j['batida2'].hour + j['batida2'].minute / 60)), 2)
                     df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                     df.at[i, 'horas_diurnas'] = horas_trabalhadas
                     entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -428,10 +428,10 @@ def calcula_he(ano, mes, user, final):
 
     print('Calculando valores...')
     for i, j in df.iterrows():
-        df.at[i, 'valor_diurnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j['horas_diurnas'] * 1.5
-        df.at[i, 'valor_noturnas'] = (j['salario'] + j['insalubridade']) / j['carga_horaria'] * j[
-            'horas_noturnas'] * 1.5 * 1.2
-        df.at[i, 'valor_total'] = df.at[i, 'valor_diurnas'] + df.at[i, 'valor_noturnas']
+        df.at[i, 'valor_diurnas'] = round(((j['salario'] + j['insalubridade']) / j['carga_horaria'] * j['horas_diurnas'] * 1.5), 2)
+        df.at[i, 'valor_noturnas'] = round(((j['salario'] + j['insalubridade']) / j['carga_horaria'] * j[
+            'horas_noturnas'] * 1.5 * 1.2), 2)
+        df.at[i, 'valor_total'] = round((df.at[i, 'valor_diurnas'] + df.at[i, 'valor_noturnas']), 2)
 
     print('Salvando Relatório de Entrada e saída...')
     entrada_saida = pd.DataFrame(entrada_saida)
@@ -939,8 +939,8 @@ def recalcula_he(matricula, ano, mes, user):
                     if (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) != 0 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) == 0:
-                        horas_trabalhadas = (j['batida2'].hour + j['batida2'].minute / 60) - \
-                                            (j['batida1'].hour + j['batida1'].minute / 60)
+                        horas_trabalhadas = round((j['batida2'].hour + j['batida2'].minute / 60) - \
+                                            (j['batida1'].hour + j['batida1'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -951,8 +951,8 @@ def recalcula_he(matricula, ano, mes, user):
                     elif (j['batida1'].hour + j['batida1'].minute / 60) < 10 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) < 10 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) > 16 and j['batida4'] == 0:
-                        horas_trabalhadas = (j['batida3'].hour + j['batida3'].minute / 60) - \
-                                            (j['batida2'].hour + j['batida2'].minute / 60)
+                        horas_trabalhadas = round((j['batida3'].hour + j['batida3'].minute / 60) - \
+                                            (j['batida2'].hour + j['batida2'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -964,8 +964,8 @@ def recalcula_he(matricula, ano, mes, user):
                             (j['batida2'].hour + j['batida2'].minute / 60) < 10 and \
                             (j['batida3'].hour + j['batida3'].minute / 60) < 16 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) > 16:
-                        horas_trabalhadas = (j['batida4'].hour + j['batida4'].minute / 60) - \
-                                            (j['batida3'].hour + j['batida3'].minute / 60)
+                        horas_trabalhadas = round((j['batida4'].hour + j['batida4'].minute / 60) - \
+                                            (j['batida3'].hour + j['batida3'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas
                         entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,
@@ -986,8 +986,8 @@ def recalcula_he(matricula, ano, mes, user):
                         (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
                     if (j['batida1'].hour + j['batida1'].minute / 60) >= 17 and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = ((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1000,8 +1000,8 @@ def recalcula_he(matricula, ano, mes, user):
                             ((j['batida2'].hour + j['batida2'].minute / 60) >= 17) and \
                             (j['batida3'].hour + j['batida3'].minute / 60) == 0 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida2'].hour + j['batida2'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida2'].hour + j['batida2'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1015,8 +1015,8 @@ def recalcula_he(matricula, ano, mes, user):
                             (j['batida3'].hour + j['batida3'].minute / 60) >= 17 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) == 0 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida3'].hour + j['batida3'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida3'].hour + j['batida3'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1030,8 +1030,8 @@ def recalcula_he(matricula, ano, mes, user):
                             (j['batida3'].hour + j['batida3'].minute / 60) > 0 and \
                             (j['batida4'].hour + j['batida4'].minute / 60) >= 17 and \
                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) != 0:
-                        horas_trabalhadas = ((25 - (j['batida4'].hour + j['batida4'].minute / 60)) +
-                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60))
+                        horas_trabalhadas = round(((25 - (j['batida4'].hour + j['batida4'].minute / 60)) +
+                                             (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1052,8 +1052,8 @@ def recalcula_he(matricula, ano, mes, user):
                     if (11 > (j['batida1'].hour + j['batida1'].minute / 60) > 0) and \
                             (11 > (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60) > 0) and \
                             (j['batida2'].hour + j['batida2'].minute / 60) == 0:
-                        horas_trabalhadas = (25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
-                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60)
+                        horas_trabalhadas = round((25 - (j['batida1'].hour + j['batida1'].minute / 60)) +\
+                                            (df.loc[ind + 1]['batida1'].hour + df.loc[ind + 1]['batida1'].minute / 60), 2)
                         df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                         df.at[i, 'horas_diurnas'] = horas_trabalhadas - 8
                         df.at[i, 'horas_noturnas'] = 8
@@ -1082,10 +1082,10 @@ def recalcula_he(matricula, ano, mes, user):
                 if a != '' and j['data'].day == c2 and j['data'].month == mes and \
                         (j['batida1'].hour + j['batida1'].minute / 60) != 0 and \
                         (j['batida4'].hour + j['batida4'].minute / 60) != 0:
-                    horas_trabalhadas = ((j['batida4'].hour + j['batida4'].minute / 60) - (
+                    horas_trabalhadas = round(((j['batida4'].hour + j['batida4'].minute / 60) - (
                             j['batida1'].hour + j['batida1'].minute / 60)) \
                                         - ((j['batida3'].hour + j['batida3'].minute / 60) - (
-                                            j['batida2'].hour + j['batida2'].minute / 60))
+                                            j['batida2'].hour + j['batida2'].minute / 60)), 2)
                     df.at[i, 'horas_trabalhadas'] = horas_trabalhadas
                     df.at[i, 'horas_diurnas'] = horas_trabalhadas
                     entrada_saida.append(insere_linha(linha, matricula, nome, cargo, data, a_maiusculo,

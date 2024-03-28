@@ -46,7 +46,7 @@ class Confirmacao(models.Model):
     dia30 = models.CharField(max_length=10)
     dia31 = models.CharField(max_length=10)
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
 class Solicitacao(models.Model):
     objects = models.Manager()
@@ -90,7 +90,7 @@ class Solicitacao(models.Model):
     dia30 = models.CharField(max_length=10)
     dia31 = models.CharField(max_length=10)
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
 
 class Frequencia(models.Model):

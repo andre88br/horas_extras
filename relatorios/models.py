@@ -59,7 +59,7 @@ class RelatorioConfirmacao(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['nome', 'cargo', 'salario', 'insalubridade_periculosidade', 'saldo_mes',
@@ -126,7 +126,7 @@ class RelatorioSolicitacao(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['nome', 'cargo', 'salario', 'insalubridade_periculosidade', 'saldo_banco',
@@ -156,7 +156,7 @@ class RelatorioNegativos(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
     tipo = models.CharField(max_length=30)
 
 
@@ -241,7 +241,7 @@ class RelatorioPagas(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
 
 class RelatorioEntradaSaida(models.Model):
@@ -264,7 +264,7 @@ class RelatorioEntradaSaida(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
-    setor = models.CharField(max_length=100)
+    setor = models.CharField(max_length=200)
 
 
 class RelatorioErros(models.Model):

@@ -36,7 +36,7 @@ def valida_upload(request):
 
 def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
     if tipo == 'Confirmação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Confirmação').all()
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='confirmação').all()
         if busca:
             busca.delete()
 
@@ -52,7 +52,7 @@ def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
             resposta = "OK"
             return resposta, nao_cadastrados
     if tipo == 'Solicitação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Solicitação').all()
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='solicitação').all()
         if busca:
             busca.delete()
         solicitacao_a_mostar = []
@@ -147,7 +147,7 @@ def processa_banco_mes(request, planilha_banco_mes, mes, ano):
 
 def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
     if tipo == 'Confirmação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Confirmação').all()
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='confirmação').all()
         if busca:
             busca.delete()
 
@@ -163,7 +163,7 @@ def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
             resposta = "OK"
             return resposta, nao_cadastrados
     if tipo == 'Solicitação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='Solicitação').all()
+        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='solicitação').all()
         if busca:
             busca.delete()
         solicitacao_a_mostar = []

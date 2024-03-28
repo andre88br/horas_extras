@@ -145,7 +145,7 @@ def InsereDados(j, driver, mes, ano, observacao, usuario, index, fator):
             fechar_mensagem = driver.find_element(By.ID, 'closeButton')
             fechar_mensagem.click()
             salva_rubricas_lancadas(j, usuario, mes, ano, rubrica, valor)
-            print(f"{index} - {j['matricula']}: {rubrica} R$ {valor}")
+            print(f"{index} - {j['matricula']}: {rubrica} {valor}")
 
         except JavascriptException:
             try:
@@ -165,7 +165,7 @@ def InsereDados(j, driver, mes, ano, observacao, usuario, index, fator):
                 fechar_mensagem = driver.find_element(By.ID, 'closeButton')
                 fechar_mensagem.click()
                 salva_rubricas_lancadas(j, usuario, mes, ano, rubrica, valor)
-                print(f"{index} - {j['matricula']}: {rubrica} - R$ {valor}")
+                print(f"{index} - {j['matricula']}: {rubrica} - {valor}")
             except TimeoutException:
                 pass
         except TimeoutException:

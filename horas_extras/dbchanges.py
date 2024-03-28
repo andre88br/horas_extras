@@ -10,12 +10,12 @@ from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 def salva_confirmacao(fields, usuario, mes, ano, nao_cadastrados):
     num_dias = int(calendar.monthrange(int(ano), int(mes))[1])
 
-    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='Confirmação', defaults={
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='confirmação', defaults={
         'importado_por_id': usuario.id,
         'importado_por': usuario.username,
         'data_upload': datetime.now(),
     })
-    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='Confirmação')
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='confirmação')
     try:
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado and num_dias == 31:
@@ -177,12 +177,12 @@ def salva_confirmacao(fields, usuario, mes, ano, nao_cadastrados):
 def salva_solicitacao(fields, usuario, mes, ano, nao_cadastrados):
     num_dias = int(calendar.monthrange(int(ano), int(mes))[1])
 
-    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='Solicitação', defaults={
+    Importacoes.objects.update_or_create(mes=mes, ano=ano, tipo='solicitação', defaults={
         'importado_por_id': usuario.id,
         'importado_por': usuario.username,
         'data_upload': datetime.now(),
     })
-    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='Solicitação')
+    importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='solicitação')
     try:
         print(fields)
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)

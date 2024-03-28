@@ -346,9 +346,7 @@ def recalcula_especifico(mes, ano, matricula, processo, usuario):
 
 
 def lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, usuario):
-    if mes_folha < 10:
-        mes_folha = f'0{mes_folha}'
-    folha = f'Folha Normal {mes_folha}/{ano_folha}'
+    folha = f'Folha Normal {str(mes_folha)}/{ano_folha}'
     print(folha)
     observacao = f'Horas extras {mes}/{ano}.Processo SEI {processo}.'
     confirmacoes = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()

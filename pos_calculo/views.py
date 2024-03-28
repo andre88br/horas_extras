@@ -67,6 +67,9 @@ def pagamento(request):
         fator = request.POST.get('fator')
         processo = request.POST.get('processo')
 
+        if mes_folha < 10:
+            mes_folha = f'0{mes_folha}'
+
         if matricula == '':
             resposta = lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, request.user)
         else:

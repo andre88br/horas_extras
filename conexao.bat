@@ -1,0 +1,3 @@
+@echo off
+echo Iniciando aplicação...
+python manage.py runserver
