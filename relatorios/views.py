@@ -1,13 +1,79 @@
+import base64
 import os
 
 from django.contrib import messages
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 
 from horas_extras.calcula import calcula_he
 from relatorios.processa_relatorios import gera_relatorio_solicitacao, gera_relatorio_erros, \
     gera_relatorio_confirmacao, gera_relatorio_entrada_saida, gera_relatorio_codigo90, \
     gera_relatorio_negativos, gera_relatorio_rejeitar_batidas, gera_relatorio_pagas, gera_relatorio_setores, \
     gera_relatorio_rejeitadas, gera_voltar_negativos, gera_escalas_voltadas
+from tarefas.executor import iniciar_tarefa
+
+
+def _despacha_relatorio(tipo, mes, ano, mes2, ano2, matricula, tipo3, progress_callback):
+    if tipo in ('erros2', 'erros'):
+        return gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula, progress_callback=progress_callback)
+    if tipo == 'confirmacao':
+        return gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo == 'entrada_saida':
+        return gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo == 'cod_90':
+        return gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo == 'negativos':
+        return gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula, progress_callback=progress_callback)
+    if tipo == 'rejeitar_batidas':
+        return gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo == 'pagas':
+        return gera_relatorio_pagas(mes, ano, matricula, mes2, ano2, progress_callback=progress_callback)
+    if tipo == 'setores':
+        return gera_relatorio_setores(mes, ano, mes2, ano2, progress_callback=progress_callback)
+    if tipo == 'rejeitadas':
+        return gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo == 'voltar_negativos':
+        return gera_voltar_negativos(mes, ano, progress_callback=progress_callback)
+    if tipo == 'escalas_voltadas':
+        return gera_escalas_voltadas(mes, ano, progress_callback=progress_callback)
+    return '', '', ''
+
+
+def _despacha_relatorio_imprime(tipo2, mes, ano, mes2, ano2, matricula, tipo3, progress_callback):
+    if tipo2 == 'solicitacao':
+        return gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'erros2':
+        return gera_relatorio_erros(mes, ano, mes2, ano2, 'solicitacao', matricula,
+                                    progress_callback=progress_callback)
+    if tipo2 == 'confirmacao':
+        return gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'erros':
+        return gera_relatorio_erros(mes, ano, mes2, ano2, 'confirmacao', matricula,
+                                    progress_callback=progress_callback)
+    if tipo2 == 'entrada_saida':
+        return gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'cod_90':
+        return gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'negativos':
+        sub_tipo = tipo3 if tipo3 != '' else 'confirmacao'
+        return gera_relatorio_negativos(mes, ano, mes2, ano2, sub_tipo, matricula,
+                                        progress_callback=progress_callback)
+    if tipo2 == 'negativos2':
+        return gera_relatorio_negativos(mes, ano, mes2, ano2, 'solicitacao', matricula,
+                                        progress_callback=progress_callback)
+    if tipo2 == 'rejeitar_batidas':
+        return gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'rejeitadas':
+        return gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+    if tipo2 == 'pagas':
+        return gera_relatorio_pagas(mes, ano, matricula, mes2, ano2, progress_callback=progress_callback)
+    if tipo2 == 'setores':
+        return gera_relatorio_setores(mes, ano, mes2, ano2, progress_callback=progress_callback)
+    if tipo2 == 'voltar_negativos':
+        return gera_voltar_negativos(mes, ano, progress_callback=progress_callback)
+    if tipo2 == 'escalas_voltadas':
+        return gera_escalas_voltadas(mes, ano, progress_callback=progress_callback)
+    return '', '', ''
 
 
 def relatorios(request):
@@ -69,61 +135,62 @@ def escolhe_relatorio(request):
                 ano2, mes2 = '', ''
 
             if tipo == 'solicitacao':
-                response, arquivo, df = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
+                def worker(progress_callback):
+                    response, arquivo, df = gera_relatorio_solicitacao(
+                        mes, ano, mes2, ano2, matricula, progress_callback=progress_callback)
+                    if not response:
+                        return {
+                            'mensagem': 'Relatório não disponível!', 'nivel': 'error',
+                            'contexto_extra': {'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
+                                                'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3},
+                        }
 
-            if tipo == 'erros2':
-                response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
+                    diretorio = os.getcwd()
+                    for i in os.listdir(diretorio):
+                        if i == arquivo:
+                            os.remove(os.path.join(diretorio, arquivo))
+                    nome = arquivo.replace('-', '/').replace('.xlsx', '').replace('.txt', '')
 
-            if tipo == 'confirmacao':
-                response, arquivo, df = gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula)
+                    return {
+                        'mensagem': '',
+                        'nivel': 'info',
+                        'resultado_html': df.to_html(index=False),
+                        'contexto_extra': {'nome': nome, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
+                                            'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3},
+                    }
 
-            if tipo == 'erros':
-                response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, tipo3, matricula)
+                tarefa = iniciar_tarefa(
+                    tipo='relatorios.gera_relatorio_solicitacao', usuario=request.user,
+                    template_resultado='relatorios/relatorios.html', func=worker,
+                )
+                return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
 
-            if tipo == 'entrada_saida':
-                response, arquivo, df = gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula)
-
-            if tipo == 'cod_90':
-                response, arquivo, df = gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula)
-
-            if tipo == 'negativos':
-                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula)
-
-            if tipo == 'rejeitar_batidas':
-                response, arquivo, df = gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula)
-
-            if tipo == 'pagas':
-                response, arquivo, df = gera_relatorio_pagas(mes, ano, matricula, mes2, ano2)
-
-            if tipo == 'setores':
-                response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
-
-            if tipo == 'rejeitadas':
-                response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
-
-            if tipo == 'voltar_negativos':
-                response, arquivo, df = gera_voltar_negativos(mes, ano)
-
-            if tipo == 'escalas_voltadas':
-                response, arquivo, df = gera_escalas_voltadas(mes, ano)
-
-            if not response:
-                messages.error(request, 'Relatório não disponível!')
-                render(request, 'relatorios/relatorios.html')
-            else:
-                df = df.to_html(index=False)
+            def worker(progress_callback):
+                response, arquivo, df = _despacha_relatorio(tipo, mes, ano, mes2, ano2, matricula, tipo3,
+                                                            progress_callback)
+                contexto_base = {'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
+                                  'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3}
+                if not response:
+                    return {'mensagem': 'Relatório não disponível!', 'nivel': 'error',
+                            'contexto_extra': contexto_base}
 
                 diretorio = os.getcwd()
                 for i in os.listdir(diretorio):
                     if i == arquivo:
-                        caminho = os.path.join(diretorio, arquivo)
-                        os.remove(caminho)
+                        os.remove(os.path.join(diretorio, arquivo))
+                nome = arquivo.replace('-', '/').replace('.xlsx', '').replace('.txt', '')
 
-                arquivo = arquivo.replace('-', '/').replace('.xlsx', '').replace('.txt', '')
+                return {
+                    'mensagem': '', 'nivel': 'info',
+                    'resultado_html': df.to_html(index=False),
+                    'contexto_extra': {**contexto_base, 'nome': nome},
+                }
 
-            return render(request, "relatorios/relatorios.html",
-                          context={'relatorio': df, 'nome': arquivo, 'mes': mes, 'ano': ano, 'mes2': mes2, 'ano2': ano2,
-                                   'matricula': matricula, 'tipo': tipo, 'tipo3': tipo3})
+            tarefa = iniciar_tarefa(
+                tipo=f'relatorios.escolhe_relatorio.{tipo}', usuario=request.user,
+                template_resultado='relatorios/relatorios.html', func=worker,
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
     except Exception as e:
         messages.error(request, f'Erro {e}')
         return render(request, "relatorios/relatorios.html")
@@ -133,7 +200,6 @@ def escolhe_relatorio(request):
 
 def imprime(request):
     if request.user.is_authenticated:
-        arquivo, response = '', ''
         mes = request.POST.get('mes')
         ano = request.POST.get('ano')
         mes2 = request.POST.get('mes2')
@@ -141,80 +207,50 @@ def imprime(request):
         tipo2 = request.POST.get('tipo2')
         matricula = request.POST.get('matricula')
         tipo3 = request.POST.get('tipo3')
+        pagina = request.POST.get('pagina')
+        relatorio_anterior = request.POST.get('relatorio')
+        nome_anterior = request.POST.get('nome')
+        tipo_anterior = request.POST.get('tipo')
 
-        if tipo2 == 'solicitacao':
-            response, arquivo, df = gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula)
+        def worker(progress_callback):
+            response, arquivo, df = _despacha_relatorio_imprime(tipo2, mes, ano, mes2, ano2, matricula, tipo3,
+                                                                 progress_callback)
 
-        if tipo2 == 'erros2':
-            response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, 'solicitacao', matricula)
+            diretorio = os.getcwd()
+            for i in os.listdir(diretorio):
+                if i == arquivo:
+                    os.remove(os.path.join(diretorio, arquivo))
 
-        if tipo2 == 'confirmacao':
-            response, arquivo, df = gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula)
+            if response == '':
+                if pagina == 'processar':
+                    return {'mensagem': 'Relatório não disponível!', 'nivel': 'error',
+                            'contexto_extra': {'relatorio': relatorio_anterior, 'nome': nome_anterior, 'mes': mes,
+                                                'ano': ano, 'tipo': tipo_anterior, 'matricula': matricula}}
+                if pagina == 'reprocessar':
+                    return {'mensagem': 'Relatório não disponível!', 'nivel': 'error',
+                            'contexto_extra': {'relatorio': relatorio_anterior, 'nome': nome_anterior, 'mes': mes,
+                                                'ano': ano, 'tipo': tipo_anterior, 'matricula': matricula}}
+                return {'mensagem': 'Relatório não disponível!', 'nivel': 'error'}
 
-        if tipo2 == 'erros':
-            response, arquivo, df = gera_relatorio_erros(mes, ano, mes2, ano2, 'confirmacao', matricula)
+            return {
+                'mensagem': '', 'nivel': 'info',
+                'contexto_extra': {
+                    '_arquivo_base64': base64.b64encode(response.content).decode('ascii'),
+                    '_arquivo_content_type': response.get('Content-Type', 'application/octet-stream'),
+                    '_arquivo_nome': response.get('Content-Disposition', '').split('filename=')[-1].strip('"'),
+                },
+            }
 
-        if tipo2 == 'entrada_saida':
-            response, arquivo, df = gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula)
-
-        if tipo2 == 'cod_90':
-            response, arquivo, df = gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula)
-
-        if tipo2 == 'negativos':
-
-            if tipo3 == '':
-                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, 'confirmacao', matricula)
-            else:
-                response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, tipo3, matricula)
-
-        if tipo2 == 'negativos2':
-            response, arquivo, df = gera_relatorio_negativos(mes, ano, mes2, ano2, 'solicitacao', matricula)
-
-        if tipo2 == 'rejeitar_batidas':
-            response, arquivo, df = gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula)
-
-        if tipo2 == 'rejeitadas':
-            response, arquivo, df = gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula)
-
-        if tipo2 == 'pagas':
-            response, arquivo, df = gera_relatorio_pagas(mes, ano, matricula, mes2, ano2)
-
-        if tipo2 == 'setores':
-            response, arquivo, df = gera_relatorio_setores(mes, ano, mes2, ano2)
-
-        if tipo2 == 'voltar_negativos':
-            response, arquivo, df = gera_voltar_negativos(mes, ano)
-
-        if tipo2 == 'escalas_voltadas':
-            response, arquivo, df = gera_escalas_voltadas(mes, ano)
-
-        diretorio = os.getcwd()
-        for i in os.listdir(diretorio):
-            if i == arquivo:
-                caminho = os.path.join(diretorio, arquivo)
-                os.remove(caminho)
-
-        if response == '':
-            pagina = request.POST.get('pagina')
-            if pagina == 'processar':
-                relatorio = request.POST.get('relatorio')
-                nome = request.POST.get('nome')
-                tipo = request.POST.get('tipo')
-                messages.error(request, 'Relatório não disponível!')
-                return render(request, "horas_extras/processar.html",
-                              context={'relatorio': relatorio, 'nome': nome, 'mes': mes,
-                                       'ano': ano, 'tipo': tipo, 'matricula': matricula})
-            if pagina == 'reprocessar':
-                relatorio = request.POST.get('relatorio')
-                nome = request.POST.get('nome')
-                tipo = request.POST.get('tipo')
-                messages.error(request, 'Relatório não disponível!')
-                return render(request, "horas_extras/reprocessar.html",
-                              context={'relatorio': relatorio, 'nome': nome, 'mes': mes,
-                                       'ano': ano, 'tipo': tipo, 'matricula': matricula})
-            else:
-                render(request, 'relatorios/relatorios.html')
+        if pagina == 'processar':
+            template_resultado = 'horas_extras/processar.html'
+        elif pagina == 'reprocessar':
+            template_resultado = 'horas_extras/reprocessar.html'
         else:
-            return response
+            template_resultado = 'relatorios/relatorios.html'
+        tarefa = iniciar_tarefa(
+            tipo=f'relatorios.imprime.{tipo2}', usuario=request.user,
+            template_resultado=template_resultado, func=worker,
+        )
+        return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
     else:
         return render(request, "usuarios/login.html")

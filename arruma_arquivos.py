@@ -71,7 +71,6 @@ def arruma_frequencia(planilhas):
     else:
         data_max = datetime(data_min.year + 1, data_min.month - 11, 1)
     df = df[df['data'] <= data_max].reset_index(drop=True)
-    print(df)
     return df, data_min, data_max
 
 
@@ -196,8 +195,8 @@ def arruma_confirmacao_solicitacao(planilhas):
                 sem_setor.append(planilha.name)
             setor = arruma_setor(setor)
             df = pd.read_excel(planilha, skiprows=4, engine='openpyxl')
-            df['setor'] = str(setor).strip().upper()
             df_list.append(df)
+            df['setor'] = setor
         except BadZipFile:
             planilhas_com_erro.append(planilha.name)
     df = pd.concat(df_list, ignore_index=True)
@@ -207,35 +206,48 @@ def arruma_confirmacao_solicitacao(planilhas):
     df = df.drop('Unnamed: 0', axis=1)
     df = df.rename(columns={'SIAPE': 'matricula', 'NOME COMPLETO': 'nome', 'CARGO': 'cargo'})
     df['matricula'] = pd.to_numeric(df['matricula'], errors='coerce')
-    df['cargo'] = df['cargo'].str.replace('É', 'E').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Á', 'A').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Í', 'I').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ó', 'O').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ú', 'U').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Â', 'A').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ê', 'E').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Î', 'I').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ô', 'O').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Û', 'U').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ã', 'A').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Õ', 'O').str.strip()
-    df['cargo'] = df['cargo'].str.replace('Ç', 'C').str.strip()
+
+    print('Ajustando cargos')
+
+    df['cargo'] = df['cargo'].str.upper().str.replace('É', 'E').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Á', 'A').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Í', 'I').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ó', 'O').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ú', 'U').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Â', 'A').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ê', 'E').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Î', 'I').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ô', 'O').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Û', 'U').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ã', 'A').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Õ', 'O').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('Ç', 'C').str.strip()
+
+    print('Cargos Ajustados...')
+
+    print('Ajustando matrículas...')
 
     df.dropna(subset='matricula', inplace=True)
     df['matricula'] = df['matricula'].astype(int)
     df = df.fillna(value='')
 
-    df = df.groupby(['matricula', 'nome', 'cargo']) \
-        .apply(lambda x: x.iloc[:, :32].agg(lambda y: ''.join(set(y)))) \
-        .reset_index(drop=False)
+    print('Matrículas ajustadas...')
+
+    print('Retirando escala normal...')
 
     for i, j in df.iterrows():
         if 'EXTRA' not in str(df.iloc[i:i + 1, 1:2]):
             df.iloc[i:i + 1, 1:2] = None
 
+    print('Escala normal retirada...')
+
+    print('Retirando nulos...')
+
     df.dropna(subset='nome', inplace=True)
     df['nome'] = df['nome'].str.replace(' - EXTRA', '')
     df['nome'] = df['nome'].str.upper()
+
+    print('Nulos retirados...')
 
     df = df.reset_index(drop=True)
     return df, planilhas_com_erro, sem_setor
@@ -255,12 +267,12 @@ def arruma_confirmacao_solicitacao_planilha(planilhas):
     df = df.drop('Unnamed: 0', axis=1)
     df = df.rename(columns={'SIAPE': 'matricula', 'NOME COMPLETO': 'nome', 'CARGO': 'cargo'})
     df['matricula'] = pd.to_numeric(df['matricula'], errors='coerce')
-    df['cargo'] = df['cargo'].str.replace('TECNICO', 'TÉCNICO').str.strip()
+    df['cargo'] = df['cargo'].str.upper().str.replace('TECNICO', 'TÉCNICO').str.strip()
     df.dropna(subset='matricula', inplace=True)
     df['matricula'] = df['matricula'].astype(int)
     df = df.fillna(value=' ')
 
-    df = df.groupby(['matricula', 'nome', 'cargo']) \
+    df = df.groupby(['matricula', 'nome', 'cargo', 'setor']) \
         .apply(lambda x: x.iloc[:, :32].agg(lambda y: ''.join(set(y)))) \
         .reset_index(drop=False)
 
@@ -285,6 +297,7 @@ def arruma_carga_horaria(planilha, mes, ano):
         cargas_horaria = cargas_horaria.rename(columns={'Matricula': 'matricula', 'Carga Horaria': 'carga_horaria'})
         cargas_horaria = cargas_horaria.dropna(subset='matricula')
         cargas_horaria['matricula'] = cargas_horaria['matricula'].astype(int)
+        cargas_horaria = cargas_horaria[['matricula', 'nome', 'carga_horaria']]
 
         df = pd.merge(df, cargas_horaria, on=['matricula', 'nome'], how='left')
         df = df.fillna(0)
@@ -297,77 +310,55 @@ def arruma_carga_horaria(planilha, mes, ano):
 
 
 def arruma_setor(setor):
-    if 'Ã' in str(setor).strip().upper():
+    setor = str(setor).strip().upper()
+
+    print(f'Ajustando setor: {setor}')
+
+    if 'Ã' in setor:
         setor = setor.replace('Ã', 'A')
-    if 'Á' in str(setor).strip().upper():
+    if 'Á' in setor:
         setor = setor.replace('Á', 'A')
-    if 'É' in str(setor).strip().upper():
+    if 'É' in setor:
         setor = setor.replace('É', 'E')
-    if 'Í' in str(setor).strip().upper():
+    if 'Í' in setor:
         setor = setor.replace('Í', 'I')
-    if 'Ó' in str(setor).strip().upper():
+    if 'Ó' in setor:
         setor = setor.replace('Ó', 'O')
-    if 'Ú' in str(setor).strip().upper():
+    if 'Ú' in setor:
         setor = setor.replace('Ú', 'U')
-    if 'Â' in str(setor).strip().upper():
+    if 'Â' in setor:
         setor = setor.replace('Â', 'A')
-    if 'Ê' in str(setor).strip().upper():
+    if 'Ê' in setor:
         setor = setor.replace('Ê', 'E')
-    if 'Î' in str(setor).strip().upper():
+    if 'Î' in setor:
         setor = setor.replace('Î', 'I')
-    if 'Ô' in str(setor).strip().upper():
+    if 'Ô' in setor:
         setor = setor.replace('Ô', 'O')
-    if 'Û' in str(setor).strip().upper():
+    if 'Û' in setor:
         setor = setor.replace('Û', 'U')
-    if 'Ã' in str(setor).strip().upper():
+    if 'Ã' in setor:
         setor = setor.replace('Ã', 'A')
-    if 'Õ' in str(setor).strip().upper():
+    if 'Õ' in setor:
         setor = setor.replace('Õ', 'O')
-    if 'Ç' in str(setor).strip().upper():
+    if 'Ç' in setor:
         setor = setor.replace('Ç', 'C')
 
-    if str(setor).strip().upper() == 'USCV':
+    if setor == 'USCV' or 'CARDIOVASCULAR' in setor or 'CARDIO' in setor:
         setor = 'UNIDADE DO SISTEMA CARDIOVASCULAR'
-    if str(setor).strip().upper() == 'UNIDADE DE URGÊNCIA E EMERGÊNCIA':
-        setor = 'UNIDADE DE URGENCIA E EMERGENCIA'
-    if str(setor).strip().upper() == 'UNIDADE DE CRIANÇA E ADOLESCENTE - PS PED':
-        setor = 'UNIDADE DE CRIANCA E ADOLESCENTE'
-    if str(setor).strip().upper() == 'UNIDADE DE CLINICA CIRÚRGICA':
-        setor = 'UNIDADE DE CLINICA CIRURGICA'
-    if str(setor).strip().upper() == 'UNIDADE DA CRIANÇA E DO ADOLESCENTE / UTI PEDIATRICA':
-        setor = 'UNIDADE DE CRIANCA E ADOLESCENTE'
-    if 'UCA' in str(setor).strip().upper():
-        setor = 'UNIDADE DE CRIANCA E ADOLESCENTE'
-    if str(setor).strip().upper() == 'UNIDADE DE FARMACIA CLÍNICA E DISPENSAÇÃO FARMACEUTICA':
-        setor = 'UNIDADE DE FARMACIA CLINICA E DISPENSACAO FARMACEUTICA'
-    if str(setor).strip().upper() == 'UNIDADE DE SAÚDE DA MULHER':
-        setor = 'UNIDADE DE SAUDE DA MULHER'
-    if 'ALMOXARIFADO' in str(setor).strip().upper():
+    if 'UTI PEDIATRICA' in setor or 'PS PED' in setor or 'CRIANÇA' in setor or 'CRIANCA' in setor or 'UCA' in setor:
+        setor = 'UNIDADE DA CRIANCA E DO ADOLESCENTE'
+    if 'ALMOXARIFADO' in setor:
         setor = 'UNIDADE DE ALMOXARIFADO E CONTROLE DE ESTOQUES'
-    if str(setor).strip().upper() == 'UNIDADE DE CRIANÇA E DO ADOLESCENTE UNIDADE DE URGENCIA E EMERGENCIA':
-        setor = 'UNIDADE DE URGENCIA E EMERGENCIA / UNIDADE DA CRIANCA E DO ADOLESCENTE'
-
-    if 'UNIDADE DE URGENCIA E EMERGENCIAUNIDADE' in str(setor).strip().upper():
-        setor = setor.replace('UNIDADE DE URGENCIA E EMERGENCIAUNIDADE', 'UNIDADE DE URGENCIA E EMERGENCIA / UNIDADE')
-    elif str(setor).strip().upper() != "UNIDADE DE URGENCIA E EMERGENCIA" and "UNIDADE DE URGENCIA E EMERGENCIA" in str(setor).strip().upper():
-        setor = setor.replace('UNIDADE DE URGENCIA E EMERGENCIA', '')
-        setor = "UNIDADE DE URGENCIA E EMERGENCIA / " + setor
-
-    if 'DE CRIANCA' in str(setor).strip().upper():
-        setor = setor.replace('DE CRIANCA', 'DA CRIANCA')
-    if 'DE ADOLESCENTE' in str(setor).strip().upper():
-        setor = setor.replace('DE ADOLESCENTE', 'DO ADOLESCENTE')
-    if 'E ADOLESCENTE' in str(setor).strip().upper():
-        setor = setor.replace('E ADOLESCENTE', 'E DO ADOLESCENTE')
-
-    if "PROCESS." in str(setor).strip().upper():
-        setor = setor.replace("PROCESS.", "PROCESSAMENTO DE")
-
-    if "UNIDADE CARDIOVASCULAR" in str(setor).strip().upper():
+    if "PROCESS" in setor:
+        setor = 'UNIDADE DE BLOCO CIRURGICO E PROCESSAMENTO DE MATERIAL ESTERILIZADO'
+    if "UNIDADE CARDIOVASCULAR" in setor:
         setor = setor.replace('UNIDADE CARDIOVASCULAR', 'UNIDADE DO SISTEMA CARDIOVASCULAR')
+    if "ESPECIALIDADES CLINICAS" in setor:
+        setor = 'UNIDADE DE CLINICA MEDICA'
+    if "NEUROLOGICO" in setor:
+        setor = 'UNIDADE DO SISTEMA NEUROLOGICO'
 
-
-    setor = setor.strip().upper()
+    print(f'Setor ajustado: {setor}')
 
     return setor
 

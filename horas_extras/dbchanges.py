@@ -184,7 +184,6 @@ def salva_solicitacao(fields, usuario, mes, ano, nao_cadastrados):
     })
     importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='solicitação')
     try:
-        print(fields)
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado and num_dias == 31:
             document = Solicitacao.objects.update_or_create(
@@ -351,7 +350,8 @@ def salva_frequencia(fields, usuario, mes, ano):
     importacao = Importacoes.objects.get(mes=mes, ano=ano, tipo='frequencia')
     try:
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
-        if empregado:
+        if empregado and (int(datetime.date(fields['data']).month) == int(mes)
+                          or int(datetime.date(fields['data']).day) == 1):
             document = Frequencia.objects.update_or_create(
                 empregado=empregado, importacao=importacao,
                 data=fields['data'], defaults={

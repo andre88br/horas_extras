@@ -24,6 +24,8 @@ def formata_data(data):
 
 @register.filter
 def formata_data_hora(data):
+    if isinstance(data, str):
+        data = datetime.fromisoformat(data)
     return datetime.strftime(data, "%d/%m/%Y - %H:%M:%S")
 
 

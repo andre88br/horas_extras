@@ -30,14 +30,17 @@ def valida_upload_planilha(request):
         return dados, mes, ano, tipo, resposta, planilhas_com_erro
 
 
-def arruma_dados_planilha(request, dados, mes, ano, tipo, setor):
+def arruma_dados_planilha(usuario, dados, mes, ano, tipo, setor, progress_callback=None):
+    total = len(dados) or 1
     if tipo == 'PlanilhaConfirmação':
         confirmacao_a_mostar = []
         nao_cadastrados = []
 
-        for i, j in dados.iterrows():
-            document, nao_cadastrados = salva_confirmacao_planilha(j, request.user, mes, ano, nao_cadastrados, setor)
+        for indice, (i, j) in enumerate(dados.iterrows()):
+            document, nao_cadastrados = salva_confirmacao_planilha(j, usuario, mes, ano, nao_cadastrados, setor)
             confirmacao_a_mostar.append(document)
+            if progress_callback:
+                progress_callback(int((indice + 1) / total * 100), 'Importando confirmação...')
         if len(confirmacao_a_mostar) == 0:
             raise KeyError
         else:
@@ -47,9 +50,11 @@ def arruma_dados_planilha(request, dados, mes, ano, tipo, setor):
         solicitacao_a_mostar = []
         nao_cadastrados = []
 
-        for i, j in dados.iterrows():
-            document, nao_cadastrados = salva_solicitacao_planilha(j, request.user, mes, ano, nao_cadastrados, setor)
+        for indice, (i, j) in enumerate(dados.iterrows()):
+            document, nao_cadastrados = salva_solicitacao_planilha(j, usuario, mes, ano, nao_cadastrados, setor)
             solicitacao_a_mostar.append(document)
+            if progress_callback:
+                progress_callback(int((indice + 1) / total * 100), 'Importando solicitação...')
 
         if len(solicitacao_a_mostar) == 0:
             raise KeyError
@@ -86,29 +91,24 @@ def arruma_dados_do_arquivo(request, dados, mes, ano, tipo, setor):
             return resposta, nao_cadastrados
 
 
-def importa_listaempregados(request):
+def importa_listaempregados(usuario, mes, ano, planilha_empregados, progress_callback=None):
     empregados_a_mostrar = []
-    salarios, insalubridades = '', ''
     try:
-        if request.method == "POST":
-            planilha_empregados = request.FILES.get("empregados")
-            data = request.POST.get('data')
-            ano, mes = str(data).split('-')
+        empregados = arruma_empregados(planilha_empregados)
 
-            empregados = arruma_empregados(planilha_empregados)
+        total = len(empregados) or 1
+        for indice, (i, j) in enumerate(empregados.iterrows()):
+            empregado = j
+            document = salva_listaempregados(empregado, mes, ano, usuario)
+            empregados_a_mostrar.append(document)
+            if progress_callback:
+                progress_callback(int((indice + 1) / total * 100), 'Importando empregados...')
 
-            usuario = request.user
-
-            for i, j in empregados.iterrows():
-                empregado = j
-                document = salva_listaempregados(empregado, mes, ano, usuario)
-                empregados_a_mostrar.append(document)
-
-            if len(empregados_a_mostrar) == 0:
-                return "arquivo_vazio"
-            else:
-                resposta = "OK"
-                return resposta
+        if len(empregados_a_mostrar) == 0:
+            return "arquivo_vazio"
+        else:
+            resposta = "OK"
+            return resposta
     except IndexError:
         resposta = "dados_inválidos"
         return resposta

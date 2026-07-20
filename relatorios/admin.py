@@ -8,7 +8,7 @@ from relatorios.models import *
 class ListandoRelatorioConfirmacao(admin.ModelAdmin):
     list_display = ("id", "nome", "cargo", "setor")
     list_display_links = ("nome", "cargo", "setor")
-    search_fields = ("nome", "cargo", "setor")
+    search_fields = ("empregado__matricula", "nome", "cargo", "setor")
     list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
     list_per_page = 20
 
@@ -16,17 +16,21 @@ class ListandoRelatorioConfirmacao(admin.ModelAdmin):
 class ListandoRelatorioSolicitacao(admin.ModelAdmin):
     list_display = ("id", "nome", "cargo", "setor")
     list_display_links = ("nome", "cargo", "setor")
-    search_fields = ("nome", "cargo", "setor")
+    search_fields = ("empregado__matricula", "nome", "cargo", "setor")
     list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
     list_per_page = 20
 
 
 class ListandoRelatorioRejeitarBatidas(admin.ModelAdmin):
-    list_display = ("id", "nome", "tipo")
-    list_display_links = ("nome", "tipo")
-    search_fields = ("nome", "tipo")
+    list_display = ("matricula", "nome", "tipo")
+    list_display_links = ("matricula", "nome", "tipo")
+    search_fields = ("empregado__matricula", "nome", "tipo")
     list_filter = ("importacao__ano", "importacao__mes", "tipo")
     list_per_page = 30
+
+    @staticmethod
+    def matricula(obj):
+        return obj.empregado.matricula
 
 
 class ListandoRelatorioErros(admin.ModelAdmin):
@@ -60,7 +64,7 @@ class ListandoRelatorioCodigo90(admin.ModelAdmin):
 class ListandoRelatorioEntradaSaida(admin.ModelAdmin):
     list_display = ("id", "nome", "cargo")
     list_display_links = ("nome", "cargo")
-    search_fields = ("nome", "cargo")
+    search_fields = ("empregado__matricula", "nome", "cargo")
     list_filter = ("importacao__ano", "importacao__mes", "cargo")
     list_per_page = 20
 
@@ -99,7 +103,7 @@ class ListandoRelatorioPagas(admin.ModelAdmin):
     list_display = ("matricula", "nome", "hs_diurnas_", "valor_diurnas_",
                     "hs_noturnas_", "valor_noturnas_", "total_", "mes", "ano")
     list_display_links = ("matricula", "nome")
-    search_fields = ("empregado__matricula", "nome", "setor", "matricula")
+    search_fields = ("empregado__matricula", "nome", "setor")
     list_filter = ("importacao__mes", "importacao__ano", "setor")
     list_per_page = 100
 
@@ -144,7 +148,7 @@ class ListandoRelatorioPagas(admin.ModelAdmin):
 class ListandoVoltarNegativos(admin.ModelAdmin):
     list_display = ("id", "matricula", "nome", "mes", "ano")
     list_display_links = ("matricula", "nome")
-    search_fields = ("empregado__matricula", "nome", "matricula")
+    search_fields = ("empregado__matricula", "nome")
     list_filter = ("importacao__mes", "importacao__ano")
     list_per_page = 20
 

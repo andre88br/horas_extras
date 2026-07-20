@@ -1,10 +1,13 @@
+import io
 from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 
+from tarefas.executor import iniciar_tarefa
 from usuarios.utils import verifica_vazio
 from .forms import DivForm, TipoForm, DateForm, SetorForm, SetForm
 from .mensagens import DataLimite, ValidaResposta
@@ -51,7 +54,21 @@ def planilha_upload(request):
 
             if empregados:
                 dados, resposta, planilhas_com_erro = valida_upload_planilha(request)
-                ValidaResposta(request, resposta, dados, mes, ano, tipo, planilhas_com_erro, setor)
+                usuario = request.user
+
+                def worker(progress_callback):
+                    mensagem, nivel = ValidaResposta(usuario, resposta, dados, mes, ano, tipo, planilhas_com_erro,
+                                                     setor, progress_callback=progress_callback)
+                    # Redireciona (GET) em vez de renderizar o template diretamente: os formulários
+                    # (formDiv/formSetor/formTipo/formDate) não são serializáveis para acompanhar a
+                    # tarefa em background, então a página de upload é recarregada do zero.
+                    return {'mensagem': mensagem, 'nivel': nivel, 'redirect_url': reverse('planilha_upload')}
+
+                tarefa = iniciar_tarefa(
+                    tipo='planilhas.arruma_dados_planilha', usuario=usuario,
+                    template_resultado='planilhas/planilha_upload.html', func=worker,
+                )
+                return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
             else:
                 if int(mes) < 10:
                     mes = f'0{mes}'
@@ -354,37 +371,30 @@ def salvar_usuario_planilha(request, usuario_id):
 def listaempregados_upload(request):
     if request.user.is_authenticated:
         if request.method == "POST":
-            resposta = importa_listaempregados(request)
+            data = request.POST.get('data')
+            ano, mes = str(data).split('-')
+            usuario = request.user
+            arquivo_empregados = request.FILES.get("empregados")
+            planilha_empregados = io.BytesIO(arquivo_empregados.read()) if arquivo_empregados else None
 
-            if resposta == 'Erro':
-                messages.error(request, "Arquivo inválido")
-                return render(
-                    request,
-                    "planilhas/listaempregados_upload.html",
-                    context={"files": ListaEmpregados.objects.order_by("matricula").all()},
-                )
+            def worker(progress_callback):
+                resposta = importa_listaempregados(usuario, mes, ano, planilha_empregados,
+                                                    progress_callback=progress_callback)
+                mensagens = {
+                    'Erro': ("Arquivo inválido", 'error'),
+                    'dados_invalidos': ("Dados inválidos", 'error'),
+                    'dados_inválidos': ("Dados inválidos", 'error'),
+                    'arquivo_vazio': ("Arquivo não pode ser vazio!", 'error'),
+                    'OK': ("Empregados cadastrados com sucesso!", 'success'),
+                }
+                mensagem, nivel = mensagens.get(resposta, (resposta, 'error'))
+                return {'mensagem': mensagem, 'nivel': nivel}
 
-            if resposta == "dados_invalidos":
-                messages.error(request, "Dados inválidos")
-                return render(
-                    request,
-                    "planilhas/listaempregados_upload.html",
-                    context={"files": ListaEmpregados.objects.order_by("matricula").all()},
-                )
-            elif resposta == "arquivo_vazio":
-                messages.error(request, "Arquivo não pode ser vazio!")
-                return render(
-                    request,
-                    "planilhas/listaempregados_upload.html",
-                    context={"files": ListaEmpregados.objects.order_by("matricula").all()},
-                )
-            else:
-                messages.success(request, "Empregados cadastrados com sucesso!")
-                return render(
-                    request,
-                    "planilhas/listaempregados_upload.html",
-                    context={"files": ListaEmpregados.objects.order_by("matricula").all()},
-                )
+            tarefa = iniciar_tarefa(
+                tipo='planilhas.importa_listaempregados', usuario=usuario,
+                template_resultado='planilhas/listaempregados_upload.html', func=worker,
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
         else:
             return render(
                 request,

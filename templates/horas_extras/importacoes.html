@@ -4,13 +4,14 @@
 {% block content %}
 
 <script>
-  function deletar() {
-    alert("Planilhas deletadas com sucesso!")
+  function deletar(event) {
+    if (!confirm("Tem certeza que deseja excluir?")) {
+      event.preventDefault();
+    }
   }
 </script>
 
 {% include 'partials/menu.html' %}
-{% include 'partials/menu_lateral.html' %}
 <div class="escolhe-mes">
 
     <div id="conteudo">
@@ -37,7 +38,7 @@
                                 <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
                             </a>
                             <a href="{% url 'deleta_mes' file.id %}">
-                                <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar()"><i class="fa-solid fa-trash" ><br>excluir</i></button>
+                                <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar(event)"><i class="fa-solid fa-trash" ><br>excluir</i></button>
                             </a>
                         </td>
                     </tr>
@@ -86,7 +87,7 @@
                                         <button type="submit" value="detalhar" name="btn_detalhar" class="btn_detalhar" ><i class="fa-solid fa-eye"><br>detalhar</i></button>
                                     </a>
                                     <a href="{% url 'deleta_mes' file.id %}">
-                                        <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar()"><i class="fa-solid fa-trash"><br>excluir</i></button>
+                                        <button type="submit" value="deletar" name="bnt_excluir" class="btn_deletar" onclick="deletar(event)"><i class="fa-solid fa-trash"><br>excluir</i></button>
                                     </a>
                                 </td>
                             </tr>

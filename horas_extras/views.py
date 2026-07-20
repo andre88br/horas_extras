@@ -1,13 +1,15 @@
+import io
 import json
 
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from empregados.models import Importacoes, Empregado
 from horas_extras.calcula import calcula_he, calcula_solicitacao, recalcula_solicitacao, recalcula_he
 from relatorios.models import RelatorioPagas
+from tarefas.executor import iniciar_tarefa
 from .dbchanges import salva_solicitacao, salva_confirmacao, salva_banco_total, salva_banco_mes
 from .models import Confirmacao, Frequencia, Solicitacao, BancoMes, BancoTotal
 from .upload import valida_upload, arruma_dados_do_arquivo, processa_horas_extras
@@ -29,19 +31,41 @@ def solicitacao_confirmacao_upload(request):
                 if resposta == "arquivo_vazio":
                     messages.error(request, "Arquivo não pode ser vazio!")
                 if resposta == 'OK':
-                    resposta2, nao_cadastrados = arruma_dados_do_arquivo(request, dados, mes, ano, tipo)
-                    if len(nao_cadastrados) > 0:
-                        messages.error(request, f"Empregados não cadastrados: {nao_cadastrados}")
-                    if len(planilhas_com_erro) > 0:
-                        messages.error(request, f"Planilhas com erro: {planilhas_com_erro}")
-                    if len(sem_setor) > 0:
-                        messages.error(request, f"Planilhas sem setor informado: {sem_setor}")
-                    if resposta2 == "dados_inválidos":
-                        messages.error(request, "Arquivo com dados inválidos!")
-                    if resposta2 == "arquivo_vazio":
-                        messages.error(request, "Arquivo não pode ser vazio!")
-                    if resposta2 == "OK":
-                        messages.success(request, 'Importação efetuada com sucesso!')
+                    def worker(progress_callback):
+                        resposta2, nao_cadastrados = arruma_dados_do_arquivo(
+                            request, dados, mes, ano, tipo, progress_callback=progress_callback)
+                        mensagens = []
+                        nivel = 'success'
+                        if len(nao_cadastrados) > 0:
+                            mensagens.append(f"Empregados não cadastrados: {nao_cadastrados}")
+                            nivel = 'error'
+                        if len(planilhas_com_erro) > 0:
+                            mensagens.append(f"Planilhas com erro: {planilhas_com_erro}")
+                            nivel = 'error'
+                        if len(sem_setor) > 0:
+                            mensagens.append(f"Planilhas sem setor informado: {sem_setor}")
+                            nivel = 'error'
+                        if resposta2 == "dados_inválidos":
+                            mensagens.append("Arquivo com dados inválidos!")
+                            nivel = 'error'
+                        if resposta2 == "arquivo_vazio":
+                            mensagens.append("Arquivo não pode ser vazio!")
+                            nivel = 'error'
+                        if resposta2 == "OK":
+                            mensagens.append('Importação efetuada com sucesso!')
+                        return {'mensagem': ' | '.join(mensagens), 'nivel': nivel}
+
+                    tarefa = iniciar_tarefa(
+                        tipo='horas_extras.arruma_dados_do_arquivo', usuario=request.user,
+                        template_resultado='horas_extras/solicitacao_confirmacao_upload.html', func=worker,
+                        contexto_base={
+                            'files': list(Importacoes.objects.filter(tipo='confirmação').order_by("-ano", "-mes")
+                                          .values('mes', 'ano', 'data_upload', 'importado_por')[:2]),
+                            'files2': list(Importacoes.objects.filter(tipo='solicitação').order_by("-ano", "-mes")
+                                           .values('mes', 'ano', 'data_upload', 'importado_por')[:2]),
+                        },
+                    )
+                    return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
             else:
                 if int(mes) < 10:
                     mes = f'0{mes}'
@@ -198,21 +222,47 @@ def inserir_bases(request):
         banco_mes = Importacoes.objects.filter(tipo='banco_mes').order_by("-ano", "-mes").all()[:2]
         banco_total = Importacoes.objects.filter(tipo='banco_total').order_by("-ano", "-mes").all()[:2]
         if request.method == "POST":
-            mes, ano, resposta = processa_horas_extras(request)
-
-            if resposta == 'sem arquivos':
-                messages.error(request, "Insira pelo menos um arquivo")
-            if resposta == "formato_não_suportado":
-                messages.error(request, "Formato de arquivo não suportado")
-            if resposta == "arquivo_vazio":
+            try:
+                data = request.POST['data']
+                ano, mes = int(str(data).split('-')[0]), int(str(data).split('-')[1])
+            except KeyError:
                 messages.error(request, "Arquivo não pode ser vazio!")
-            if resposta == "dados_inválidos":
-                messages.error(request, "Arquivo com dados inválidos!")
-            if resposta == "OK":
-                messages.success(request, "Processado com sucesso")
-            return render(request, "horas_extras/inserir_bases.html",
-                          context={"files": frequencias, "files2": banco_mes, "files3": banco_total},
-                          )
+                return render(request, "horas_extras/inserir_bases.html",
+                              context={"files": frequencias, "files2": banco_mes, "files3": banco_total})
+
+            # Lê os arquivos enviados para a memória agora, já que o processamento em
+            # background roda depois que a requisição termina (e o Django encerra os
+            # arquivos temporários do upload ao final da requisição).
+            planilha_frequencia = [io.BytesIO(f.read()) for f in request.FILES.getlist("frequencia")]
+            banco_mes_upload = request.FILES.get("banco_mes")
+            planilha_banco_mes = io.BytesIO(banco_mes_upload.read()) if banco_mes_upload else None
+            banco_total_upload = request.FILES.get("banco_total")
+            planilha_banco_total = io.BytesIO(banco_total_upload.read()) if banco_total_upload else None
+            usuario = request.user
+
+            def worker(progress_callback):
+                _, _, resposta = processa_horas_extras(
+                    usuario, mes, ano, planilha_frequencia, planilha_banco_mes, planilha_banco_total,
+                    progress_callback=progress_callback)
+                mensagens = {
+                    'sem arquivos': ("Insira pelo menos um arquivo", 'error'),
+                    'formato_não_suportado': ("Formato de arquivo não suportado", 'error'),
+                    'arquivo_vazio': ("Arquivo não pode ser vazio!", 'error'),
+                    'dados_inválidos': ("Arquivo com dados inválidos!", 'error'),
+                    'OK': ("Processado com sucesso", 'success'),
+                }
+                mensagem, nivel = mensagens.get(resposta, (resposta, 'error'))
+                return {'mensagem': mensagem, 'nivel': nivel}
+
+            campos_importacao = ('mes', 'ano', 'data_upload', 'importado_por')
+            tarefa = iniciar_tarefa(
+                tipo='horas_extras.processa_horas_extras', usuario=usuario,
+                template_resultado='horas_extras/inserir_bases.html', func=worker,
+                contexto_base={"files": list(frequencias.values(*campos_importacao)),
+                               "files2": list(banco_mes.values(*campos_importacao)),
+                               "files3": list(banco_total.values(*campos_importacao))},
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
         else:
             return render(request, "horas_extras/inserir_bases.html",
                           context={"files": frequencias, "files2": banco_mes, "files3": banco_total})
@@ -635,12 +685,21 @@ def processar(request):
                                            'ano': ano, 'tipo': tipo})
                 elif botao == 'processar':
                     nome = f'Solicitação 0{mes}/{ano}.xlsx'
-                    relatorio, conclusao = calcula_solicitacao(ano, mes, usuario)
-                    relatorio = relatorio.to_html(index=False)
-                    messages.info(request, f'Processamento efetuado - {conclusao}')
-                    return render(request, "horas_extras/processar.html",
-                                  context={'relatorio': relatorio, 'nome': str(nome).split('.')[0], 'mes': mes,
-                                           'ano': ano, 'tipo': tipo})
+
+                    def worker(progress_callback):
+                        relatorio, conclusao = calcula_solicitacao(ano, mes, usuario,
+                                                                    progress_callback=progress_callback)
+                        return {
+                            'mensagem': f'Processamento efetuado - {conclusao}', 'nivel': 'info',
+                            'resultado_html': relatorio.to_html(index=False),
+                            'contexto_extra': {'nome': str(nome).split('.')[0], 'mes': mes, 'ano': ano, 'tipo': tipo},
+                        }
+
+                    tarefa = iniciar_tarefa(
+                        tipo='horas_extras.calcula_solicitacao', usuario=usuario,
+                        template_resultado='horas_extras/processar.html', func=worker,
+                    )
+                    return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
 
             if tipo == 'confirmacao':
                 frequencias = Importacoes.objects.filter(tipo='frequencia', mes=mes, ano=ano
@@ -676,12 +735,22 @@ def processar(request):
                         return render(request, "horas_extras/processar.html")
                     final = request.POST.get('processamentoFinal')
                     nome = f'Confirmação 0{mes}/{ano}.xlsx'
-                    relatorio, conclusao = calcula_he(ano, mes, usuario, final)
-                    relatorio = relatorio.to_html(index=True)
-                    messages.info(request, f'Processamento efetuado - {conclusao}')
-                    return render(request, "horas_extras/processar.html",
-                                  context={'relatorio': relatorio, 'nome': str(nome).split('.')[0], 'mes': mes,
-                                           'ano': ano, 'tipo': tipo, 'final': final})
+
+                    def worker(progress_callback):
+                        relatorio, conclusao = calcula_he(ano, mes, usuario, final,
+                                                          progress_callback=progress_callback)
+                        return {
+                            'mensagem': f'Processamento efetuado - {conclusao}', 'nivel': 'info',
+                            'resultado_html': relatorio.to_html(index=True),
+                            'contexto_extra': {'nome': str(nome).split('.')[0], 'mes': mes, 'ano': ano,
+                                                'tipo': tipo, 'final': final},
+                        }
+
+                    tarefa = iniciar_tarefa(
+                        tipo='horas_extras.calcula_he', usuario=usuario,
+                        template_resultado='horas_extras/processar.html', func=worker,
+                    )
+                    return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
         else:
             return render(request, "horas_extras/processar.html")
     else:
@@ -721,12 +790,22 @@ def reprocessar(request):
         elif data is not None and tipo == 'confirmacao' and botao == 'processar':
             ano, mes = str(data).split('-')[0], str(data).split('-')[1]
             nome = f'Confirmação {mes}/{ano}.xlsx'
-            relatorio, conclusao = recalcula_he(matricula, ano, mes, usuario)
-            relatorio = relatorio.to_html(index=False)
-            messages.info(request, f'Processamento efetuado - {conclusao}')
-            return render(request, "horas_extras/reprocessar.html",
-                          context={'relatorio': relatorio, 'nome': str(nome).split('.')[0], 'mes': mes,
-                                   'ano': ano, 'tipo': tipo, 'matricula': matricula})
+
+            def worker(progress_callback):
+                relatorio, conclusao = recalcula_he(matricula, ano, mes, usuario,
+                                                    progress_callback=progress_callback)
+                return {
+                    'mensagem': f'Processamento efetuado - {conclusao}', 'nivel': 'info',
+                    'resultado_html': relatorio.to_html(index=False),
+                    'contexto_extra': {'nome': str(nome).split('.')[0], 'mes': mes, 'ano': ano,
+                                        'tipo': tipo, 'matricula': matricula},
+                }
+
+            tarefa = iniciar_tarefa(
+                tipo='horas_extras.recalcula_he', usuario=usuario,
+                template_resultado='horas_extras/reprocessar.html', func=worker,
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
         if data is not None and tipo == 'solicitacao' and botao == 'pesquisar':
             ano, mes = str(data).split('-')[0], str(data).split('-')[1]
 
@@ -742,12 +821,22 @@ def reprocessar(request):
         elif data is not None and tipo == 'solicitacao' and botao == 'processar':
             ano, mes = str(data).split('-')[0], str(data).split('-')[1]
             nome = f'Solicitação {mes}/{ano}.xlsx'
-            relatorio, conclusao = recalcula_solicitacao(matricula, ano, mes, usuario)
-            relatorio = relatorio.to_html(index=False)
-            messages.info(request, f'Processamento efetuado - {conclusao}')
-            return render(request, "horas_extras/reprocessar.html",
-                          context={'relatorio': relatorio, 'nome': str(nome).split('.')[0], 'mes': mes,
-                                   'ano': ano, 'tipo': tipo, 'matricula': matricula})
+
+            def worker(progress_callback):
+                relatorio, conclusao = recalcula_solicitacao(matricula, ano, mes, usuario,
+                                                             progress_callback=progress_callback)
+                return {
+                    'mensagem': f'Processamento efetuado - {conclusao}', 'nivel': 'info',
+                    'resultado_html': relatorio.to_html(index=False),
+                    'contexto_extra': {'nome': str(nome).split('.')[0], 'mes': mes, 'ano': ano,
+                                        'tipo': tipo, 'matricula': matricula},
+                }
+
+            tarefa = iniciar_tarefa(
+                tipo='horas_extras.recalcula_solicitacao', usuario=usuario,
+                template_resultado='horas_extras/reprocessar.html', func=worker,
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
 
         return render(request, 'horas_extras/reprocessar.html')
     else:

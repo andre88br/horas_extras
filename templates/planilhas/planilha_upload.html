@@ -1,21 +1,14 @@
-{% extends 'base2.html' %}
+{% extends 'base.html' %}
+{% block sidebar %}
+{% if user.is_authenticated %}
+{% include 'partials/menu_lateral_2.html' %}
+{% endif %}
+{% endblock %}
 {% load static %}
 {% load convert %}
 {% block content %}
 
 {% include 'partials/menu2.html' %}
-
-<script>
-    window.addEventListener('load', function() {
-  let loader = document.getElementById('loader');
-  loader.style.display = 'none';
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  let loader = document.getElementById('loader');
-  loader.style.display = 'block';
-});
-</script>
 
 <script type="text/javascript">
 

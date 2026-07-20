@@ -19,7 +19,7 @@ def salva_relatorio_confirmacao(fields, usuario, mes, ano):
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado:
             document = RelatorioConfirmacao.objects.update_or_create(
-                empregado=empregado, importacao=importacao,
+                empregado=empregado, importacao=importacao, setor=fields['setor'],
                 defaults={
                     'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
@@ -69,7 +69,6 @@ def salva_relatorio_confirmacao(fields, usuario, mes, ano):
                     'importado_por': usuario.username,
                     'importado_por_id': usuario.id,
                     'data_upload': datetime.now(),
-                    'setor': str(fields['setor']).upper(),
                 })
             return document
     except ObjectDoesNotExist:
@@ -89,7 +88,7 @@ def salva_relatorio_solicitacao(fields, usuario, mes, ano):
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado:
             document = RelatorioSolicitacao.objects.update_or_create(
-                empregado=empregado, importacao=importacao,
+                empregado=empregado, importacao=importacao, setor=fields['setor'],
                 defaults={
                     'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
@@ -137,8 +136,7 @@ def salva_relatorio_solicitacao(fields, usuario, mes, ano):
                     'importado_por': usuario.username,
                     'importado_por_id': usuario.id,
                     'data_upload': datetime.now(),
-                    'setor': str(fields['setor']).upper(),
-                })
+                                  })
             return document
     except ObjectDoesNotExist:
         pass
@@ -156,7 +154,7 @@ def salva_relatorio_negativos(fields, usuario, mes, ano, tipo):
             empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
             if empregado:
                 document = RelatorioNegativos.objects.update_or_create(
-                    empregado=empregado, importacao=importacao,
+                    empregado=empregado, importacao=importacao, setor=fields['setor'],
                     defaults={
                         'nome': str(fields['nome']).upper(),
                         'cargo': fields['cargo'],
@@ -167,7 +165,6 @@ def salva_relatorio_negativos(fields, usuario, mes, ano, tipo):
                         'importado_por': usuario.username,
                         'importado_por_id': usuario.id,
                         'data_upload': datetime.now(),
-                        'setor': fields['setor'],
                         'tipo': tipo,
                     })
                 return document
@@ -214,12 +211,13 @@ def salva_relatorio_codigo90(fields, usuario, mes, ano):
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado:
             document = RelatorioCodigo90.objects.update_or_create(
-                empregado=empregado, importacao=importacao, inicio=fields['data'],
+                empregado=empregado, importacao=importacao, inicio=fields['data'], setor=fields['setor'],
                 defaults={
                     'fim': fields['data'],
                     'importado_por': usuario.username,
                     'importado_por_id': usuario.id,
                     'data_upload': datetime.now(),
+                    'setor': fields['setor'],
                 })
             return document
     except ObjectDoesNotExist:
@@ -238,7 +236,7 @@ def salva_relatorio_rejeitar_batidas(fields, usuario, mes, ano, tipo):
 
         if empregado:
             document = RelatorioRejeitarBatidas.objects.update_or_create(
-                empregado=empregado, importacao=importacao, tipo=tipo,
+                empregado=empregado, importacao=importacao, tipo=tipo, setor=fields['setor'],
                 defaults={
                     'nome': str(fields['nome']).upper(),
                     'dia1': fields['1'],
@@ -275,6 +273,7 @@ def salva_relatorio_rejeitar_batidas(fields, usuario, mes, ano, tipo):
                     'importado_por': usuario.username,
                     'importado_por_id': usuario.id,
                     'data_upload': datetime.now(),
+                    'setor': fields['setor'],
                 })
             return document
     except ObjectDoesNotExist:
@@ -292,7 +291,7 @@ def salva_relatorio_pagas(fields, usuario, mes, ano):
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado:
             document = RelatorioPagas.objects.update_or_create(
-                empregado=empregado, importacao=importacao,
+                empregado=empregado, importacao=importacao, setor=fields['setor'],
                 defaults={
                     'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
@@ -322,7 +321,7 @@ def salva_relatorio_entrada_saida(fields, usuario, mes, ano):
         empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
         if empregado:
             document = RelatorioEntradaSaida.objects.update_or_create(
-                empregado=empregado, importacao=importacao, data=str(fields['data']),
+                empregado=empregado, importacao=importacao, data=str(fields['data']), setor=fields['setor'],
                 defaults={
                     'nome': str(fields['nome']).upper(),
                     'cargo': fields['cargo'],
@@ -354,15 +353,16 @@ def salva_relatorio_erros(fields, usuario, mes, ano, tipo):
             empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
             if empregado:
                 document = RelatorioErros.objects.update_or_create(
-                    empregado=empregado, importacao=importacao, data=fields['data'],
+                    empregado=empregado, importacao=importacao, data=fields['data'], setor=fields['setor'],
                     defaults={
                         'nome': str(fields['nome']).upper(),
                         'escala': str(fields['escala']).upper(),
-                        'entrada': '00:00',
-                        'saida': '00:00',
-                        'horas_trabalhadas': 0,
+                        'entrada': fields['entrada'],
+                        'saida': fields['saida'],
+                        'horas_trabalhadas': fields['horas_trabalhadas'],
                         'horas_diurnas': 0,
                         'horas_noturnas': 0,
+                        'setor': fields['setor'],
                         'importado_por': usuario.username,
                         'importado_por_id': usuario.id,
                         'data_upload': datetime.now(),
@@ -382,15 +382,16 @@ def salva_relatorio_erros(fields, usuario, mes, ano, tipo):
             empregado = Empregado.objects.get(matricula=fields['matricula'], mes=mes, ano=ano)
             if empregado:
                 document = RelatorioErros.objects.update_or_create(
-                    empregado=empregado, importacao=importacao, data=fields['data'],
+                    empregado=empregado, importacao=importacao, data=fields['data'], setor=fields['setor'],
                     defaults={
                         'nome': str(fields['nome']).upper(),
                         'escala': str(fields['escala']).upper(),
-                        'entrada': '00:00',
-                        'saida': '00:00',
-                        'horas_trabalhadas': 0,
+                        'entrada': fields['entrada'],
+                        'saida': fields['saida'],
+                        'horas_trabalhadas': fields['horas_trabalhadas'],
                         'horas_diurnas': 0,
                         'horas_noturnas': 0,
+                        'setor': fields['setor'],
                         'importado_por': usuario.username,
                         'importado_por_id': usuario.id,
                         'data_upload': datetime.now(),

@@ -10,10 +10,11 @@ current_year = datetime.now().year
 tudo = Importacoes.objects.values()
 tudo = pd.DataFrame(tudo)
 years = [2022]
-years_array = tudo.ano.unique()
+years_array = tudo.ano.unique() if 'ano' in tudo.columns else []
 
 for year in years_array:
     years.append(year)
+    years = sorted(years)
 
 
 class UsuariosForm(forms.Form):

@@ -7,31 +7,54 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-            $('#tipo3_label').hide();
-            $('#tipo3').hide();
+        $('#tipo3_label').hide();
+        $('#tipo3').hide();
 
 
-
-        $('#tipo').change(function(){
-            if($(this).val() === 'erros' || $(this).val() === 'negativos') {
+        $('#tipo').change(function () {
+            if ($(this).val() === 'erros' || $(this).val() === 'negativos') {
                 $('#tipo3_label').show();
                 $('#tipo3').show();
+                $('#label_matricula').hide();
+                $('#matricula').hide();
+                $('#passar_mouse').hide();
+                $('#data2_label').hide();
+                $('#data2').hide();
+                $('#passar_mouse2').hide();
+                var label = document.getElementById("data_label");
+                label.innerText = 'Mês/Ano';
 
 
-            }
-            else if($(this).val() !== 'erros' || $(this).val() !== 'negativos') {
+            } else if ($(this).val() === 'cod_90'
+                || $(this).val() === 'voltar_negativos' || $(this).val() === 'escalas_voltadas'
+                || $(this).val() === 'rejeitar_batidas' || $(this).val() === 'rejeitadas'
+                || $(this).val() === 'entrada_saida') {
                 $('#tipo3_label').hide();
                 $('#tipo3').hide();
+                $('#label_matricula').hide();
+                $('#matricula').hide();
+                $('#passar_mouse').hide();
+                $('#data2_label').hide();
+                $('#data2').hide();
+                $('#passar_mouse2').hide();
+                var label = document.getElementById("data_label");
+                label.innerText = 'Mês/Ano';
 
-            }
-            else{
+            } else {
                 $('#tipo3_label').hide();
                 $('#tipo3').hide();
+                $('#label_matricula').show();
+                $('#matricula').show();
+                $('#passar_mouse').show();
+                $('#data2_label').show();
+                $('#data2').show();
+                $('#passar_mouse2').show();
+                var label = document.getElementById("data_label");
+                label.innerText = 'Mês/Ano inicial';
             }
-
         });
-
     });
+
 </script>
 
 
@@ -74,7 +97,7 @@
 
                     <label for="tipo">Relatório</label>
                     <div class="form-inline">
-                        <select id="tipo" name="tipo" class="col-6 row-cols-6">
+                        <select id="tipo" name="tipo" class="col-7 row-cols-7">
                             <option value=""></option>
                             <option value="solicitacao">Solicitação</option>
                             <option value="confirmacao">Confirmação</option>
@@ -109,17 +132,17 @@
 
                     <label for="tipo3" id="tipo3_label">Tipo</label>
                         <div class="form-inline">
-                            <select id="tipo3" name="tipo3" class="col-6 row-cols-6">
+                            <select id="tipo3" name="tipo3" class="col-7 row-cols-7">
                                 <option value=""></option>
                                 <option value="solicitacao">Solicitação</option>
                                 <option value="confirmacao">Confirmação</option>
                             </select>
                         </div>
 
-                    <label for="data">Mês/Ano inicial</label>
+                    <label for="data" id="data_label">Mês/Ano inicial</label>
                     <div class="form-inline">
-                        <input type="month" name="data" id="data" min="2023-01" class="col-6 row-cols-6" required>
-                        <div class="passar_mouse">
+                        <input type="month" name="data" id="data" min="2023-01" class="col-7 row-cols-7" required>
+                        <div class="passar_mouse" id="passar_mouse2">
                             <i class="fa-regular fa-circle-question"></i>
                             <kbd class="mostrar2">
                                         Para gerar o relatório de um mês específico,
@@ -128,16 +151,16 @@
                         </div>
                     </div>
 
-                    <label for="data2">Mês/Ano final</label>
+                    <label for="data2" id="data2_label">Mês/Ano final</label>
                     <div class="form-inline">
 
-                    <input type="month" name="data2" id="data2" class="col-6 row-cols-6">
+                    <input type="month" name="data2" id="data2" class="col-7 row-cols-7">
                     </div>
 
                     <label for="matricula" id="label_matricula">Matrícula</label>
                     <div class="form-inline">
-                        <input type="text" name="matricula" id="matricula" class="col-6 row-cols-6">
-                        <div class="passar_mouse">
+                        <input type="text" name="matricula" id="matricula" class="col-7 row-cols-7">
+                        <div class="passar_mouse" id="passar_mouse">
                             <i class="fa-regular fa-circle-question">  </i>
                                 <kbd class="mostrar">Caso o campo 'Matrícula' não seja preenchido, será gerado um relatório contendo todos os empregados. </kbd>
                         </div>

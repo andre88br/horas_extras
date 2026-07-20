@@ -1,3 +1,4 @@
+import io
 import json
 
 import pandas as pd
@@ -11,43 +12,45 @@ from empregados.models import Importacoes
 from empregados.upload import importa_empregados
 from horas_extras.models import BancoMes, BancoTotal, Frequencia, Confirmacao, Solicitacao
 from relatorios.models import RelatorioPagas
+from tarefas.executor import iniciar_tarefa
 from usuarios.utils import verifica_vazio
 
 
 def upload_empregados(request):
     if request.user.is_authenticated:
         if request.method == "POST":
-            resposta = importa_empregados(request)
+            data = request.POST.get('data')
+            ano, mes = str(data).split('-')
+            usuario = request.user
 
-            if resposta == 'Erro':
-                messages.error(request, "Arquivo inválido")
-                return render(
-                    request,
-                    "empregados/empregados_upload.html",
-                    context={"files": Empregado.objects.order_by("matricula").all()},
-                )
+            # Lê os arquivos para a memória antes de ir para background, já que o Django
+            # encerra os arquivos temporários do upload ao final da requisição.
+            def _le(nome_campo):
+                arquivo = request.FILES.get(nome_campo)
+                return io.BytesIO(arquivo.read()) if arquivo else None
 
-            if resposta == "dados_invalidos":
-                messages.error(request, "Dados inválidos")
-                return render(
-                    request,
-                    "empregados/empregados_upload.html",
-                    context={"files": Empregado.objects.order_by("matricula").all()},
-                )
-            elif resposta == "arquivo_vazio":
-                messages.error(request, "Arquivo não pode ser vazio!")
-                return render(
-                    request,
-                    "empregados/empregados_upload.html",
-                    context={"files": Empregado.objects.order_by("matricula").all()},
-                )
-            else:
-                messages.success(request, "Empregados cadastrados com sucesso!")
-                return render(
-                    request,
-                    "empregados/empregados_upload.html",
-                    context={"files": Empregado.objects.order_by("matricula").all()},
-                )
+            planilha_salarios = _le("salarios")
+            planilha_insalubridades = _le("insalubridade")
+            planilha_carga_horaria = _le("carga_horaria")
+
+            def worker(progress_callback):
+                resposta = importa_empregados(usuario, mes, ano, planilha_salarios, planilha_insalubridades,
+                                               planilha_carga_horaria, progress_callback=progress_callback)
+                mensagens = {
+                    'Erro': ("Arquivo inválido", 'error'),
+                    'dados_invalidos': ("Dados inválidos", 'error'),
+                    'dados_inválidos': ("Dados inválidos", 'error'),
+                    'arquivo_vazio': ("Arquivo não pode ser vazio!", 'error'),
+                    'OK': ("Empregados cadastrados com sucesso!", 'success'),
+                }
+                mensagem, nivel = mensagens.get(resposta, (resposta, 'error'))
+                return {'mensagem': mensagem, 'nivel': nivel}
+
+            tarefa = iniciar_tarefa(
+                tipo='empregados.importa_empregados', usuario=usuario,
+                template_resultado='empregados/empregados_upload.html', func=worker,
+            )
+            return redirect('tarefa_acompanhar', tarefa_id=tarefa.id)
         else:
             return render(
                 request,

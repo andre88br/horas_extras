@@ -10,17 +10,21 @@ locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
 class ListandoRelatorioBatidasRejeitadas(admin.ModelAdmin):
-    list_display = ("id", "nome", "data", "tipo", "data_upload")
-    list_display_links = ("nome", "tipo")
-    search_fields = ("nome", "data", "tipo")
+    list_display = ("matricula", "nome", "data", "tipo", "data_upload")
+    list_display_links = ("matricula", "nome", "tipo")
+    search_fields = ("empregado__matricula", "nome", "data", "tipo")
     list_filter = ("importacao__ano", "importacao__mes", "tipo")
     list_per_page = 30
+
+    @staticmethod
+    def matricula(obj):
+        return obj.empregado.matricula
 
 
 class ListaRubricasLancadas(admin.ModelAdmin):
     list_display = ("matricula","nome", "rubrica", "horas_lancadas", "mes", "ano")
     list_display_links = ("matricula", "nome",)
-    search_fields = ("nome",)
+    search_fields = ("empregado__matricula", "nome",)
     list_filter = ("importacao__ano", "importacao__mes")
     list_per_page = 30
 
@@ -46,7 +50,7 @@ class ListaRubricasLancadas(admin.ModelAdmin):
 class ListandoRelatorioBatidasDesrejeitadas(admin.ModelAdmin):
     list_display = ("id", "nome", "data", "tipo", "data_upload")
     list_display_links = ("nome", "tipo")
-    search_fields = ("nome", "data", "tipo")
+    search_fields = ("empregado__matricula", "nome", "data", "tipo")
     list_filter = ("importacao__ano", "importacao__mes", "tipo")
     list_per_page = 30
 
@@ -54,7 +58,7 @@ class ListandoRelatorioBatidasDesrejeitadas(admin.ModelAdmin):
 class ListandoRelatorioBancosRecalculados(admin.ModelAdmin):
     list_display = ("id", "nome", "empregado")
     list_display_links = ("nome", )
-    search_fields = ("nome", )
+    search_fields = ("empregado__matricula", "nome", )
     list_filter = ("importacao__ano", "importacao__mes", )
     list_per_page = 30
 
@@ -62,7 +66,7 @@ class ListandoRelatorioBancosRecalculados(admin.ModelAdmin):
 class ListandoEscalaVoltada(admin.ModelAdmin):
     list_display = ("id", "nome", "empregado")
     list_display_links = ("nome", )
-    search_fields = ("nome", )
+    search_fields = ("empregado__matricula", "nome", )
     list_filter = ("importacao__ano", "importacao__mes", )
     list_per_page = 30
 
@@ -70,7 +74,7 @@ class ListandoEscalaVoltada(admin.ModelAdmin):
 class ListandoEscalaTirada(admin.ModelAdmin):
     list_display = ("id", "nome", "empregado")
     list_display_links = ("nome", )
-    search_fields = ("nome", )
+    search_fields = ("empregado__matricula", "nome", )
     list_filter = ("importacao__ano", "importacao__mes", )
     list_per_page = 30
 

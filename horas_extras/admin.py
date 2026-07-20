@@ -6,7 +6,7 @@ from .models import Confirmacao, Frequencia, BancoMes, BancoTotal, Solicitacao
 class ListandoConfirmacao(admin.ModelAdmin):
     list_display = ("id", "matricula", "nome", "cargo", "setor", "mes", "ano")
     list_display_links = ("id", "matricula", "nome")
-    search_fields = ("nome", "cargo", "setor")
+    search_fields = ("empregado__matricula", "nome", "cargo", "setor")
     list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
     list_per_page = 20
 
@@ -26,7 +26,7 @@ class ListandoConfirmacao(admin.ModelAdmin):
 class ListandoSolicitacao(admin.ModelAdmin):
     list_display = ("id", "matricula", "nome", "cargo", "setor", "mes", "ano")
     list_display_links = ("id", "matricula", "nome")
-    search_fields = ("nome", "cargo", "setor", "matricula")
+    search_fields = ("empregado__matricula", "nome", "cargo", "setor")
     list_filter = ("importacao__ano", "importacao__mes", "cargo", "setor")
     list_per_page = 10
 
@@ -46,7 +46,7 @@ class ListandoSolicitacao(admin.ModelAdmin):
 class ListandoFrequencia(admin.ModelAdmin):
     list_display = ("matricula", "nome", "data")
     list_display_links = ("matricula", "nome", "data")
-    search_fields = ("nome", "data")
+    search_fields = ("empregado__matricula", "nome", "data")
     list_filter = ("importacao__ano", "importacao__mes", "data")
     list_per_page = 20
 
@@ -66,7 +66,7 @@ class ListandoFrequencia(admin.ModelAdmin):
 class ListandoBancoMes(admin.ModelAdmin):
     list_display = ("matricula", "nome", "saldo_decimal_", "mes", "ano")
     list_display_links = ("matricula", "nome", "saldo_decimal_")
-    search_fields = ("nome",)
+    search_fields = ("empregado__matricula", "nome",)
     list_filter = ("importacao__ano", "importacao__mes")
     list_per_page = 20
 
@@ -91,7 +91,7 @@ class ListandoBancoMes(admin.ModelAdmin):
 class ListandoBancoTotal(admin.ModelAdmin):
     list_display = ("matricula", "nome", "saldo_decimal_", "mes", "ano")
     list_display_links = ("matricula", "nome", "saldo_decimal_")
-    search_fields = ("nome",)
+    search_fields = ("empregado__matricula", "nome",)
     list_filter = ("importacao__ano", "importacao__mes")
     list_per_page = 20
 

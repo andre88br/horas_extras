@@ -28,9 +28,9 @@ td a:link, td a:visited{
 .btn-success{
     text-decoration: none;
     color: white;
-    background: #003355;
+    background: var(--color-primary);
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -41,9 +41,9 @@ td a:link, td a:visited{
 .btn_editar{
     text-decoration: none;
     color: white;
-    background: #12579c;
+    background: var(--color-primary-hover);
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -54,9 +54,9 @@ td a:link, td a:visited{
 .btn_deletar{
     text-decoration: none;
     color: white;
-    background: rgba(170, 38, 38, 0.84);
+    background: var(--color-danger);
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -66,9 +66,9 @@ td a:link, td a:visited{
 .btn_remover{
     text-decoration: none;
     color: white;
-    background: rgba(188, 166, 43, 0.95);
+    background: var(--color-warning);
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -80,33 +80,19 @@ td a:link, td a:visited{
     color: white;
     background: #00AA33;
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
     font-size: 14px;
 }
 
-.btn_salvar{
+.btn_salvar, .btn_detalhar{
     text-decoration: none;
     color: white;
-    background: #19865C;
+    background: var(--color-success);
     text-transform: capitalize;
-    border-radius: 25px;
-    border: 1px solid;
-    cursor: pointer;
-    width: 110px;
-    font-size: 14px;
-}
-
-
-
-.btn_detalhar{
-    text-decoration: none;
-    color: white;
-    background: #19865C;
-    text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     cursor: pointer;
     width: 110px;
@@ -116,17 +102,13 @@ td a:link, td a:visited{
 .btn_analisar{
     text-decoration: none;
     color: white;
-    background-color: #003355;
+    background-color: var(--color-primary);
     text-transform: capitalize;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     cursor: pointer;
     width: 110px;
     border: none;
     font-size: 14px;
-}
-
-button:hover{
-    transform: scale(1.05);
 }
 
 .dashboard{
@@ -443,10 +425,10 @@ form label{
     width: 110px;
     padding: 10px 0;
     margin: 10px 0;
-    background-color: #003355;
+    background-color: var(--color-primary);
     color: white;
     font-weight: bold;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
     transition: 1s all;
     cursor: pointer;
     text-transform: capitalize;
@@ -454,7 +436,7 @@ form label{
 }
 
 .importar:hover{
-    background-color: #0033FF;
+    background-color: var(--color-primary-hover);
 }
 
 main{
@@ -467,9 +449,9 @@ main{
     text-align: center;
     font-weight: bold;
     padding: 20px;
-    background-color: #003355;
-    border: 2px solid red;
-    border-radius: 10px;
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-danger);
+    border-radius: var(--radius-md);
 }
 
 
@@ -487,9 +469,9 @@ main{
 
 .pagination button {
   padding: 10px;
-  background-color: #114a83;
+  background-color: var(--color-primary-active);
   border: none;
-  border-radius: 25px;
+  border-radius: var(--radius-pill);
   margin: 0 10px;
   cursor: pointer;
   font-size: 14px;
@@ -497,9 +479,9 @@ main{
 
 .busca button {
   padding: 10px;
-  background-color: #114a83;
+  background-color: var(--color-primary-active);
   border: none;
-  border-radius: 25px;
+  border-radius: var(--radius-pill);
   margin: 0 10px;
   cursor: pointer;
   color: #ffffff;
@@ -730,10 +712,10 @@ tr td{
   }
 
 .escolhe-mes_fora .escolhe-mes .linha button {
-    background: #19865C;
+    background: var(--color-success);
     color: white; /* cor do texto do botão */
     border: none; /* remover a borda padrão do botão */
-    border-radius: 25px; /* arredondar as bordas do botão */
+    border-radius: var(--radius-pill); /* arredondar as bordas do botão */
     cursor: pointer; /* transformar o cursor do mouse em um ponteiro ao passar sobre o botão */
     width: 100px;
     height: 30px;
@@ -748,8 +730,8 @@ tr td{
     padding: 0 2px;
     top: 80px;
     left: 1px;
-    border: 1px solid #cccccc;
-    background-color: #ffffff;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
     overflow: scroll;
     justify-content: space-between;
     align-items: center;
@@ -830,7 +812,7 @@ tr td{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #cfeae0;
+    background-color: var(--color-success-bg);
     height: 100px;
     margin-right: auto;
     border: 1px solid ;

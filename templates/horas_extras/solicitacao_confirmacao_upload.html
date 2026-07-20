@@ -5,18 +5,6 @@
 
 {% include 'partials/menu.html' %}
 
-<script>
-    window.addEventListener('load', function() {
-  var loader = document.getElementById('loader');
-  loader.style.display = 'none';
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  var loader = document.getElementById('loader');
-  loader.style.display = 'block';
-});
-</script>
-
 
 
 
@@ -69,50 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <div  class="col-md"></div>
         <div  class="col-md"></div>
     </div>
-
-<!--     <div class="progress" id="progress">-->
-<!--         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>-->
-<!--     </div>-->
-
-<!--    <script>-->
-<!--        const data = document.getElementById('data');-->
-<!--        const tipo = document.getElementById('tipo');-->
-<!--        const arquivo = document.getElementById('arquivo');-->
-<!--        const progress_bar = document.getElementById('progress');-->
-
-<!--        $("#upload_form").submit(function (e){-->
-<!--            e.preventDefault();-->
-<!--            $form = $(this)-->
-<!--            const dados = {-->
-<!--                'data': data.value,-->
-<!--                'tipo': tipo.value,-->
-<!--                'upload': arquivo.files[0],-->
-<!--            };-->
-
-<!--            $.ajax({-->
-<!--                type:'POST',-->
-<!--                url: "{% url 'upload' %}",-->
-<!--                data: {'dados': JSON.stringify(dados), 'csrfmiddlewaretoken': '{{ csrf_token }}'},-->
-<!--                dataType: 'json',-->
-<!--                beforeSend: function (){-->
-
-<!--                },-->
-<!--                xhr:function (){-->
-
-<!--                },-->
-<!--                success: function (){-->
-
-<!--                },-->
-<!--                error: function (){-->
-
-<!--                },-->
-<!--                cache: false,-->
-<!--                contentType: false,-->
-<!--                processData: false,-->
-<!--            });-->
-<!--        });-->
-
-<!--    </script>-->
 
         {% if files2 %}
           <h1>Solicitações</h1>

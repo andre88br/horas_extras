@@ -11,6 +11,7 @@ urlpatterns = [
     path("relatorios/", include("relatorios.urls")),
     path("pos_calculo/", include("pos_calculo.urls")),
     path("planilhas/", include("planilhas.urls")),
+    path("tarefas/", include("tarefas.urls")),
     path("admin/", admin.site.urls),
 ]
 

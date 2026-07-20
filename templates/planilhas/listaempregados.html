@@ -1,4 +1,9 @@
-{% extends 'base2.html' %}
+{% extends 'base.html' %}
+{% block sidebar %}
+{% if user.is_authenticated %}
+{% include 'partials/menu_lateral_2.html' %}
+{% endif %}
+{% endblock %}
 {% load static %}
 {% block content %}
 {% include 'partials/menu2.html' %}

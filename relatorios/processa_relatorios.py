@@ -3,6 +3,8 @@ import locale
 import pandas as pd
 from django.http import HttpResponse
 
+from django.db.models import Q
+
 from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioEscalaVoltada
 from .dbchanges import *
 
@@ -25,7 +27,6 @@ def arruma_campos(df, tipo, mes, ano):
         df = df.drop(columns={'mes/ano'})
         df.insert(0, 'mes/ano', coluna_mes_ano)
 
-        df = df.sort_values(by=['nome', 'mes/ano'])
 
     if tipo == 'solicitacao':
         df['horas_totais'] = df['horas_totais'].round(2)
@@ -41,8 +42,6 @@ def arruma_campos(df, tipo, mes, ano):
         coluna_mes_ano = df['mes/ano']
         df = df.drop(columns={'mes/ano'})
         df.insert(0, 'mes/ano', coluna_mes_ano)
-
-        df = df.sort_values(by=['nome', 'mes/ano'])
 
     if tipo == 'solicitacao' or tipo == 'confirmacao':
         df['salario'] = df['salario']. \
@@ -144,8 +143,6 @@ def arruma_campos(df, tipo, mes, ano):
         df = df[['cargo', 'matricula', 'nome', 'hs_diurnas', 'valor_diurnas',
                 'hs_noturnas', 'valor_noturnas', 'total', 'mes/ano', 'setor']]
 
-        df = df.sort_values(by='mes/ano')
-
     if tipo == 'cod_90':
         df = df.drop(columns={'id', 'importado_por', 'importado_por_id', 'data_upload',
                               'empregado_id', 'importacao_id'})
@@ -163,8 +160,6 @@ def arruma_campos(df, tipo, mes, ano):
                 if len(str(f'{importacao.mes}/{importacao.ano}')) == 7 \
                 else f'0{int(importacao.mes)}/{int(importacao.ano)}'
 
-        df = df.sort_values(by='mes/ano')
-
     if tipo == 'voltar_negativos':
         df.columns = df.columns.str.replace('dia', '')
         df = df.drop(columns={'id', 'importado_por', 'importado_por_id',
@@ -177,43 +172,50 @@ def arruma_campos(df, tipo, mes, ano):
     return df
 
 
-def gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula, progress_callback=None):
     if matricula == '':
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioSolicitacao.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
-                                                     ).order_by('nome').values()
+            df = RelatorioSolicitacao.objects.filter(
+                Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2)
+                ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
             empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioSolicitacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+            df = RelatorioSolicitacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome', 'importacao__ano', 'importacao__mes').values()
     else:
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioSolicitacao.objects.filter(empregado__matricula=matricula,
-                                                     importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
-                                                     ).order_by('nome').values()
+            df = RelatorioSolicitacao.objects.filter(
+                Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2),
+                empregado__matricula=matricula
+                ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
+
             empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
             df = RelatorioSolicitacao.objects.filter(empregado__matricula=matricula,
                                                      importacao__mes=mes, importacao__ano=ano
-                                                     ).order_by('nome').values()
+                                                     ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
 
     response, excel_path_solicitacao = '', ''
     if not df:
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'solicitacao', mes, ano)
+        df['MES/ANO'] = df['MES/ANO'].apply(lambda x: x[1:])
+        df['MES/ANO'] = pd.to_datetime(df['MES/ANO'], format='%m/%Y').dt.strftime('%b/%Y')
         if mes2 is not None and mes2 != '':
             excel_path_solicitacao = f'Solicitação de {mes}-{ano} até {mes2}-{ano2}.xlsx'
             df.to_excel(excel_path_solicitacao, index=False, sheet_name='Solicitado')
@@ -234,21 +236,18 @@ def gera_relatorio_solicitacao(mes, ano, mes2, ano2, matricula):
     return response, excel_path_solicitacao, df
 
 
-def gera_relatorio_erros(mes, ano, mes2, ano2, tipo, matricula):
+def gera_relatorio_erros(mes, ano, mes2, ano2, tipo, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
-    if matricula == '' and (mes2 == '' or mes2 is None):
-        df = RelatorioErros.objects.filter(importacao__mes=mes,
-                                           importacao__ano=ano, tipo=tipo).order_by('nome').values()
-    else:
-        df = RelatorioErros.objects.filter(empregado__matricula=matricula, importacao__mes=mes,
-                                           importacao__ano=ano, tipo=tipo).order_by('nome').values()
+    df = RelatorioErros.objects.filter(importacao__mes=mes,
+                                       importacao__ano=ano, tipo=tipo).order_by('nome').values()
+
     response, excel_path_erros = '', ''
     if not df:
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -265,43 +264,48 @@ def gera_relatorio_erros(mes, ano, mes2, ano2, tipo, matricula):
     return response, excel_path_erros, df
 
 
-def gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula, progress_callback=None):
     if matricula == '':
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioConfirmacao.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
-                                                     ).order_by('nome').values()
+            df = RelatorioConfirmacao.objects.filter(Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                                                     Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2)
+                                                     ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
             empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome').values()
+            df = RelatorioConfirmacao.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by('nome', 'importacao__ano', 'importacao__mes').values()
     else:
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula,
-                                                     importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                                     importacao__ano__gte=ano, importacao__ano__lte=ano
-                                                     ).order_by('nome').values()
+            df = RelatorioConfirmacao.objects.filter(Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                                                     Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2),
+                                                     empregado__matricula=matricula
+                                                     ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
+
             empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
             df = RelatorioConfirmacao.objects.filter(empregado__matricula=matricula,
                                                      importacao__mes=mes, importacao__ano=ano
-                                                     ).order_by('nome').values()
+                                                     ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
 
     response, excel_path = '', ''
     if not df:
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
         df = arruma_campos(df, 'confirmacao', mes, ano)
+        df['MES/ANO'] = df['MES/ANO'].apply(lambda x: x[1:])
+        df['MES/ANO'] = pd.to_datetime(df['MES/ANO'], format='%m/%Y').dt.strftime('%b/%Y')
         if mes2 is not None and mes2 != '':
             excel_path = f'Confirmação de {mes}-{ano} até {mes2}-{ano2}.xlsx'
             df.to_excel(excel_path, index=False, sheet_name='Confirmado')
@@ -323,7 +327,7 @@ def gera_relatorio_confirmacao(mes, ano, mes2, ano2, matricula):
     return response, excel_path, df
 
 
-def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
+def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     if matricula == '':
@@ -338,7 +342,7 @@ def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -354,7 +358,7 @@ def gera_relatorio_negativos(mes, ano, mes2, ano2, tipo, matricula):
     return response, excel_path_negativos, df
 
 
-def gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     if matricula == '':
@@ -369,7 +373,7 @@ def gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -385,7 +389,7 @@ def gera_relatorio_codigo90(mes, ano, mes2, ano2, matricula):
     return response, txt_path_codigo90, df
 
 
-def gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     if matricula == '':
@@ -399,7 +403,7 @@ def gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -416,7 +420,7 @@ def gera_relatorio_entrada_saida(mes, ano, mes2, ano2, matricula):
     return response, excel_path_entrada_saida, df
 
 
-def gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     if matricula == '':
@@ -429,7 +433,7 @@ def gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -445,38 +449,47 @@ def gera_relatorio_rejeitar_batidas(mes, ano, mes2, ano2, matricula):
     return response, excel_path_rejeitar_batidas, df
 
 
-def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2):
+def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2, progress_callback=None):
     if matricula == '':
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioPagas.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                               importacao__ano__gte=ano,
-                                               importacao__ano__lte=ano2).order_by('cargo', 'nome').values()
+            df = RelatorioPagas.objects.filter(
+                Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2)
+                ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
             empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
+            df = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano).order_by(
+                'nome', 'importacao__ano', 'importacao__mes').values()
     else:
         if mes2 is not None and mes2 != '':
-            empregados = Empregado.objects.filter(mes__gte=mes, mes__lte=mes2, ano__gte=ano, ano__lte=ano2,
-                                                  matricula=matricula).values()
+            empregados = Empregado.objects.filter(Q(ano__gt=ano) | Q(ano=ano, mes__gte=mes),
+                                                  Q(ano__lt=ano2) | Q(ano=ano2, mes__lte=mes2)).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioPagas.objects.filter(importacao__mes__gte=mes, importacao__mes__lte=mes2,
-                                               importacao__ano__gte=ano, importacao__ano__lte=ano2,
-                                               empregado__matricula=matricula).values()
+            df = RelatorioPagas.objects.filter(
+                Q(importacao__ano__gt=ano) | Q(importacao__ano=ano, importacao__mes__gte=mes),
+                Q(importacao__ano__lt=ano2) | Q(importacao__ano=ano2, importacao__mes__lte=mes2),
+                empregado__matricula=matricula
+                ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
         else:
-            empregados = Empregado.objects.filter(mes=mes, ano=ano, matricula=matricula).values()
+
+            empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
             empregados = pd.DataFrame(empregados)
-            df = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano,
-                                               empregado__matricula=matricula).values()
+            df = RelatorioPagas.objects.filter(empregado__matricula=matricula,
+                                                     importacao__mes=mes, importacao__ano=ano
+                                               ).order_by('nome', 'importacao__ano', 'importacao__mes').values()
 
     df = pd.DataFrame(df)
-    pega_matricula(empregados, df)
+    pega_matricula(empregados, df, progress_callback=progress_callback)
     coluna_matricula = df['matricula']
     df = df.drop(columns={'matricula'})
     df.insert(0, 'matricula', coluna_matricula)
     df = arruma_campos(df, 'pagas', mes, ano)
+    df['MES/ANO'] = df['MES/ANO'].apply(lambda x: x[1:])
+    df['MES/ANO'] = pd.to_datetime(df['MES/ANO'], format='%m/%Y').dt.strftime('%b/%Y')
 
     if mes2 != '' and mes is not None:
         excel_path_pagas = f'HE Pagas de {mes}-{ano} até {mes2}-{ano2}.xlsx'
@@ -500,7 +513,7 @@ def gera_relatorio_pagas(mes, ano, matricula, mes2, ano2):
         pass
 
 
-def gera_relatorio_setores(mes, ano, mes2, ano2):
+def gera_relatorio_setores(mes, ano, mes2, ano2, progress_callback=None):
     response, excel_path_setor = '', ''
 
     if mes2 != '' and mes2 is not None:
@@ -518,7 +531,7 @@ def gera_relatorio_setores(mes, ano, mes2, ano2):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -548,10 +561,13 @@ def gera_relatorio_setores(mes, ano, mes2, ano2):
     return response, excel_path_setor, df
 
 
-def pega_matricula(empregados, df):
-    for i, j in df.iterrows():
+def pega_matricula(empregados, df, progress_callback=None):
+    total = len(df) or 1
+    for indice, (i, j) in enumerate(df.iterrows()):
         matricula = int(empregados[empregados['id'] == j['empregado_id']]['matricula'].values)
         df.at[i, 'matricula'] = matricula
+        if progress_callback:
+            progress_callback(int((indice + 1) / total * 100))
     df['matricula'] = df['matricula'].astype(int)
 
 
@@ -609,12 +625,12 @@ def gera_grafico_pagas(mes, ano, matricula, mes2, ano2):
         pass
 
 
-def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
+def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     rejeitar = RelatorioRejeitarBatidas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     rejeitar = pd.DataFrame(rejeitar)
-    pega_matricula(empregados, rejeitar)
+    pega_matricula(empregados, rejeitar, progress_callback=progress_callback)
     coluna_matricula = rejeitar['matricula']
     rejeitar = rejeitar.drop(columns={'matricula'})
     rejeitar.insert(0, 'matricula', coluna_matricula)
@@ -629,7 +645,7 @@ def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -689,7 +705,7 @@ def gera_relatorio_rejeitadas(mes, ano, mes2, ano2, matricula):
     return response, excel_path_batidas_rejeitadas, rejeitar
 
 
-def gera_voltar_negativos(mes, ano):
+def gera_voltar_negativos(mes, ano, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
 
@@ -700,7 +716,7 @@ def gera_voltar_negativos(mes, ano):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)
@@ -717,7 +733,7 @@ def gera_voltar_negativos(mes, ano):
 
 
 
-def gera_escalas_voltadas(mes, ano):
+def gera_escalas_voltadas(mes, ano, progress_callback=None):
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
 
@@ -728,7 +744,7 @@ def gera_escalas_voltadas(mes, ano):
         pass
     else:
         df = pd.DataFrame(df)
-        pega_matricula(empregados, df)
+        pega_matricula(empregados, df, progress_callback=progress_callback)
         coluna_matricula = df['matricula']
         df = df.drop(columns={'matricula'})
         df.insert(0, 'matricula', coluna_matricula)

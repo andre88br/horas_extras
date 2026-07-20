@@ -34,118 +34,87 @@ def valida_upload(request):
         return dados, mes, ano, tipo, resposta, planilhas_com_erro, sem_setor
 
 
-def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
-    if tipo == 'Confirmação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='confirmação').all()
-        if busca:
-            busca.delete()
-
-        confirmacao_a_mostar = []
-        nao_cadastrados = []
-
-        for i, j in dados.iterrows():
-            document, nao_cadastrados = salva_confirmacao(j, request.user, mes, ano, nao_cadastrados)
-            confirmacao_a_mostar.append(document)
-        if len(confirmacao_a_mostar) == 0:
-            raise KeyError
-        else:
-            resposta = "OK"
-            return resposta, nao_cadastrados
-    if tipo == 'Solicitação':
-        busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='solicitação').all()
-        if busca:
-            busca.delete()
-        solicitacao_a_mostar = []
-        nao_cadastrados = []
-
-        for i, j in dados.iterrows():
-            document, nao_cadastrados = salva_solicitacao(j, request.user, mes, ano, nao_cadastrados)
-            solicitacao_a_mostar.append(document)
-
-        if len(solicitacao_a_mostar) == 0:
-            raise KeyError
-        else:
-            resposta = "OK"
-            return resposta, nao_cadastrados
-
-
-def processa_horas_extras(request):
+def processa_horas_extras(usuario, mes, ano, planilha_frequencia, planilha_banco_mes, planilha_banco_total,
+                          progress_callback=None):
     try:
-        if request.method == "POST":
-            data = request.POST['data']
-            ano, mes = int(str(data).split('-')[0]), int(str(data).split('-')[1])
-            planilha_frequencia = request.FILES.getlist("frequencia")
-            planilha_banco_mes = request.FILES.get("banco_mes")
-            planilha_banco_total = request.FILES.get("banco_total")
+        try:
+            if planilha_frequencia != '' and planilha_frequencia is not None:
+                processa_frequencia(usuario, planilha_frequencia, mes, ano, progress_callback=progress_callback)
+        except ValueError:
+            pass
+        finally:
             try:
-                if planilha_frequencia != '' and planilha_frequencia is not None:
-                    processa_frequencia(request, planilha_frequencia, mes, ano)
+                if planilha_banco_mes is not None:
+                    processa_banco_mes(usuario, planilha_banco_mes, mes, ano, progress_callback=progress_callback)
             except ValueError:
                 pass
             finally:
                 try:
-                    if planilha_banco_mes is not None:
-                        processa_banco_mes(request, planilha_banco_mes, mes, ano)
+                    if planilha_banco_total is not None:
+                        processa_banco_total(usuario, planilha_banco_total, mes, ano,
+                                             progress_callback=progress_callback)
+                    resposta = "OK"
+                    return mes, ano, resposta
                 except ValueError:
-                    pass
-                finally:
-                    try:
-                        if planilha_banco_total is not None:
-                            processa_banco_total(request, planilha_banco_total, mes, ano)
+                    if not planilha_frequencia and not planilha_banco_mes:
+                        resposta = 'sem arquivos'
+                        return mes, ano, resposta
+                    else:
                         resposta = "OK"
                         return mes, ano, resposta
-                    except ValueError:
-                        if not planilha_frequencia and not planilha_banco_mes:
-                            resposta = 'sem arquivos'
-                            return mes, ano, resposta
-                        else:
-                            resposta = "OK"
-                            return mes, ano, resposta
     except KeyError as error:
         print(error)
         resposta = "arquivo_vazio"
-        data = request.POST['data']
-        ano, mes = int(str(data).split('-')[0]), int(str(data).split('-')[1])
         return mes, ano, resposta
 
 
-def processa_frequencia(request, planilha, mes, ano):
+def processa_frequencia(usuario, planilha, mes, ano, progress_callback=None):
     frequencias_a_mostrar = []
     frequencia, data_min, data_max = arruma_frequencia(planilha)
-    for i, j in frequencia.iterrows():
+    total = len(frequencia) or 1
+    for indice, (i, j) in enumerate(frequencia.iterrows()):
         fields = j
-        document = salva_frequencia(fields, request.user, mes, ano)
+        document = salva_frequencia(fields, usuario, mes, ano)
         frequencias_a_mostrar.append(document)
+        if progress_callback:
+            progress_callback(int((indice + 1) / total * 100), 'Importando frequência...')
     if len(frequencias_a_mostrar) == 0:
         raise KeyError
 
 
-def processa_banco_total(request, planilha_banco_total, mes, ano):
+def processa_banco_total(usuario, planilha_banco_total, mes, ano, progress_callback=None):
     banco_total = arruma_banco(planilha_banco_total)
     banco_total_a_mostrar = []
+    total = len(banco_total) or 1
 
-    for i, j in banco_total.iterrows():
+    for indice, (i, j) in enumerate(banco_total.iterrows()):
         fields = j
-        document = salva_banco_total(fields, request.user, mes, ano)
+        document = salva_banco_total(fields, usuario, mes, ano)
         banco_total_a_mostrar.append(document)
+        if progress_callback:
+            progress_callback(int((indice + 1) / total * 100), 'Importando banco de horas...')
     if len(banco_total_a_mostrar) == 0:
         raise KeyError
 
 
-def processa_banco_mes(request, planilha_banco_mes, mes, ano):
+def processa_banco_mes(usuario, planilha_banco_mes, mes, ano, progress_callback=None):
     banco_mes = arruma_saldo_mes(planilha_banco_mes)
     banco_mes_a_mostrar = []
+    total = len(banco_mes) or 1
 
-    for i, j in banco_mes.iterrows():
+    for indice, (i, j) in enumerate(banco_mes.iterrows()):
         fields = j
-        document = salva_banco_mes(fields, request.user, mes, ano)
+        document = salva_banco_mes(fields, usuario, mes, ano)
         banco_mes_a_mostrar.append(document)
+        if progress_callback:
+            progress_callback(int((indice + 1) / total * 100), 'Importando saldo de horas do mês...')
 
     if len(banco_mes_a_mostrar) == 0:
         raise KeyError
 
 
-def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
+def arruma_dados_do_arquivo(request, dados, mes, ano, tipo, progress_callback=None):
+    total = len(dados) or 1
     if tipo == 'Confirmação':
         busca = Importacoes.objects.filter(mes=mes, ano=ano, tipo='confirmação').all()
         if busca:
@@ -154,9 +123,11 @@ def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
         confirmacao_a_mostar = []
         nao_cadastrados = []
 
-        for i, j in dados.iterrows():
+        for indice, (i, j) in enumerate(dados.iterrows()):
             document, nao_cadastrados = salva_confirmacao(j, request.user, mes, ano, nao_cadastrados)
             confirmacao_a_mostar.append(document)
+            if progress_callback:
+                progress_callback(int((indice + 1) / total * 100), 'Importando confirmação...')
         if len(confirmacao_a_mostar) == 0:
             raise KeyError
         else:
@@ -169,9 +140,11 @@ def arruma_dados_do_arquivo(request, dados, mes, ano, tipo):
         solicitacao_a_mostar = []
         nao_cadastrados = []
 
-        for i, j in dados.iterrows():
+        for indice, (i, j) in enumerate(dados.iterrows()):
             document, nao_cadastrados = salva_solicitacao(j, request.user, mes, ano, nao_cadastrados)
             solicitacao_a_mostar.append(document)
+            if progress_callback:
+                progress_callback(int((indice + 1) / total * 100), 'Importando solicitação...')
 
         if len(solicitacao_a_mostar) == 0:
             raise KeyError

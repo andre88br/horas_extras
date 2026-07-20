@@ -399,7 +399,7 @@ def relatorio_pagas(request):
                 y = sum([i.total for i in x if i.importacao.mes == mes and i.importacao.ano == ano])
                 labels.append(meses[mes - 1])
                 data.append(round(y, ndigits=2))
-            mes += 1
+                mes += 1
 
         data_json = {'data': data[::1], 'labels': labels[::1]}
 

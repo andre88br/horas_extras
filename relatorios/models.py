@@ -174,6 +174,7 @@ class RelatorioCodigo90(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
+    setor = models.CharField(max_length=200)
 
 
 class RelatorioRejeitarBatidas(models.Model):
@@ -220,6 +221,7 @@ class RelatorioRejeitarBatidas(models.Model):
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
     tipo = models.CharField(max_length=15)
+    setor = models.CharField(max_length=200)
     
 
 class RelatorioPagas(models.Model):
@@ -278,8 +280,8 @@ class RelatorioErros(models.Model):
     nome = models.CharField(max_length=200)
     data = models.CharField(max_length=15)
     escala = models.CharField(max_length=10)
-    entrada = models.CharField(max_length=15)
-    saida = models.CharField(max_length=15)
+    entrada = models.CharField(max_length=100)
+    saida = models.CharField(max_length=100)
     horas_trabalhadas = models.FloatField()
     horas_diurnas = models.FloatField()
     horas_noturnas = models.FloatField()
@@ -287,11 +289,12 @@ class RelatorioErros(models.Model):
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
     tipo = models.CharField(max_length=30)
+    setor = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['nome', 'data', 'escala', 'entrada', 'saida', 'horas_diurnas',
                     'horas_noturnas', 'horas_trabalhadas', 'importado_por', 'importado_por_id',
-                    'data_upload']
+                    'data_upload', 'tipo', 'setor']
 
 
 class VoltarNegativos(models.Model):
@@ -337,3 +340,4 @@ class VoltarNegativos(models.Model):
     importado_por = models.CharField(max_length=100)
     importado_por_id = models.IntegerField()
     data_upload = models.DateTimeField()
+    setor = models.CharField(max_length=200)

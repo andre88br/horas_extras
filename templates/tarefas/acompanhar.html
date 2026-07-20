@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'partials/menu.html' %}
+
+<div class="tarefa-progresso">
+    <div id="conteudo">
+        <h1>Processando...</h1>
+        <p id="tarefa-mensagem" class="tarefa-mensagem">{{ tarefa.mensagem|default:"Iniciando..." }}</p>
+
+        <div class="progress" role="progressbar" aria-valuenow="{{ tarefa.percentual }}"
+             aria-valuemin="0" aria-valuemax="100">
+            <div id="tarefa-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                 style="width: {{ tarefa.percentual }}%">{{ tarefa.percentual }}%</div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/tarefas.js' %}"></script>
+<script>
+    acompanharTarefa("{% url 'tarefa_status' tarefa.id %}", "{% url 'tarefa_resultado' tarefa.id %}");
+</script>
+{% endblock %}

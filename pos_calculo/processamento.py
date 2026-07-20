@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -97,7 +99,7 @@ def inicia_driver():
 
     wait = WebDriverWait(driver, 10)
     wait.until(ec.presence_of_element_located((By.ID, 'login')))
-    login(driver, 'andre.ribeiro.1', '***REMOVED***')
+    login(driver, os.getenv("EBSERH_USERNAME"), os.getenv("EBSERH_PASSWORD"))
     return driver
 
 
@@ -302,21 +304,23 @@ def recalcula_todos(mes, ano, processo, usuario):
     recalculados = pd.DataFrame(recalculados)
     if confirmacoes:
         driver = inicia_driver()
-        clica_banco(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
-        pega_matricula(confirmacoes, mes, ano)
-        if not recalculados.empty:
-            pega_matricula(recalculados, mes, ano)
-            recalculados['matricula'] = recalculados['matricula'].astype(int)
-            recalculados = recalculados['matricula']
-            for i in recalculados:
-                confirmacoes = confirmacoes[confirmacoes['matricula'] != i]
+        try:
+            clica_banco(driver)
+            confirmacoes = pd.DataFrame(confirmacoes)
+            pega_matricula(confirmacoes, mes, ano)
+            if not recalculados.empty:
+                pega_matricula(recalculados, mes, ano)
+                recalculados['matricula'] = recalculados['matricula'].astype(int)
+                recalculados = recalculados['matricula']
+                for i in recalculados:
+                    confirmacoes = confirmacoes[confirmacoes['matricula'] != i]
 
-        confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        confirmacoes = confirmacoes[['matricula', 'nome']]
-        print(confirmacoes.shape[0])
-        RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
-        return 'ok'
+            confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
+            confirmacoes = confirmacoes[['matricula', 'nome']]
+            RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
+            return 'ok'
+        finally:
+            driver.quit()
     else:
         return 'erro'
 
@@ -333,14 +337,17 @@ def recalcula_especifico(mes, ano, matricula, processo, usuario):
                                                        empregado__matricula=matricula, valor_total__gt=0).values()
     if confirmacoes:
         driver = inicia_driver()
-        clica_banco(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
-        confirmacoes = pd.DataFrame(confirmacoes)
-        pega_matricula(confirmacoes, mes, ano)
-        confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        confirmacoes = confirmacoes[['matricula', 'empregado_id']]
-        RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
-        return 'ok'
+        try:
+            clica_banco(driver)
+            confirmacoes = pd.DataFrame(confirmacoes)
+            confirmacoes = pd.DataFrame(confirmacoes)
+            pega_matricula(confirmacoes, mes, ano)
+            confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
+            confirmacoes = confirmacoes[['matricula', 'empregado_id']]
+            RecalcularBanco(confirmacoes, driver, mes_ano, observacao, usuario)
+            return 'ok'
+        finally:
+            driver.quit()
     else:
         return 'erro'
 
@@ -352,30 +359,34 @@ def lanca_todos(mes, ano, mes_folha, ano_folha, fator, processo, usuario):
     confirmacoes = RelatorioPagas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
     if confirmacoes:
         driver = inicia_driver()
-        clica_folha(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
-        pega_matricula(confirmacoes, mes, ano)
-        confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        rubricas_lancadas = RelatorioRubricasLancadas.objects.filter(importacao__mes=mes, importacao__ano=ano).values()
-        if rubricas_lancadas:
-            rubricas_lancadas = pd.DataFrame(rubricas_lancadas)
-            pega_matricula(rubricas_lancadas, mes, ano)
-            for i, j in rubricas_lancadas.iterrows():
-                confirmacoes = confirmacoes[confirmacoes['matricula'] != j['matricula']]
-        confirmacoes.reset_index(drop=True, inplace=True)
-        confirmacoes['rubrica_diurna'] = ''
-        confirmacoes['rubrica_noturna'] = ''
-        for i, j in confirmacoes.iterrows():
-            confirmacoes.at[i, 'rubrica_diurna'] = 81 if j['valor_diurnas'] > 0 else ''
-            confirmacoes.at[i, 'rubrica_noturna'] = 878 if j['valor_noturnas'] > 0 else ''
+        try:
+            clica_folha(driver)
+            confirmacoes = pd.DataFrame(confirmacoes)
+            pega_matricula(confirmacoes, mes, ano)
+            confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
+            rubricas_lancadas = RelatorioRubricasLancadas.objects.filter(importacao__mes=mes,
+                                                                         importacao__ano=ano).values()
+            if rubricas_lancadas:
+                rubricas_lancadas = pd.DataFrame(rubricas_lancadas)
+                pega_matricula(rubricas_lancadas, mes, ano)
+                for i, j in rubricas_lancadas.iterrows():
+                    confirmacoes = confirmacoes[confirmacoes['matricula'] != j['matricula']]
+            confirmacoes.reset_index(drop=True, inplace=True)
+            confirmacoes['rubrica_diurna'] = ''
+            confirmacoes['rubrica_noturna'] = ''
+            for i, j in confirmacoes.iterrows():
+                confirmacoes.at[i, 'rubrica_diurna'] = 81 if j['valor_diurnas'] > 0 else ''
+                confirmacoes.at[i, 'rubrica_noturna'] = 878 if j['valor_noturnas'] > 0 else ''
 
-        confirmacoes = confirmacoes.drop(columns={'id', 'cargo', 'empregado_id', 'importacao_id',
-                                                  'data_upload', 'setor', 'qtd', 'valor_diurnas', 'valor_noturnas',
-                                                  'total', 'importado_por', 'importado_por_id'})
-        print(confirmacoes)
+            confirmacoes = confirmacoes.drop(columns={'id', 'cargo', 'empregado_id', 'importacao_id',
+                                                      'data_upload', 'setor', 'qtd', 'valor_diurnas', 'valor_noturnas',
+                                                      'total', 'importado_por', 'importado_por_id'})
+            print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, observacao, usuario, fator)
-        return 'ok'
+            LancarRubricas(confirmacoes, driver, mes, ano, folha, observacao, usuario, fator)
+            return 'ok'
+        finally:
+            driver.quit()
     else:
         return 'erro'
 
@@ -388,23 +399,26 @@ def lanca_especifico(mes, ano, mes_folha, ano_folha, matricula, fator, processo,
                                                  empregado__matricula=matricula).values()
     if confirmacoes:
         driver = inicia_driver()
-        clica_folha(driver)
-        confirmacoes = pd.DataFrame(confirmacoes)
-        pega_matricula(confirmacoes, mes, ano)
-        confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
-        confirmacoes['rubrica_diurna'] = ''
-        confirmacoes['rubrica_noturna'] = ''
-        for i, j in confirmacoes.iterrows():
-            confirmacoes.at[i, 'rubrica_diurna'] = 81 if j['valor_diurnas'] > 0 else ''
-            confirmacoes.at[i, 'rubrica_noturna'] = 878 if j['valor_noturnas'] > 0 else ''
+        try:
+            clica_folha(driver)
+            confirmacoes = pd.DataFrame(confirmacoes)
+            pega_matricula(confirmacoes, mes, ano)
+            confirmacoes['matricula'] = confirmacoes['matricula'].astype(int)
+            confirmacoes['rubrica_diurna'] = ''
+            confirmacoes['rubrica_noturna'] = ''
+            for i, j in confirmacoes.iterrows():
+                confirmacoes.at[i, 'rubrica_diurna'] = 81 if j['valor_diurnas'] > 0 else ''
+                confirmacoes.at[i, 'rubrica_noturna'] = 878 if j['valor_noturnas'] > 0 else ''
 
-        confirmacoes = confirmacoes.drop(columns={'id', 'cargo', 'empregado_id', 'importacao_id',
-                                                  'data_upload', 'setor', 'qtd', 'valor_diurnas', 'valor_noturnas',
-                                                  'total', 'importado_por', 'importado_por_id'})
-        print(confirmacoes)
+            confirmacoes = confirmacoes.drop(columns={'id', 'cargo', 'empregado_id', 'importacao_id',
+                                                      'data_upload', 'setor', 'qtd', 'valor_diurnas', 'valor_noturnas',
+                                                      'total', 'importado_por', 'importado_por_id'})
+            print(confirmacoes)
 
-        LancarRubricas(confirmacoes, driver, mes, ano, folha, processo, usuario, fator)
-        return 'ok'
+            LancarRubricas(confirmacoes, driver, mes, ano, folha, processo, usuario, fator)
+            return 'ok'
+        finally:
+            driver.quit()
     else:
         return 'erro'
 
@@ -531,7 +545,9 @@ def recalcula_negativos(mes, ano, processo, usuario):
     print(negativos)
 
     driver = inicia_driver()
-    clica_banco(driver)
-
-    RecalcularNegativos(negativos, driver, mes_ano, observacao, usuario)
-    return 'ok'
+    try:
+        clica_banco(driver)
+        RecalcularNegativos(negativos, driver, mes_ano, observacao, usuario)
+        return 'ok'
+    finally:
+        driver.quit()
