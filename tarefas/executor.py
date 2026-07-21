@@ -73,10 +73,17 @@ def iniciar_tarefa(*, tipo, usuario, template_resultado, func, args=(), kwargs=N
                 concluido_em=timezone.now(),
             )
         except Exception as exc:
+            # A mensagem vai para um campo varchar(500); exceções do Selenium/DB
+            # podem ser muito maiores e estourariam a coluna (o que impediria a
+            # tarefa de ser marcada como ERRO e deixaria a barra travada). Trunca
+            # aqui — o traceback completo fica em erro_detalhe (TextField).
+            mensagem_erro = str(exc) or "Erro inesperado durante o processamento"
+            if len(mensagem_erro) > 500:
+                mensagem_erro = mensagem_erro[:497] + "..."
             Tarefa.objects.filter(pk=tarefa.pk).update(
                 status=Tarefa.Status.ERRO,
                 nivel_mensagem=Tarefa.Nivel.ERRO,
-                mensagem=str(exc) or "Erro inesperado durante o processamento",
+                mensagem=mensagem_erro,
                 erro_detalhe=traceback.format_exc(),
                 concluido_em=timezone.now(),
             )

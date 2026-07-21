@@ -2,6 +2,8 @@ import os
 
 import pandas as pd
 from selenium import webdriver
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        TimeoutException, WebDriverException)
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -9,6 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 from empregados.models import Empregado
+from pos_calculo.credenciais import get_credenciais, reportar_progresso
 from pos_calculo.lancamento import LancarRubricas
 from pos_calculo.models import RelatorioBatidasRejeitadas, RelatorioBancosRecalculados, RelatorioRubricasLancadas, \
     RelatorioBatidasDesrejeitadas
@@ -21,6 +24,8 @@ from relatorios.models import RelatorioRejeitarBatidas, RelatorioConfirmacao, Re
 
 
 def pega_matricula(df, mes, ano):
+    if df.empty:
+        return df
     empregados = Empregado.objects.filter(mes=mes, ano=ano).values()
     empregados = pd.DataFrame(empregados)
     for i, j in df.iterrows():
@@ -34,11 +39,20 @@ def pega_matricula(df, mes, ano):
 
 
 def inicia_driver():
-    # try:
-    service = Service("chromedriver.exe")
+    # webdriver_manager detecta a versão do Chrome instalado e baixa/gerencia
+    # o chromedriver compatível automaticamente (dispensa manter chromedriver.exe
+    # na mão e evita erro de versão incompatível). O download é cacheado em ~/.wdm.
+    service = Service(ChromeDriverManager().install())
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    # options.add_argument("--headless")
+    # Modo headless: o Chrome roda sem janela visível. Necessário porque o
+    # servidor roda como serviço do Windows (Sessão 0, sem área de trabalho).
+    # "--headless=new" mantém o comportamento do Chrome normal (inclui downloads).
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")            # exigido ao rodar como serviço/SYSTEM
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")  # viewport virtual p/ elementos renderizarem
     # Giving the path of chromedriver to selenium webdriver
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -99,15 +113,34 @@ def inicia_driver():
 
     wait = WebDriverWait(driver, 10)
     wait.until(ec.presence_of_element_located((By.ID, 'login')))
-    login(driver, os.getenv("EBSERH_USERNAME"), os.getenv("EBSERH_PASSWORD"))
+    # Credenciais do SIGP informadas pela pessoa nesta sessão (thread-local).
+    # Se não houver (ex.: execução por linha de comando), cai no login fixo do .env.
+    usuario, senha = get_credenciais()
+    if not usuario:
+        usuario, senha = os.getenv("EBSERH_USERNAME"), os.getenv("EBSERH_PASSWORD")
+    login(driver, usuario, senha)
+    reportar_progresso(20, 'Login efetuado com sucesso')
     return driver
 
 
+def _clica_link(driver, texto, timeout=30):
+    """Clica num link de menu de forma robusta para headless.
+
+    Espera o link existir, rola até ele e tenta o clique normal. Se o clique
+    for interceptado por uma sobreposição (comum em headless), refaz via
+    JavaScript, que ignora a interceptação.
+    """
+    wait = WebDriverWait(driver, timeout)
+    elemento = wait.until(ec.presence_of_element_located((By.LINK_TEXT, texto)))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elemento)
+    try:
+        elemento.click()
+    except (ElementClickInterceptedException, WebDriverException):
+        driver.execute_script("arguments[0].click();", elemento)
+
+
 def clica_frequencia(driver):
-    wait = WebDriverWait(driver, 30)
-    wait.until(ec.presence_of_element_located((By.LINK_TEXT, 'Registro de Frequência')))
-    frequencia = driver.find_element(By.LINK_TEXT, 'Registro de Frequência')
-    frequencia.click()
+    _clica_link(driver, 'Registro de Frequência')
 
     wait = WebDriverWait(driver, 30)
     wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
@@ -116,10 +149,7 @@ def clica_frequencia(driver):
     driver.switch_to.frame(frame1)
 
 def clica_horario_excepcional(driver):
-    wait = WebDriverWait(driver, 30)
-    wait.until(ec.presence_of_element_located((By.LINK_TEXT, 'Cadastro Horário Excepcional')))
-    frequencia = driver.find_element(By.LINK_TEXT, 'Cadastro Horário Excepcional')
-    frequencia.click()
+    _clica_link(driver, 'Cadastro Horário Excepcional')
 
     wait = WebDriverWait(driver, 30)
     wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
@@ -129,11 +159,7 @@ def clica_horario_excepcional(driver):
 
 
 def clica_banco(driver):
-    wait = WebDriverWait(driver, 30)
-    wait.until(ec.presence_of_element_located((By.LINK_TEXT, 'Recalcular BH Homologado')))
-
-    recalcular_banco = driver.find_element(By.LINK_TEXT, 'Recalcular BH Homologado')
-    recalcular_banco.click()
+    _clica_link(driver, 'Recalcular BH Homologado')
 
     wait = WebDriverWait(driver, 30)
     wait.until(ec.presence_of_element_located((By.ID, 'frame1')))
@@ -143,11 +169,7 @@ def clica_banco(driver):
 
 
 def clica_folha(driver):
-    wait = WebDriverWait(driver, 120)
-    wait.until(ec.presence_of_element_located((By.LINK_TEXT, 'Rubrica Individual')))
-
-    rubrica_individual = driver.find_element(By.LINK_TEXT, 'Rubrica Individual')
-    rubrica_individual.click()
+    _clica_link(driver, 'Rubrica Individual', timeout=120)
 
 
 def login(driver, username, password):
@@ -161,6 +183,18 @@ def login(driver, username, password):
     # Click on submit
     submit_button = driver.find_element(By.CLASS_NAME, 'btn-primary')
     submit_button.click()
+
+    # Valida o login. Primeiro espera a página reagir (o botão de login antigo
+    # sai do DOM). Em seguida verifica o campo de SENHA: ele só existe na tela
+    # de login, então se continuar presente é porque as credenciais foram
+    # recusadas e a página de login recarregou. (Não dá pra usar o id 'login':
+    # a página autenticada do SIGP também tem um elemento com esse id.)
+    try:
+        WebDriverWait(driver, 20).until(ec.staleness_of(submit_button))
+    except TimeoutException:
+        pass
+    if driver.find_elements(By.ID, 'senha'):
+        raise Exception('Falha no login do SIGP: usuário ou senha inválidos.')
 
 
 def rejeita_todos(mes, ano, driver, c, usuario):
@@ -539,6 +573,10 @@ def recalcula_negativos(mes, ano, processo, usuario):
     mes_ano = f'{mes}{ano}'
     negativos = RelatorioNegativos.objects.filter(importacao__mes=mes, importacao__ano=ano, tipo='confirmacao').values()
     negativos = pd.DataFrame(negativos)
+    if negativos.empty:
+        # Nenhum banco negativo de confirmação neste período: nada a recalcular.
+        # Evita o KeyError 'matricula' e abrir o navegador à toa.
+        return 'vazio'
     pega_matricula(negativos, mes, ano)
     negativos['matricula'] = negativos['matricula'].astype(int)
     negativos = negativos.sort_values(by='matricula', ascending=True)

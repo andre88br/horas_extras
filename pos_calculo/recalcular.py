@@ -84,37 +84,21 @@ def RecalcularBanco(dados, driver, mes_ano, observacao, usuario):
                 recalcular = driver.find_element(By.LINK_TEXT, 'Recalcular')
                 recalcular.click()
 
-                wait = WebDriverWait(driver, 3)
-                wait.until(ec.presence_of_element_located((By.ID, 'ProgressBarFrame')))
-
-                frame_progresso = driver.find_element(By.ID, 'ProgressBarFrame')
-                driver.switch_to.frame(frame_progresso)
-
-                sleep(3)
-
+                # O SIGP passou a processar o recálculo em 2º plano: a barra de
+                # progresso (ProgressBarFrame) não aparece mais. Após acionar
+                # "Recalcular", dispensamos qualquer aviso (alerta/clique num ponto
+                # neutro da página) e seguimos para a próxima matrícula.
+                sleep(2)
                 try:
-                    fechar_erro = driver.find_element(By.ID, 'closeButton')
-                    fechar_erro.click()
-
-                    fechar = driver.find_element(By.ID, 'progressCloseButton')
-                    fechar.click()
-                    print(f'{c}-{matricula}: Banco recalculado com sucesso!')
-                    c -= 1
-                    salva_banco_recalculado(j, usuario, mes_ano[:2], mes_ano[2:])
-                    driver.refresh()
-                    continue
-                except NoSuchElementException:
+                    driver.switch_to.alert.accept()
+                except (NoAlertPresentException, UnexpectedAlertPresentException):
+                    pass
+                try:
+                    driver.find_element(By.TAG_NAME, 'body').click()
+                except Exception:
                     pass
 
-                concluido = driver.find_element(By.CLASS_NAME, 'progress').find_element(By.TAG_NAME, 'spam').text
-
-                while concluido != 'Concluído':
-                    sleep(2)
-                    concluido = driver.find_element(By.CLASS_NAME, 'progress').find_element(By.TAG_NAME, 'spam').text
-
-                fechar = driver.find_element(By.ID, 'progressCloseButton')
-                fechar.click()
-                print(f'{c}-{matricula}: Banco recalculado com sucesso!')
+                print(f'{c}-{matricula}: Banco enviado para recálculo!')
                 c -= 1
                 salva_banco_recalculado(j, usuario, mes_ano[:2], mes_ano[2:])
                 driver.refresh()

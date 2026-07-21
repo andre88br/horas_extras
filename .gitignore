@@ -177,3 +177,13 @@ backup banco/
 dados_ficticios/
 autossh
 ssh
+
+# Artefatos gerados (servidor de produção)
+*.br
+*.gz
+tools/
+logs/
+
+# Planilhas reais exportadas (não versionar dados)
+Confirmação*.xlsx
+Solicitação*.xlsx

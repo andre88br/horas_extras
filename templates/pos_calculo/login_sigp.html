@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'partials/menu.html' %}
+
+<link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" />
+
+<div class="escolhe-mes">
+    <div id="conteudo">
+
+        <h1>Login do SIGP</h1>
+        <p>Informe seu usuário e senha do SIGP. Eles serão usados nas ações de
+           pós-cálculo (rejeitar batidas, recalcular banco, pagamento, etc.)
+           durante esta sessão.</p>
+
+        {% include 'partials/_messages.html' %}
+
+        <div class="row align-left">
+            <div class="col-md">
+
+                <form class="form-importar" action="{% url 'login_sigp' %}" method="POST" id="form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <label for="sigp_usuario">Usuário SIGP</label>
+                    <div class="form-inline">
+                        <input type="text" name="sigp_usuario" id="sigp_usuario"
+                               class="col-6 row-cols-6" value="{{ sigp_usuario }}"
+                               autocomplete="username" required autofocus>
+                    </div>
+
+                    <label for="sigp_senha">Senha SIGP</label>
+                    <div class="form-inline">
+                        <input type="password" name="sigp_senha" id="sigp_senha"
+                               class="col-6 row-cols-6" autocomplete="current-password" required>
+                    </div>
+
+                    <div class="col-12 row-cols-12">
+                        <button type="submit" class="btn_analisar" id="processar">
+                            <i class="fa-solid fa-right-to-bracket"><br>Entrar</i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md"></div>
+            <div class="col-md"></div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
